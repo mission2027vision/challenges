@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>🐢 ShellBank: 아기 거북이 구조대</title>
+    <!-- 귀여운 폰트 적용 (구글 둥근고딕) -->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Jua&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Jua', sans-serif; background-color: #e0f7fa; color: #333; overflow: hidden; }
+        #map { width: 100vw; height: 100vh; z-index: 1; }
+        
+        /* 귀여운 메인 대시보드 */
+        .dashboard {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10;
+            background: rgba(255, 255, 255, 0.95); padding: 15px 30px; border-radius: 30px;
+            box-shadow: 0 8px 25px rgba(0,188,212,0.3); border: 4px dashed #00bcd4;
+            text-align: center; width: auto; min-width: 350px;
+        }
+        .dashboard h1 { font-size: 28px; margin: 0 0 10px 0; color: #0097a7; letter-spacing: 1px; }
+        .score-board { font-size: 20px; color: #ff9800; }
+        .score-board span { font-size: 26px; font-weight: bold; color: #e91e63; }
+
+        /* 거북이 둥둥 애니메이션 */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .cute-turtle {
+            font-size: 45px;
+            animation: float 2s ease-in-out infinite;
+            cursor: pointer;
+            filter: drop-shadow(2px 5px 4px rgba(0,0,0,0.3));
+        }
+
+        /* 팝업 말풍선 스타일링 (귀엽게) */
+        .leaflet-popup-content-wrapper {
+            background: #fff9c4; border-radius: 20px; border: 3px solid #ffb300;
+            font-family: 'Jua', sans-serif; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .leaflet-popup-tip { background: #fff9c4; border: 1px solid #ffb300; }
+        .popup-title { font-size: 18px; color: #d84315; margin-bottom: 5px; border-bottom: 2px dashed #ffb300; padding-bottom: 5px; }
+        .popup-desc { font-size: 16px; color: #555; line-height: 1.4; }
+        .highlight { color: #e91e63; font-weight: bold; font-size: 18px; }
+
+        /* 하단 퀴즈 패널 */
+        .quiz-panel {
+            position: absolute; bottom: -400px; left: 50%; transform: translateX(-50%); z-index: 20;
+            background: white; padding: 25px; border-radius: 25px 25px 0 0; width: 500px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.2); text-align: center; border: 5px solid #00bcd4;
+            border-bottom: none; transition: bottom 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .quiz-panel.active { bottom: 0; }
+        .quiz-question { font-size: 22px; color: #00838f; margin-bottom: 15px; }
+        .quiz-btn {
+            display: inline-block; width: 100%; background: #e0f7fa; border: 2px solid #00bcd4;
+            padding: 12px; margin-bottom: 10px; border-radius: 15px; cursor: pointer; font-size: 18px;
+            font-family: 'Jua', sans-serif; color: #006064; transition: 0.2s;
+        }
+        .quiz-btn:hover { background: #b2ebf2; transform: scale(1.02); }
+        .close-btn { margin-top: 10px; font-size: 14px; color: #999; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- 상단 대시보드 -->
+    <div class="dashboard">
+        <h1>🐢 아기 거북이의 고향을 찾아줘!</h1>
+        <div class="score-board">구출한 거북이: <span id="score">0</span> / 4 마리 🌟</div>
+    </div>
+
+    <!-- 하단 퀴즈 패널 -->
+    <div class="quiz-panel" id="quiz-panel">
+        <div class="quiz-question" id="quiz-q">여기에 퀴즈가 나옵니다!</div>
+        <div id="quiz-options"></div>
+        <div class="close-btn" onclick="closeQuiz()">다시 바다로 돌아가기 🌊</div>
+    </div>
+
+    <!-- 지도 컨테이너 -->
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 1. 지도 초기화 (밝고 예쁜 테마)
+        const map = L.map('map', { zoomControl: false }).setView([15.0, 140.0], 3);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: 'Map tiles &copy; CARTO'
+        }).addTo(map);
+
+        let solvedCount = 0;
+        let currentActiveId = null;
+
+        // 2. 캐릭터 대사 및 퀴즈 데이터 (리포트 팩트 기반)
+        const turtleData = [
+            {
+                id: "indonesia", lat: -4.5, lng: 112.0, name: "🇮🇩 자바해 꼬마 거북",
+                dialogue: "안녕! 우리 가족은 자바해에 살아! 과학자 아저씨들이 와서 우리가 알을 낳는 <span class='highlight'>새로운 해변을 무려 9곳</span>이나 찾아냈어! 게다가 새로운 유전자 가족도 5그룹이나 발견했다구!", //[cite: 2]
+                quiz: "방금 꼬마 거북이가 말한 '새롭게 발견된 해변'은 총 몇 곳일까?",
+                opts: ["5곳", "7곳", "9곳"], ans: 2, completed: false
+            },
+            {
+                id: "png", lat: -9.5, lng: 147.1, name: "🇵🇬 파푸아뉴기니 엄마 거북",
+                dialogue: "반가워요! 나와 내 친구들 <span class='highlight'>75마리</span>의 등딱지에 위성 추적기를 달았죠. 우리는 밥을 먹으러 저 멀리 <span class='highlight'>호주 동부</span>까지 엄청난 여행을 한답니다!", //[cite: 2]
+                quiz: "파푸아뉴기니 거북이들이 헤엄쳐서 밥을 먹으러 가는 연결된 서식지는 어디일까?",
+                opts: ["호주 동부", "아프리카 서부", "알래스카"], ans: 0, completed: false
+            },
+            {
+                id: "hongkong", lat: 22.3, lng: 114.1, name: "🇭🇰 홍콩 탐정 거북",
+                dialogue: "쉿! 수사 중이야. 이 항구에서 지난 30년 동안 밀수꾼들에게 뺏긴 내 친구들 등껍질 <span class='highlight'>200개</span>의 DNA를 검사하고 있어. 꼼짝 마라!", //[cite: 2]
+                quiz: "홍콩 세관에서 30년간 압수하여 DNA 분석 중인 샘플은 몇 개일까?",
+                opts: ["100개", "150개", "200개"], ans: 2, completed: false
+            },
+            {
+                id: "colombia", lat: 11.0, lng: -74.8, name: "🇨🇴 콜롬비아 카리브 거북",
+                dialogue: "훌쩍.. 영국에서 압수된 <span class='highlight'>58개</span>의 등껍질 조각을 ShellBank에서 검사했어. 그랬더니 글쎄, 우리 고향인 <span class='highlight'>콜롬비아 카리브해 연안</span>에서 잡혀간 친구들이었어..", //[cite: 2]
+                quiz: "영국에서 압수된 불법 등껍질들의 고향(원산지)으로 밝혀진 곳은 어디일까?",
+                opts: ["지중해 연안", "콜롬비아 카리브해 연안", "태평양 한가운데"], ans: 1, completed: false
+            }
+        ];
+
+        // 3. 지도에 거북이 캐릭터(마커) 배치
+        const markers = {};
+        turtleData.forEach(data => {
+            const icon = L.divIcon({ className: 'cute-turtle', html: '🐢', iconSize: [50, 50], iconAnchor: [25, 25] });
+            const marker = L.marker([data.lat, data.lng], { icon: icon }).addTo(map);
+            markers[data.id] = marker;
+
+            // 말풍선(Popup) 설정
+            const popupContent = `
+                <div class="popup-title">${data.name}</div>
+                <div class="popup-desc">"${data.dialogue}"<br><br>
+                <button onclick="openQuiz('${data.id}')" style="background:#ff9800; color:white; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; font-family:'Jua'; font-size:16px;">미션 풀고 구출하기 🚀</button></div>
+            `;
+            marker.bindPopup(popupContent, { offset: [0, -10] });
+        });
+
+        // 4. 퀴즈 패널 열기
+        window.openQuiz = function(id) {
+            currentActiveId = id;
+            const data = turtleData.find(t => t.id === id);
+            
+            if(data.completed) {
+                alert("이 거북이는 이미 안전하게 구출되었어요! 💖");
+                return;
+            }
+
+            document.getElementById('quiz-q').innerText = data.quiz;
+            const optionsDiv = document.getElementById('quiz-options');
+            optionsDiv.innerHTML = '';
+            
+            data.opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx, data.ans);
+                optionsDiv.appendChild(btn);
+            });
+
+            document.getElementById('quiz-panel').classList.add('active');
+            map.closePopup();
+        };
+
+        // 5. 정답 체크 및 보상
+        window.checkAnswer = function(selected, correct) {
+            if (selected === correct) {
+                const data = turtleData.find(t => t.id === currentActiveId);
+                data.completed = true;
+                solvedCount++;
+                document.getElementById('score').innerText = solvedCount;
+                
+                // 마커 하트 아이콘으로 변경
+                const heartIcon = L.divIcon({ className: 'cute-turtle', html: '💖', iconSize: [50, 50], iconAnchor: [25, 25] });
+                markers[currentActiveId].setIcon(heartIcon);
+                
+                closeQuiz();
+                
+                setTimeout(() => {
+                    if(solvedCount === 4) {
+                        alert("🎉 대단해요! 모든 거북이를 구출하고 바다의 평화를 지켰어요! 당신은 최고의 Rangers 입니다! 🐢💖");
+                    } else {
+                        alert("정답이에요! 아기 거북이가 무사히 바다로 돌아갔어요! 🌊");
+                    }
+                }, 300);
+            } else {
+                alert("앗, 틀렸어요! 거북이가 해준 이야기를 다시 한번 자세히 들어볼까요? 🧐");
+            }
+        };
+
+        window.closeQuiz = function() {
+            document.getElementById('quiz-panel').classList.remove('active');
+        };
+    </script>
+</body>
+</html>
