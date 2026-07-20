@@ -1,1 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>WWF Rangers 2 | Follow the Trace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root {
+      --deep-bg: #9ecbca;
+      --panel-bg: #093740;
+      --card-bg: #0c4a56;
+      --highlight: #30c9c5;
+      --accent: #ffd05a;
+      --text-main: #ffffff;
+      --text-sub: #bce7e5;
+    }
+    * { box-sizing: border-box; }
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Gowun Dodum", sans-serif; overflow: hidden; background: var(--deep-bg); }
+    
+    /* Map styling */
+    #map { position: absolute; inset: 0; z-index: 1; background: var(--deep-bg); }
+    .leaflet-container { font-family: inherit; }
+    
+    /* Top Header */
+    .top-hud {
+      position: absolute; top: 20px; left: 20px; right: 20px; z-index: 500;
+      display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px; background: var(--panel-bg); color: var(--text-main);
+      padding: 10px 20px 10px 10px; border-radius: 99px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); pointer-events: auto;
+    }
+    .brand-icon {
+      width: 44px; height: 44px; background: linear-gradient(135deg, var(--highlight), var(--accent));
+      border-radius: 50%; display: grid; place-items: center; font-size: 24px;
+    }
+    .brand-text small { display: block; font-size: 10px; letter-spacing: 0.1em; color: var(--text-sub); font-weight: bold; }
+    .brand-text strong { font-family: "Jua", sans-serif; font-size: 20px; font-weight: normal; letter-spacing: 0.05em; }
+    
+    .status-card {
+      display: flex; gap: 15px; pointer-events: auto;
+    }
+    .status-badge {
+      display: flex; align-items: center; gap: 12px; background: #ffffff; padding: 8px 20px 8px 8px;
+      border-radius: 99px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .progress-circle {
+      width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+      background: conic-gradient(#ff765f 100%, #ffe4df 0); font-family: "Jua"; font-size: 18px; color: #ff765f;
+      border: 3px solid #ffe4df;
+    }
+    .status-text strong { display: block; font-size: 15px; color: #082a45; font-family: "Jua"; }
+    .status-text small { font-size: 11px; color: #5e7478; }
+    
+    .icon-btn {
+      width: 46px; height: 46px; border-radius: 14px; background: #ffffff; border: none;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-size: 22px; cursor: pointer; transition: transform 0.2s;
+    }
+    .icon-btn:hover { transform: translateY(-3px); }
 
+    /* Left Dock - Mission Hub */
+    .mission-dock {
+      position: absolute; top: 90px; left: 20px; bottom: 20px; width: 340px;
+      background: var(--panel-bg); border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      display: flex; flex-direction: column; z-index: 500; overflow: hidden;
+      color: var(--text-main);
+    }
+    .dock-header { padding: 25px 20px 15px; }
+    .dock-header small { font-size: 10px; color: var(--highlight); font-weight: bold; letter-spacing: 0.1em; }
+    .dock-header h2 { font-family: "Jua"; font-size: 24px; margin: 5px 0 8px; font-weight: normal; }
+    .dock-header p { font-size: 12px; color: var(--text-sub); margin: 0; line-height: 1.5; }
+    
+    .journey-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+    .journey-item {
+      display: flex; align-items: center; gap: 12px; background: var(--card-bg);
+      padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);
+    }
+    .journey-item.done { border-color: var(--highlight); }
+    .journey-item.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(255,208,90,0.2); }
+    .journey-icon {
+      width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+      background: rgba(255,255,255,0.1); font-family: "Jua"; font-size: 14px;
+    }
+    .done .journey-icon { background: var(--highlight); color: var(--panel-bg); }
+    .journey-text { flex: 1; }
+    .journey-text strong { display: block; font-size: 14px; margin-bottom: 3px; }
+    .journey-text small { font-size: 11px; color: var(--text-sub); }
+    .journey-badge { font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+    .done .journey-badge { background: var(--highlight); color: var(--panel-bg); }
+
+    .case-section { margin-top: auto; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .case-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: var(--highlight); margin-bottom: 15px; }
+    .case-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .case-btn {
+      aspect-ratio: 2/1; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);
+      color: white; font-family: "Jua"; cursor: pointer; transition: 0.2s; display: grid; place-items: center;
+    }
+    .case-btn:hover { background: rgba(255,255,255,0.15); }
+    .case-btn.active { border-color: var(--accent); background: rgba(255,208,90,0.15); color: var(--accent); }
+    .case-btn.solved { background: var(--highlight); border-color: var(--highlight); color: var(--panel-bg); }
+
+    /* Right Panel - Quiz Details */
+    .side-panel {
+      position: absolute; top: 90px; right: 20px; bottom: 20px; width: 400px;
+      background: #ffffff; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      z-index: 500; display: flex; flex-direction: column; overflow: hidden;
+      transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .side-panel.open { transform: translateX(0); }
+    
+    .panel-hero { background: var(--panel-bg); color: white; padding: 30px 25px 25px; position: relative; }
+    .close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; }
+    .panel-hero small { font-size: 11px; letter-spacing: 0.1em; color: var(--highlight); font-weight: bold; }
+    .panel-hero h2 { font-family: "Jua"; font-size: 26px; margin: 8px 0; font-weight: normal; }
+    .panel-hero p { font-size: 13px; color: var(--text-sub); margin: 0; }
+    
+    .panel-body { flex: 1; padding: 25px; overflow-y: auto; color: #17343a; }
+    .story-text { font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+    
+    .quiz-section { border-top: 2px dashed #e2f0ee; padding-top: 20px; }
+    .quiz-label { font-size: 11px; font-weight: bold; color: #ff765f; letter-spacing: 0.1em; }
+    .quiz-question { font-size: 16px; font-weight: bold; margin: 10px 0 20px; line-height: 1.4; }
+    
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn {
+      padding: 14px; text-align: left; background: #f8fbfb; border: 2px solid #e2f0ee;
+      border-radius: 12px; cursor: pointer; font-size: 14px; transition: 0.2s;
+      display: flex; gap: 10px; align-items: center; color: #17343a;
+    }
+    .option-btn:hover:not(:disabled) { border-color: var(--highlight); background: #f0fafa; }
+    .option-btn.correct { border-color: #22b99a; background: #e8fff6; font-weight: bold; color: #086c51; }
+    .option-btn.wrong { border-color: #ff765f; background: #fff0ec; color: #9f3526; opacity: 0.7; }
+    .option-btn:disabled { cursor: default; }
+
+    .feedback { margin-top: 15px; padding: 15px; border-radius: 12px; font-size: 13px; line-height: 1.5; display: none; }
+    .feedback.show { display: block; }
+    .feedback.success { background: #e8fff6; color: #086c51; border: 1px solid #22b99a; }
+    .feedback.error { background: #fff0ec; color: #9f3526; border: 1px solid #ff765f; }
+
+    /* Map Markers */
+    .custom-marker {
+      width: 36px; height: 36px; background: var(--card-bg); border: 3px solid white;
+      border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: grid; place-items: center;
+      color: white; font-family: "Jua"; font-size: 16px; cursor: pointer; transition: 0.3s;
+    }
+    .custom-marker.solved { background: var(--highlight); }
+    .custom-marker.active { transform: scale(1.2); border-color: var(--accent); z-index: 1000 !important; }
+
+  </style>
+</head>
+<body>
+
+  <!-- Map Container -->
+  <div id="map"></div>
+
+  <!-- Top HUD -->
+  <header class="top-hud">
+    <div class="brand">
+      <div class="brand-icon">🐢</div>
+      <div class="brand-text">
+        <small>WWF RANGERS 2 × SHELLBANK</small>
+        <strong>FOLLOW THE TRACE</strong>
+      </div>
+    </div>
+    
+    <div class="status-card">
+      <div class="status-badge">
+        <div class="progress-circle" id="total-progress">0/8</div>
+        <div class="status-text">
+          <strong>ShellBank Ranger</strong>
+          <small>세 번째 미션을 해결하세요</small>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Left Dock -->
+  <aside class="mission-dock">
+    <div class="dock-header">
+      <small>ONE LINK · THREE DROPS</small>
+      <h2>Rangers Mission Hub</h2>
+      <p>1년 동안 세 번 도착하는 미션을 한곳에서 확인하세요.</p>
+    </div>
+    
+    <div class="journey-list">
+      <div class="journey-item done">
+        <div class="journey-icon">✓</div>
+        <div class="journey-text"><strong>TRACE 나의 흔적 찾기</strong><small>Ranger ID와 220개의 거북이 흔적</small></div>
+        <div class="journey-badge">DONE</div>
+      </div>
+      <div class="journey-item done">
+        <div class="journey-icon">✓</div>
+        <div class="journey-text"><strong>ACT Ocean Action</strong><small>행동 하나를 선택하고 스탬프 획득</small></div>
+        <div class="journey-badge">DONE</div>
+      </div>
+      <div class="journey-item active">
+        <div class="journey-icon">3</div>
+        <div class="journey-text"><strong>INVESTIGATE DNA 사건 수사</strong><small>ShellBank 세계지도 퀴즈 8개</small></div>
+        <div class="journey-badge" style="color:var(--accent); background:transparent;">IN PROGRESS</div>
+      </div>
+    </div>
+
+    <div class="case-section">
+      <div class="case-header"><span>MISSION 03 · CASE FILES</span> <span id="case-count">0/8</span></div>
+      <div class="case-grid" id="case-grid">
+        <!-- Buttons injected by JS -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right Panel (Quiz) -->
+  <section class="side-panel" id="quiz-panel">
+    <div class="panel-hero">
+      <button class="close-btn" onclick="closePanel()">✕</button>
+      <small id="q-number">MISSION 03 · CASE 01</small>
+      <h2 id="q-title">DNA 추적 실험실</h2>
+      <p id="q-location">호주 · 글로벌 과학 네트워크</p>
+    </div>
+    <div class="panel-body">
+      <div class="story-text" id="q-story">스토리 텍스트...</div>
+      
+      <div class="quiz-section">
+        <div class="quiz-label">DATA CHECK</div>
+        <div class="quiz-question" id="q-question">질문 텍스트...</div>
+        <div class="options" id="q-options">
+          <!-- Options injected by JS -->
+        </div>
+        <div class="feedback" id="q-feedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Leaflet & App Logic -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // 1. Data based on ShellBank Report
+    const cases = [
+      {
+        id: 1, lat: 46.8, lng: 8.2, // Switzerland HQ representation
+        title: "글로벌 DNA 추적의 시작", location: "세계 최초 바다거북 글로벌 데이터베이스",
+        story: "ShellBank는 바다거북의 불법 거래와 혼획 등을 파악하기 위해 구축된 DNA 추적 툴킷입니다. 1990년 이후 엄청난 수의 바다거북이 불법적으로 착취당해 개체수가 급감하고 있습니다.",
+        question: "1990년 이후 전 세계적으로 불법 착취된 바다거북은 최소 몇 마리 이상으로 추정될까요?",
+        options: ["11만 마리", "110만 마리", "1,100만 마리"], answer: 1,
+        exp: "정답입니다! 1990년 이후 최소 110만 마리 이상이 불법 착취된 것으로 추정되며, 이를 막기 위해 정확한 기원 추적이 필요합니다."
+      },
+      {
+        id: 2, lat: 25.0, lng: -70.0, // Atlantic mapping
+        title: "온라인 데이터베이스 출범", location: "글로벌 오픈 액세스",
+        story: "연구자들만의 전유물이 아닙니다. 누구나 해양, 산란, 거래 유전 데이터를 확인할 수 있도록 ShellBank 온라인 데이터베이스가 공식적으로 대중에게 오픈되었습니다.",
+        question: "ShellBank 온라인 데이터베이스가 전 세계 누구나 접근할 수 있도록 공개된 연도는 언제일까요?",
+        options: ["2022년", "2023년", "2024년"], answer: 2,
+        exp: "정답입니다! 2024년 6월 16일 '세계 바다거북의 날'을 맞아 성공적으로 런칭되었습니다."
+      },
+      {
+        id: 3, lat: -4.5, lng: 110.0, // Java Sea
+        title: "자바해 유전 보물찾기", location: "인도네시아 · 자바해",
+        story: "인도네시아 자바해 주변에서 진행된 대모거북 유전 연구를 통해 새로운 산란 해변 9곳이 발견되었고, 이전에는 몰랐던 새로운 유전 집단(Genetic stocks)이 식별되어 데이터의 큰 공백을 메웠습니다.",
+        question: "이 연구를 통해 새롭게 발견되어 구별된 대모거북의 새로운 유전 집단은 몇 개일까요?",
+        options: ["5개", "9개", "14개"], answer: 0,
+        exp: "정답입니다! 9개의 산란 해변에서 5개의 완전히 새로운 유전 집단이 식별되었습니다."
+      },
+      {
+        id: 4, lat: 15.0, lng: -75.0, // Caribbean Sea / Colombia origin
+        title: "영국 국경 압수품 수사", location: "영국 ➔ 카리브해 (콜롬비아)",
+        story: "영국 국경에서 대모거북 등딱지 58점이 압수되었습니다. 그 중 48점에서 DNA를 추출해 분석한 결과, 주 기원지가 중남미 지역의 해안으로 밝혀졌습니다.",
+        question: "영국의 대모거북 압수품 DNA 수사 결과, 가장 유력한 기원지로 밝혀진 지역은 어디일까요?",
+        options: ["호주 동부 해안", "인도네시아 자바해", "콜롬비아 카리브해 연안"], answer: 2,
+        exp: "정답입니다! 혼합 개체군 분석 결과 주요 기원지가 카리브해 콜롬비아와 토바고 주변으로 확인되었습니다."
+      },
+      {
+        id: 5, lat: -9.0, lng: 147.0, // Papua New Guinea
+        title: "파푸아뉴기니 이동 추적", location: "파푸아뉴기니 · Conflict Group",
+        story: "파푸아뉴기니의 두 산란지에서 75마리의 암컷 유전자를 분석했습니다. 이와 동시에 일부 개체에는 첨단 기기를 부착하여 호주 동부까지 이어지는 국경 간 이동 경로를 직접 확인했습니다.",
+        question: "유전자 분석과 병행하여 거북의 실제 이동 경로를 지도에 그리기 위해 위성 추적 장치를 부착한 거북은 몇 마리일까요?",
+        options: ["15마리", "48마리", "75마리"], answer: 0,
+        exp: "정답입니다! 75마리의 DNA를 분석하고, 15마리의 거북에게 위성 추적 장치를 달아 서식지 연결성을 명확히 입증했습니다."
+      },
+      {
+        id: 6, lat: 22.3, lng: 114.1, // Hong Kong
+        title: "홍콩 30년 거래망 추적", location: "홍콩 · 글로벌 무역항",
+        story: "홍콩대학교 연구진은 과거 수십 년간 항구에서 압수되어 보관 중이던 과거의 대모거북 제품 샘플들을 꺼내 불법 야생동물 거래 네트워크의 근원지를 추적하고 있습니다.",
+        question: "이 연구를 위해 지난 30여 년간 수집되어 분석 대상이 된 대모거북 압수품 샘플의 수는 약 몇 점일까요?",
+        options: ["58점", "120점", "200점"], answer: 2,
+        exp: "정답입니다! 약 200점의 샘플 분석을 통해 아시아 전역의 불법 거래망 기원을 파악할 예정입니다."
+      },
+      {
+        id: 7, lat: -15.0, lng: 175.0, // Western Pacific (Fiji, Tonga, Solomon)
+        title: "서태평양 500+ 대규모 연구", location: "솔로몬제도, PNG, 피지, 통가",
+        story: "서태평양 4개국에서 포획된 거북들이 어느 산란지 출신인지 확인하는 대규모 연구가 진행 중입니다. 이를 통해 지역 주민들의 수확이 해양 생태계에 미치는 영향을 평가합니다.",
+        question: "500마리 이상의 대규모 포획 거북 유전자 분석 연구가 진행 중인 서태평양 대상 국가가 아닌 곳은?",
+        options: ["파푸아뉴기니 (PNG)", "자바해 (인도네시아)", "피지 및 통가"], answer: 1,
+        exp: "정답입니다! 해당 대규모 연구는 서태평양의 솔로몬제도, 파푸아뉴기니, 피지, 통가를 대상으로 합니다. 자바해는 별개의 지역입니다."
+      },
+      {
+        id: 8, lat: 0.0, lng: 15.0, // Global Center
+        title: "글로벌 데이터베이스의 규모", location: "ShellBank 전체 데이터",
+        story: "현재 ShellBank에는 28개국 293개 지역에서 수집된 15,000건 이상의 개체 DNA 데이터가 모여 있습니다. 대표적으로 푸른바다거북과 대모거북의 유전 집단 데이터가 축적되어 있습니다.",
+        question: "현재 ShellBank에 등록된 푸른바다거북(56개)과 대모거북(47개)의 유전 집단(Genetic Stocks) 수를 합치면 모두 몇 개일까요?",
+        options: ["85개", "103개", "293개"], answer: 1,
+        exp: "정답입니다! 56 + 47 = 103개의 유전 집단이 세밀하게 식별되어 개체군 관리에 활용되고 있습니다."
+      }
+    ];
+
+    let solvedCases = new Set();
+    let activeCaseId = null;
+    let markers = {};
+
+    // 2. Leaflet Map Setup
+    // 지도가 무한 반복(갈라짐)되지 않도록 경계(bounds)와 noWrap 설정 적용
+    const bounds = [[-85, -180], [85, 180]];
+    const map = L.map('map', {
+      maxBounds: bounds,
+      maxBoundsViscosity: 1.0,
+      worldCopyJump: false,
+      minZoom: 2,
+      maxZoom: 7,
+      zoomControl: false // UI 가림 방지를 위해 줌 컨트롤 제거
+    }).setView([20, 100], 2.5);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      noWrap: true,
+      bounds: bounds
+    }).addTo(map);
+
+    // 3. Render UI
+    function initUI() {
+      const grid = document.getElementById('case-grid');
+      cases.forEach((c) => {
+        // Create left dock buttons
+        const btn = document.createElement('div');
+        btn.className = 'case-btn';
+        btn.id = `btn-${c.id}`;
+        btn.innerText = c.id;
+        btn.onclick = () => openCase(c.id);
+        grid.appendChild(btn);
+
+        // Create map markers
+        const icon = L.divIcon({
+          className: 'custom-icon',
+          html: `<div class="custom-marker" id="marker-${c.id}">${c.id}</div>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18]
+        });
+        const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(map);
+        marker.on('click', () => openCase(c.id));
+        markers[c.id] = marker;
+      });
+      updateProgress();
+    }
+
+    function openCase(id) {
+      activeCaseId = id;
+      const c = cases.find(x => x.id === id);
+      
+      // Update UI Highlights
+      document.querySelectorAll('.case-btn').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.custom-marker').forEach(el => el.classList.remove('active'));
+      document.getElementById(`btn-${id}`).classList.add('active');
+      document.getElementById(`marker-${id}`).classList.add('active');
+      
+      // Fly to map point
+      map.flyTo([c.lat, c.lng], 4, { duration: 1.5 });
+
+      // Populate Right Panel
+      document.getElementById('q-number').innerText = `MISSION 03 · CASE 0${id}`;
+      document.getElementById('q-title').innerText = c.title;
+      document.getElementById('q-location').innerText = c.location;
+      document.getElementById('q-story').innerText = c.story;
+      document.getElementById('q-question').innerText = c.question;
+      
+      const optContainer = document.getElementById('q-options');
+      optContainer.innerHTML = '';
+      
+      const isSolved = solvedCases.has(id);
+      
+      c.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = `<span>${String.fromCharCode(65+index)}.</span> ${opt}`;
+        
+        if(isSolved) {
+          btn.disabled = true;
+          if(index === c.answer) btn.classList.add('correct');
+        } else {
+          btn.onclick = () => checkAnswer(id, index, btn);
+        }
+        optContainer.appendChild(btn);
+      });
+
+      const feedback = document.getElementById('q-feedback');
+      if(isSolved) {
+        feedback.innerText = `✅ ${c.exp}`;
+        feedback.className = 'feedback show success';
+      } else {
+        feedback.className = 'feedback';
+      }
+
+      // Open Panel
+      document.getElementById('quiz-panel').classList.add('open');
+    }
+
+    function closePanel() {
+      document.getElementById('quiz-panel').classList.remove('open');
+      document.querySelectorAll('.case-btn').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.custom-marker').forEach(el => el.classList.remove('active'));
+      activeCaseId = null;
+      map.setView([20, 100], 2.5, { duration: 1.5 });
+    }
+
+    function checkAnswer(caseId, selectedIndex, btnEl) {
+      const c = cases.find(x => x.id === caseId);
+      const feedback = document.getElementById('q-feedback');
+      const allBtns = document.getElementById('q-options').querySelectorAll('.option-btn');
+      
+      if(selectedIndex === c.answer) {
+        btnEl.classList.add('correct');
+        solvedCases.add(caseId);
+        
+        feedback.innerText = `✅ ${c.exp}`;
+        feedback.className = 'feedback show success';
+        
+        // Update dock and marker
+        document.getElementById(`btn-${caseId}`).classList.add('solved');
+        document.getElementById(`marker-${caseId}`).classList.add('solved');
+        document.getElementById(`marker-${caseId}`).innerHTML = '✓';
+        
+        allBtns.forEach(b => b.disabled = true);
+        updateProgress();
+      } else {
+        btnEl.classList.add('wrong');
+        feedback.innerText = '❌ 데이터 수치를 다시 한번 신중하게 확인해 보세요.';
+        feedback.className = 'feedback show error';
+      }
+    }
+
+    function updateProgress() {
+      const count = solvedCases.size;
+      document.getElementById('case-count').innerText = `${count}/8`;
+      document.getElementById('total-progress').innerText = `${count}/8`;
+      
+      const conicProgress = (count / 8) * 100;
+      document.querySelector('.progress-circle').style.background = `conic-gradient(#ff765f ${conicProgress}%, #ffe4df 0)`;
+      
+      if(count === 8) {
+        setTimeout(() => {
+          alert('축하합니다! 8개의 DNA 사건 파일 수사를 모두 완료하여 최종 인증 요건을 달성했습니다.');
+        }, 500);
+      }
+    }
+
+    // Run Initialization
+    window.onload = initUI;
+  </script>
+</body>
+</html>
