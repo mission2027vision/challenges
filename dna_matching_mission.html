@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShellBank 미션: DNA 매칭</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --abyss: #0b1d2e;
+    --abyss-2: #123449;
+    --teal: #1a8b9d;
+    --cyan: #4ecdc4;
+    --coral: #ff6b6b;
+    --gold: #f4a94e;
+    --success: #35c98c;
+    --paper: #f6f4ee;
+    --ink: #142433;
+    --muted: #9fb3bd;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 20% 20%, #123449 0%, #0b1d2e 60%);
+    font-family: 'Noto Sans KR', sans-serif; color: var(--paper); padding: 24px;
+  }
+  .card {
+    width: 100%; max-width: 420px; background: rgba(18, 52, 73, 0.75); backdrop-filter: blur(6px);
+    border-radius: 20px; padding: 22px; border: 1px solid rgba(78,205,196,0.25);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+  .top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.5px; }
+  .progress { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--cyan); }
+  h1 { font-family: 'Fraunces', serif; font-size: 19px; margin: 4px 0 12px; }
+  .brief {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+    padding: 12px 14px; font-size: 13px; line-height: 1.6; color: #d6e6e4; margin-bottom: 18px;
+  }
+  .label { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+  .fragments { display: flex; gap: 8px; margin-bottom: 18px; }
+  .frag-btn {
+    flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; padding: 12px 0;
+    border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.04);
+    color: var(--paper); cursor: pointer; transition: all .15s;
+  }
+  .frag-btn:hover:not(:disabled) { border-color: var(--cyan); }
+  .frag-btn.selected { border-color: var(--coral); color: var(--coral); background: rgba(255,107,107,0.08); }
+  .frag-btn.done { border-color: var(--success); color: var(--success); background: rgba(53,201,140,0.1); cursor: default; }
+  .databases { display: flex; flex-direction: column; gap: 8px; }
+  .db-row {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); cursor: pointer;
+    transition: all .15s; text-align: left; color: var(--paper); font-family: inherit;
+  }
+  .db-row:hover { border-color: var(--teal); }
+  .db-row.done { border-color: var(--success); background: rgba(53,201,140,0.1); cursor: default; }
+  .db-icon { font-size: 20px; flex-shrink: 0; }
+  .db-name { font-size: 14px; font-weight: 700; margin: 0; }
+  .db-desc { font-size: 12px; color: var(--muted); margin: 2px 0 0; }
+  .db-check { margin-left: auto; color: var(--success); font-size: 18px; }
+  .feedback { min-height: 20px; margin-top: 14px; font-size: 13px; font-weight: 700; text-align: center; }
+  .feedback.ok { color: var(--success); }
+  .feedback.bad { color: var(--coral); }
+  .reset-btn {
+    width: 100%; margin-top: 12px; padding: 11px 0; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.15);
+    background: transparent; color: var(--paper); font-size: 13px; font-family: inherit; cursor: pointer;
+  }
+  .reset-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-row">
+      <span class="eyebrow">1분기 미션 · 산란 해변</span>
+      <span class="progress" id="progress-label">0 / 3 매칭</span>
+    </div>
+    <h1>🧬 DNA 매칭</h1>
+    <div class="brief">홍콩 세관에서 압수된 등껍질에서 DNA 조각 3개를 추출했습니다. 각 조각을 올바른 ShellBank 데이터베이스에 매칭하세요.</div>
+
+    <p class="label">DNA 조각을 선택하세요</p>
+    <div class="fragments" id="fragments"></div>
+
+    <p class="label">일치하는 데이터베이스를 선택하세요</p>
+    <div class="databases" id="databases"></div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="reset-btn" id="reset-btn">↺ 다시 섞기</button>
+  </div>
+
+<script>
+  const FRAGMENTS = [
+    { id: 'f1', label: 'ATCG-04', match: 'trade' },
+    { id: 'f2', label: 'GGTA-12', match: 'nesting' },
+    { id: 'f3', label: 'CATG-07', match: 'inwater' },
+  ];
+  const DATABASES = [
+    { id: 'trade', name: 'Trade DB', desc: '압수·거래 기록 데이터', icon: '🏪' },
+    { id: 'nesting', name: 'Nesting DB', desc: '산란지 유전자 기록', icon: '🥚' },
+    { id: 'inwater', name: 'In-water DB', desc: '서식 개체군 기록', icon: '🐠' },
+  ];
+
+  let selectedFragment = null;
+  let matched = {};
+
+  const fragWrap = document.getElementById('fragments');
+  const dbWrap = document.getElementById('databases');
+  const feedback = document.getElementById('feedback');
+  const progressLabel = document.getElementById('progress-label');
+
+  function render() {
+    fragWrap.innerHTML = '';
+    FRAGMENTS.forEach(f => {
+      const done = matched[f.id];
+      const btn = document.createElement('button');
+      btn.className = 'frag-btn' + (done ? ' done' : selectedFragment === f.id ? ' selected' : '');
+      btn.textContent = f.label;
+      btn.disabled = !!done;
+      btn.onclick = () => {
+        if (done) return;
+        selectedFragment = selectedFragment === f.id ? null : f.id;
+        feedback.textContent = '';
+        feedback.className = 'feedback';
+        render();
+      };
+      fragWrap.appendChild(btn);
+    });
+
+    dbWrap.innerHTML = '';
+    DATABASES.forEach(d => {
+      const isDone = Object.values(matched).includes(d.id);
+      const row = document.createElement('button');
+      row.className = 'db-row' + (isDone ? ' done' : '');
+      row.innerHTML =
+        '<span class="db-icon">' + d.icon + '</span>' +
+        '<div><p class="db-name">' + d.name + '</p><p class="db-desc">' + d.desc + '</p></div>' +
+        (isDone ? '<span class="db-check">✓</span>' : '');
+      row.onclick = () => attemptMatch(d.id);
+      dbWrap.appendChild(row);
+    });
+
+    const count = Object.keys(matched).length;
+    progressLabel.textContent = count + ' / 3 매칭';
+    if (count === 3) {
+      feedback.className = 'feedback ok';
+      feedback.textContent = '전 조각 매칭 완료 — Trace Stamp 획득 🏅';
+    }
+  }
+
+  function attemptMatch(dbId) {
+    if (!selectedFragment || matched[selectedFragment]) return;
+    const frag = FRAGMENTS.find(f => f.id === selectedFragment);
+    if (frag.match === dbId) {
+      matched[selectedFragment] = dbId;
+      feedback.className = 'feedback ok';
+      feedback.textContent = frag.label + ' → ' + DATABASES.find(d => d.id === dbId).name + ' 일치';
+    } else {
+      feedback.className = 'feedback bad';
+      feedback.textContent = '불일치. 다른 데이터베이스를 시도해보세요.';
+    }
+    selectedFragment = null;
+    render();
+  }
+
+  document.getElementById('reset-btn').onclick = () => {
+    matched = {};
+    selectedFragment = null;
+    feedback.textContent = '';
+    feedback.className = 'feedback';
+    render();
+  };
+
+  render();
+</script>
+</body>
+</html>
