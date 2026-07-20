@@ -1,189 +1,139 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#062f38">
-  <meta name="description" content="WWF Rangers 2기와 ShellBank가 함께하는 3차 참여 미션 허브">
-  <title>WWF Rangers 2 | Follow the Trace Mission Hub</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynhHQWquRHpZr/Rn95BqzuGHmjgY=" crossorigin>
-  <link rel="stylesheet" href="app.css">
-  
-  <style>
-    /* 지도 깨짐 및 화면 이탈 방지 강제 적용 */
-    #map {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      z-index: 1;
-      background-color: #bce7e5 !important;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#062f38">
+  <meta name="description" content="WWF Rangers 2기와 ShellBank가 함께하는 3차 참여 미션 허브">
+  <title>WWF Rangers 2 | Follow the Trace Mission Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynhHQWquRHpZr/Rn95BqzuGHmjgY=" crossorigin>
+  <link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <a class="sr-only" href="#journey-list">미션 목록으로 건너뛰기</a>
+  <a class="sr-only" href="#journey-list">미션 목록으로 건너뛰기</a>
 
-  <main id="map" aria-label="ShellBank 세계지도와 220명의 레인저 흔적"></main>
+  <main id="map" aria-label="ShellBank 세계지도와 220명의 레인저 흔적"></main>
 
-  <header class="hud" aria-label="레인저스 미션 현황">
-    <button class="brand" id="brand-button" type="button" aria-label="미션 허브 안내 열기">
-      <span class="brand-mark" aria-hidden="true">🐢</span>
-      <span><small>WWF RANGERS 2 × SHELLBANK</small><strong>FOLLOW THE TRACE</strong></span>
-    </button>
+  <header class="hud" aria-label="레인저스 미션 현황">
+    <button class="brand" id="brand-button" type="button" aria-label="미션 허브 안내 열기">
+      <span class="brand-mark" aria-hidden="true"> </span>
+      <span><small>WWF RANGERS 2 × SHELLBANK</small><strong>FOLLOW THE TRACE</strong></span>
+    </button>
 
-    <div class="progress-card" aria-live="polite">
-      <div class="progress-ring" id="progress-ring"><b id="progress-text">0/3</b></div>
-      <div class="progress-copy">
-        <div><strong id="rank-name">새싹 레인저</strong><span id="xp-text">0 XP</span></div>
-        <div class="progress-track"><i id="progress-bar"></i></div>
-        <small id="next-step">첫 번째 흔적을 남겨보세요</small>
-      </div>
-    </div>
+    <div class="progress-card" aria-live="polite">
+      <div class="progress-ring" id="progress-ring"><b id="progress-text">0/3</b></div>
+      <div class="progress-copy">
+        <div><strong id="rank-name">새싹 레인저</strong><span id="xp-text">0 XP</span></div>
+        <div class="progress-track"><i id="progress-bar"></i></div>
+        <small id="next-step">첫 번째 흔적을 남겨보세요</small>
+      </div>
+    </div>
 
-    <nav class="map-tools" aria-label="지도 도구">
-      <button class="icon-btn" id="trace-toggle" type="button" aria-pressed="true" title="220명 흔적 켜기/끄기">🐢</button>
-      <button class="icon-btn" id="fit-world" type="button" title="세계지도 전체 보기">🌐</button>
-      <button class="icon-btn" id="data-button" type="button" title="ShellBank 숫자 보기">📊</button>
-      <button class="icon-btn" id="help-button" type="button" title="이용 안내">?</button>
-    </nav>
-  </header>
+    <nav class="map-tools" aria-label="지도 도구">
+      <button class="icon-btn" id="trace-toggle" type="button" aria-pressed="true" title="220명 흔적 켜기/끄기"> </button>
+      <button class="icon-btn" id="fit-world" type="button" title="세계지도 전체 보기"> </button>
+      <button class="icon-btn" id="data-button" type="button" title="ShellBank 숫자 보기"> </button>
+      <button class="icon-btn" id="help-button" type="button" title="이용 안내">?</button>
+    </nav>
+  </header>
 
-  <aside class="mission-dock" aria-label="Rangers 3차 미션 목록">
-    <div class="dock-head">
-      <div><small>ONE LINK · THREE DROPS</small><h1>Rangers Mission Hub</h1></div>
-      <button class="reset-btn" id="reset-button" type="button" title="진행 초기화" aria-label="진행 초기화">↻</button>
-    </div>
-    <p class="dock-intro">1년 동안 세 번 도착하는 미션을 한곳에서 확인하세요.</p>
-    <div class="journey-list" id="journey-list"></div>
-    <div class="case-section" id="case-section" hidden>
-      <div class="case-head"><span>MISSION 03 · CASE FILES</span><b id="case-progress">0/8</b></div>
-      <div class="case-list" id="case-list"></div>
-    </div>
-  </aside>
+  <aside class="mission-dock" aria-label="Rangers 3차 미션 목록">
+    <div class="dock-head">
+      <div><small>ONE LINK · THREE DROPS</small><h1>Rangers Mission Hub</h1></div>
+      <button class="reset-btn" id="reset-button" type="button" title="진행 초기화" aria-label="진행 초기화">↻</button>
+    </div>
+    <p class="dock-intro">1년 동안 세 번 도착하는 미션을 한곳에서 확인하세요.</p>
+    <div class="journey-list" id="journey-list"></div>
+    <div class="case-section" id="case-section" hidden>
+      <div class="case-head"><span>MISSION 03 · CASE FILES</span><b id="case-progress">0/8</b></div>
+      <div class="case-list" id="case-list"></div>
+    </div>
+  </aside>
 
-  <section class="trace-counter" aria-live="polite">
-    <div class="trace-count"><span aria-hidden="true">🐢</span><b>220</b></div>
-    <div><strong>RANGER TRACES</strong><small id="trace-counter-note">익명 Ranger #001–#220의 흔적</small></div>
-  </section>
+  <section class="trace-counter" aria-live="polite">
+    <div class="trace-count"><span aria-hidden="true"> </span><b>220</b></div>
+    <div><strong>RANGER TRACES</strong><small id="trace-counter-note">익명 Ranger #001–#220의 흔적</small></div>
+  </section>
 
-  <section class="map-legend" aria-label="지도 범례">
-    <span><i class="legend-turtle">🐢</i> 레인저 흔적</span>
-    <span><i class="legend-line trace"></i> 5개 해역 여정</span>
-    <span><i class="legend-pin"></i> ShellBank 사건</span>
-  </section>
+  <section class="map-legend" aria-label="지도 범례">
+    <span><i class="legend-turtle"> </i> 레인저 흔적</span>
+    <span><i class="legend-line trace"></i> 5개 해역 여정</span>
+    <span><i class="legend-pin"></i> ShellBank 사건</span>
+  </section>
 
-  <section class="side-panel" id="mission-panel" aria-live="polite" aria-label="선택한 미션">
-    <div class="panel-hero">
-      <button class="panel-close" id="panel-close" type="button" aria-label="패널 닫기">✕</button>
-      <div class="panel-kicker" id="panel-kicker">MISSION 01</div>
-      <h2 id="panel-title">TRACE MY TURTLE</h2>
-      <p id="panel-subtitle">220명의 흔적 사이에 나의 Turtle ID를 남깁니다.</p>
-    </div>
-    <div class="panel-body" id="panel-body"></div>
-  </section>
+  <section class="side-panel" id="mission-panel" aria-live="polite" aria-label="선택한 미션">
+    <div class="panel-hero">
+      <button class="panel-close" id="panel-close" type="button" aria-label="패널 닫기">✕</button>
+      <div class="panel-kicker" id="panel-kicker">MISSION 01</div>
+      <h2 id="panel-title">TRACE MY TURTLE</h2>
+      <p id="panel-subtitle">220명의 흔적 사이에 나의 Turtle ID를 남깁니다.</p>
+    </div>
+    <div class="panel-body" id="panel-body"></div>
+  </section>
 
-  <div class="modal-backdrop open" id="intro-backdrop" role="dialog" aria-modal="true" aria-labelledby="intro-title">
-    <div class="modal intro-modal">
-      <button class="modal-close" data-close="intro-backdrop" type="button" aria-label="안내 닫기">✕</button>
-      <div class="intro-hero">
-        <span class="intro-badge">WWF RANGERS 2 · MISSION HUB</span>
-        <h2 id="intro-title">한 링크에서 이어지는<br><em>세 번의 바다거북 미션</em></h2>
-        <p>220명의 레인저가 남긴 흔적을 발견하고, 바다를 위한 행동을 선택한 뒤, ShellBank DNA 사건을 해결하세요.</p>
-        <span class="floating-turtle" aria-hidden="true">🐢</span>
-      </div>
-      <div class="intro-content">
-        <div class="intro-missions">
-          <article><b>01 · TRACE</b><strong>나의 흔적 찾기</strong><span>Ranger ID와 220개의 거북이 흔적</span></article>
-          <article><b>02 · ACT</b><strong>행동 챌린지</strong><span>하나의 약속, 하나의 Action Stamp</span></article>
-          <article><b>03 · INVESTIGATE</b><strong>DNA 사건 수사</strong><span>ShellBank 세계지도 퀴즈 8개</span></article>
-        </div>
-        <div class="intro-actions">
-          <button class="secondary-btn" id="jump-quiz" type="button">3차 퀴즈 미리보기</button>
-          <button class="primary-btn" id="start-button" type="button">220명의 흔적부터 보기 →</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="modal-backdrop open" id="intro-backdrop" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+    <div class="modal intro-modal">
+      <button class="modal-close" data-close="intro-backdrop" type="button" aria-label="안내 닫기">✕</button>
+      <div class="intro-hero">
+        <span class="intro-badge">WWF RANGERS 2 · MISSION HUB</span>
+        <h2 id="intro-title">한 링크에서 이어지는<br><em>세 번의 바다거북 미션</em></h2>
+        <p>220명의 레인저가 남긴 흔적을 발견하고, 바다를 위한 행동을 선택한 뒤, ShellBank DNA 사건을 해결하세요.</p>
+        <span class="floating-turtle" aria-hidden="true"> </span>
+      </div>
+      <div class="intro-content">
+        <div class="intro-missions">
+          <article><b>01 · TRACE</b><strong>나의 흔적 찾기</strong><span>Ranger ID와 220개의 거북이 흔적</span></article>
+          <article><b>02 · ACT</b><strong>행동 챌린지</strong><span>하나의 약속, 하나의 Action Stamp</span></article>
+          <article><b>03 · INVESTIGATE</b><strong>DNA 사건 수사</strong><span>ShellBank 세계지도 퀴즈 8개</span></article>
+        </div>
+        <div class="intro-actions">
+          <button class="secondary-btn" id="jump-quiz" type="button">3차 퀴즈 미리보기</button>
+          <button class="primary-btn" id="start-button" type="button">220명의 흔적부터 보기 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <div class="modal-backdrop" id="data-backdrop" role="dialog" aria-modal="true" aria-labelledby="data-title">
-    <div class="modal">
-      <button class="modal-close" data-close="data-backdrop" type="button" aria-label="숫자 도감 닫기">✕</button>
-      <div class="data-head"><small>SHELLBANK DATA CARD</small><h2 id="data-title">데이터가 거북의 고향을 말해줍니다</h2><p>퀴즈를 풀기 전, 꼭 알아야 할 핵심 숫자와 개념입니다.</p></div>
-      <div class="data-content">
-        <div class="impact-grid">
-          <div><b>15,000+</b><span>개체 데이터</span></div><div><b>293</b><span>조사 지역</span></div><div><b>28</b><span>참여 국가</span></div><div><b>120+</b><span>DB 이용자</span></div>
-        </div>
-        <div class="data-explain">
-          <article><strong>🧬 Haplotype</strong><p>같은 종 안에서 나타나는 DNA 서열 변이형. 기준 데이터와 비교하면 가능성 높은 개체군 기원을 추정할 수 있습니다.</p></article>
-          <article><strong>🌍 Shared Ocean</strong><p>바다거북은 국경을 넘기 때문에 산란지·먹이터·이동 경로 데이터를 여러 나라가 함께 연결해야 합니다.</p></article>
-          <article><strong>🔎 Traceability</strong><p>표본과 압수품의 DNA를 분석하면 보전 우선순위와 불법 거래망 수사의 과학적 단서를 만들 수 있습니다.</p></article>
-        </div>
-        <p class="source-line">출처: <i>ShellBank: Marine Turtle Traceability Tool, Progress and Impact Report 2023/24</i>. 수치는 리포트 공개 시점 기준입니다.</p>
-      </div>
-    </div>
-  </div>
+  <div class="modal-backdrop" id="data-backdrop" role="dialog" aria-modal="true" aria-labelledby="data-title">
+    <div class="modal">
+      <button class="modal-close" data-close="data-backdrop" type="button" aria-label="숫자 도감 닫기">✕</button>
+      <div class="data-head"><small>SHELLBANK DATA CARD</small><h2 id="data-title">데이터가 거북의 고향을 말해줍니다</h2><p>퀴즈를 풀기 전, 꼭 알아야 할 핵심 숫자와 개념입니다.</p></div>
+      <div class="data-content">
+        <div class="impact-grid">
+          <div><b>15,000+</b><span>개체 데이터</span></div><div><b>293</b><span>조사 지역</span></div><div><b>28</b><span>참여 국가</span></div><div><b>120+</b><span>DB 이용자</span></div>
+        </div>
+        <div class="data-explain">
+          <article><strong> Haplotype</strong><p>같은 종 안에서 나타나는 DNA 서열 변이형. 기준 데이터와 비교하면 가능성 높은 개체군 기원을 추정할 수 있습니다.</p></article>
+          <article><strong> Shared Ocean</strong><p>바다거북은 국경을 넘기 때문에 산란지·먹이터·이동 경로 데이터를 여러 나라가 함께 연결해야 합니다.</p></article>
+          <article><strong> Traceability</strong><p>표본과 압수품의 DNA를 분석하면 보전 우선순위와 불법 거래망 수사의 과학적 단서를 만들 수 있습니다.</p></article>
+        </div>
+        <p class="source-line">출처: <i>ShellBank: Marine Turtle Traceability Tool, Progress and Impact Report 2023/24</i>. 수치는 리포트 공개 시점 기준입니다.</p>
+      </div>
+    </div>
+  </div>
 
-  <div class="modal-backdrop" id="certificate-backdrop" role="dialog" aria-modal="true" aria-labelledby="certificate-title">
-    <div class="modal certificate-modal">
-      <button class="modal-close" data-close="certificate-backdrop" type="button" aria-label="완주증 닫기">✕</button>
-      <div class="certificate-wrap">
-        <div class="certificate">
-          <small>WWF RANGERS 2 × SHELLBANK</small>
-          <h2 id="certificate-title">FOLLOW THE TRACE 완주증</h2>
-          <input id="certificate-name" class="certificate-name" type="text" maxlength="24" value="Ocean Ranger" aria-label="완주증 이름">
-          <p>위 레인저는 220명의 흔적과 연결되고, Ocean Action을 실천하며, ShellBank DNA 사건 8개를 해결해 세 번의 미션을 완주했습니다.</p>
-          <div class="certificate-stats"><span>Journey <b>3/3</b></span><span>Case <b>8/8</b></span><span>획득 <b id="certificate-xp">0 XP</b></span></div>
-        </div>
-        <div class="certificate-actions"><button class="secondary-btn" data-close="certificate-backdrop" type="button">지도로 돌아가기</button><button class="primary-btn compact" id="print-button" type="button">인쇄·PDF 저장</button></div>
-      </div>
-    </div>
-  </div>
+  <div class="modal-backdrop" id="certificate-backdrop" role="dialog" aria-modal="true" aria-labelledby="certificate-title">
+    <div class="modal certificate-modal">
+      <button class="modal-close" data-close="certificate-backdrop" type="button" aria-label="완주증 닫기">✕</button>
+      <div class="certificate-wrap">
+        <div class="certificate">
+          <small>WWF RANGERS 2 × SHELLBANK</small>
+          <h2 id="certificate-title">FOLLOW THE TRACE 완주증</h2>
+          <input id="certificate-name" class="certificate-name" type="text" maxlength="24" value="Ocean Ranger" aria-label="완주증 이름">
+          <p>위 레인저는 220명의 흔적과 연결되고, Ocean Action을 실천하며, ShellBank DNA 사건 8개를 해결해 세 번의 미션을 완주했습니다.</p>
+          <div class="certificate-stats"><span>Journey <b>3/3</b></span><span>Case <b>8/8</b></span><span>획득 <b id="certificate-xp">0 XP</b></span></div>
+        </div>
+        <div class="certificate-actions"><button class="secondary-btn" data-close="certificate-backdrop" type="button">지도로 돌아가기</button><button class="primary-btn compact" id="print-button" type="button">인쇄·PDF 저장</button></div>
+      </div>
+    </div>
+  </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin></script>
-  
-  <script>
-    // [지도 깨짐 방지 자동 패치] 
-    // app.js를 수정할 필요 없이 index.html에서 지도를 완벽하게 고쳐줍니다.
-    if (window.L) {
-      const originalTileLayer = L.tileLayer;
-      L.tileLayer = function(url, options) {
-        options = options || {};
-        options.noWrap = true; // 가로 무한 반복 방지
-        options.bounds = [[-85, -180], [85, 180]];
-        return originalTileLayer.call(this, url, options);
-      };
-
-      const originalMap = L.map;
-      L.map = function(el, options) {
-        options = options || {};
-        options.maxBounds = [[-85, -180], [85, 180]]; // 지도 밖으로 못 나가게 고정
-        options.maxBoundsViscosity = 1.0;
-        options.worldCopyJump = false;
-        
-        const mapInstance = originalMap.call(this, el, options);
-        
-        // 지도 회색 타일 깨짐 방지 (강제 리렌더링)
-        const fixMap = () => { if (mapInstance) mapInstance.invalidateSize(); };
-        window.addEventListener('load', () => {
-          setTimeout(fixMap, 200);
-          setTimeout(fixMap, 800);
-        });
-        window.addEventListener('resize', fixMap);
-        mapInstance.on('moveend', fixMap);
-        
-        return mapInstance;
-      };
-    }
-  </script>
-
-  <!-- 기존에 작업하신 JavaScript 파일 (건드릴 필요 없음) -->
-  <script src="app.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin></script>
+  <script src="app.js"></script>
 </body>
 </html>
