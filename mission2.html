@@ -291,11 +291,13 @@
     // --------------------------------------------------
     const bounds = [[-85, -180], [85, 180]];
     const map = L.map('map', {
-      maxBounds: bounds, maxBoundsViscosity: 1.0, worldCopyJump: false, minZoom: 2, maxZoom: 6, zoomControl: false
+      maxBounds: bounds, maxBoundsViscosity: 1.0, worldCopyJump: false, minZoom: 2, maxZoom: 8, zoomControl: false
     }).setView([15, 120], 2.5);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap', noWrap: true, bounds: bounds
+    // 나라 이름과 도시가 명시되는 일반 Voyager 레이어로 교체
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', 
+      noWrap: true, bounds: bounds
     }).addTo(map);
 
     const fixMap = () => map.invalidateSize();
@@ -303,11 +305,11 @@
     window.addEventListener('resize', fixMap);
 
     // --------------------------------------------------
-    // 3. 8대 미션 데이터 (임팩트 리포트 기반 완벽 재구성)
+    // 3. 8대 미션 데이터
     // --------------------------------------------------
     const missions = [
       { 
-        id: 1, lat: -25.0, lng: 135.0, // 호주/글로벌
+        id: 1, lat: -25.0, lng: 135.0,
         icon: '🧬', title: "DNA 추적 실험실", location: "호주 · 글로벌 과학 네트워크",
         story: "거북의 조직이나 등딱지 조각에서도 DNA를 추출할 수 있어요. 유전형(haplotype)을 기준 데이터와 비교하면 어느 개체군에서 왔는지 추정하고, 가장 위험한 개체군을 찾아 보호 우선순위를 세울 수 있습니다.",
         chips: [{v:"6단계", t:"DNA 추적 과정"}, {v:"3종", t:"산란·해양·거래 데이터"}, {v:"2022", t:"공식 출범"}],
@@ -318,7 +320,7 @@
         exp: "정답입니다! DNA 유전형을 기준 데이터와 대조하면 가능성 높은 개체군 기원을 추정할 수 있어요. 나이나 산란 날짜를 직접 알아내는 검사는 아닙니다."
       },
       { 
-        id: 2, lat: -4.5, lng: 110.0, // 자바해
+        id: 2, lat: -4.5, lng: 110.0,
         icon: '🏝️', title: "자바해 유전 보물찾기", location: "인도네시아 · 자바해",
         story: "인도네시아 최초의 광범위한 대모거북 유전 연구에서 놀라운 다양성이 확인됐습니다. 연구진은 자바해의 섬 지역을 조사해 세계 기준 데이터의 중요한 빈칸을 채웠어요.",
         chips: [{v:"5개", t:"신규 유전 집단"}, {v:"9곳", t:"신규 산란 해변"}, {v:"6곳", t:"조사 산란지"}],
@@ -329,7 +331,7 @@
         exp: "정답입니다! 신규 산란 해변은 9곳, 새로 구분된 유전 집단은 5개입니다. 두 수치를 헷갈리지 마세요!"
       },
       { 
-        id: 3, lat: -9.0, lng: 147.0, // PNG
+        id: 3, lat: -9.0, lng: 147.0,
         icon: '🛰️', title: "태평양 이동경로 추적", location: "파푸아뉴기니",
         story: "파푸아뉴기니(PNG) 두 산란지의 대모거북을 유전 분석하고 일부 개체에는 위성 발신기를 달았습니다. 유전 정보와 실제 이동 정보를 함께 보니 국경을 넘는 서식지 연결이 명확해졌어요.",
         chips: [{v:"75마리", t:"산란 암컷 표본"}, {v:"15마리", t:"위성 추적"}, {v:"3가지", t:"이동 전략"}],
@@ -340,7 +342,7 @@
         exp: "정답입니다! 75마리의 DNA를 분석했고, 그중 15마리에게 위성 추적 장치를 달아 서식지 연결성을 명확히 입증했습니다."
       },
       { 
-        id: 4, lat: 15.0, lng: -75.0, // 카리브해 연안 (UK 압수품 기원)
+        id: 4, lat: 15.0, lng: -75.0,
         icon: '🔎', title: "압수품 DNA 수사", location: "영국 → 카리브해",
         story: "영국 국경에서 압수된 대모거북 등딱지 조각들을 분석했습니다. DNA와 압수 정보를 함께 해석하자 이들이 어디서 불법 포획되었는지 주요 기원 후보가 드러났습니다.",
         chips: [{v:"58점", t:"분석한 등딱지"}, {v:"48점", t:"DNA 추출 성공"}, {v:"8종", t:"대모거북 유전형"}],
@@ -351,7 +353,7 @@
         exp: "정답입니다! DNA 수사와 정보 분석을 종합한 결과, 이 압수품들의 주요 기원지는 카리브해 연안의 콜롬비아와 토바고 주변으로 확인되었습니다."
       },
       { 
-        id: 5, lat: 22.3, lng: 114.1, // 홍콩
+        id: 5, lat: 22.3, lng: 114.1,
         icon: '⚖️', title: "30년 항구 기록 수사", location: "홍콩",
         story: "홍콩대학교와 홍콩 정부가 항구에서 장기간 압수된 대모거북 제품들의 기원을 추적하고 있습니다. 과거 압수품도 유전 정보가 남아 있다면 거대한 불법 거래망을 밝히는 단서가 됩니다.",
         chips: [{v:"200점", t:"분석 계획 표본"}, {v:"30년", t:"압수 기간"}, {v:"1목표", t:"거래망 기원 추적"}],
@@ -362,7 +364,7 @@
         exp: "정답입니다! 홍콩 프로젝트는 약 30년에 걸쳐 압수된 표본 200점을 분석해 불법 거래 제품의 기원을 추적할 계획입니다."
       },
       { 
-        id: 6, lat: -15.0, lng: 175.0, // 솔로몬/피지 근처
+        id: 6, lat: -15.0, lng: 175.0,
         icon: '🌊', title: "서태평양 500+ 프로젝트", location: "솔로몬제도 외 3개국",
         story: "서태평양에서 포획된 바다거북이 어느 산란 개체군과 연결되는지 확인하는 대규모 연구입니다. 포획이 개체군에 미치는 영향을 알아야 지속가능한 관리 기준을 세울 수 있어요.",
         chips: [{v:"500+", t:"분석 표본"}, {v:"4곳", t:"대상 국가·지역"}, {v:"최대", t:"적용 규모"}],
@@ -373,7 +375,7 @@
         exp: "정답입니다! 솔로몬제도, 파푸아뉴기니, 피지, 통가의 표본을 분석하는 연구입니다. 자바해는 별도로 진행된 대모거북 연구 지역입니다."
       },
       { 
-        id: 7, lat: 0.0, lng: -20.0, // 글로벌 중앙 바다
+        id: 7, lat: 0.0, lng: -20.0,
         icon: '📊', title: "두 종 데이터 대결", location: "글로벌 ShellBank DB",
         story: "ShellBank에는 대모거북과 푸른바다거북의 산란·해양·거래 데이터가 모입니다. 지표를 비교하면 어느 종, 어느 지역의 기준 데이터가 더 필요한지 한눈에 찾을 수 있어요.",
         chips: [{v:"15,000+", t:"전체 개체 데이터"}, {v:"47개", t:"대모거북 유전 집단"}, {v:"56개", t:"푸른바다거북 유전 집단"}],
@@ -384,7 +386,7 @@
         exp: "정답입니다! 푸른바다거북 유전 집단은 56개, 대모거북은 47개로 푸른바다거북이 9개 더 많습니다."
       },
       { 
-        id: 8, lat: 20.0, lng: 30.0, // 유럽/아프리카 근처 상징적 위치
+        id: 8, lat: 20.0, lng: 30.0,
         icon: '🤝', title: "글로벌 협력망 완성", location: "28개 참여 국가",
         story: "ShellBank는 연구자들만의 것이 아닙니다. 현장 보전가, 법 집행기관, 박물관, 지역사회와 정부가 함께 표준화된 데이터와 훈련을 통해 거북을 추적합니다.",
         chips: [{v:"28개국", t:"프로젝트 참여"}, {v:"5회", t:"워크숍·훈련"}, {v:"12회", t:"학회 발표"}],
@@ -444,9 +446,9 @@
       const pct = (count / 8) * 100;
       document.querySelector('.progress-circle').style.background = `conic-gradient(#ff765f ${pct}%, #ffe4df 0)`;
       
+      // 버그 수정: 8개가 완료되었을 때 무한 팝업 루프를 방지하고 사용자가 다시 볼 수 있는 버튼 제공
       if(count === 8) {
-        document.getElementById('status-desc').innerText = "모든 수사 완료!";
-        setTimeout(() => showCertificate(), 800);
+        document.getElementById('status-desc').innerHTML = `<span style="color:#ffd05a; font-weight:bold; cursor:pointer;" onclick="showCertificate()">🏆 인증서 보기 (클릭)</span>`;
       } else {
         document.getElementById('status-desc').innerText = count === 0 ? "미션을 시작해 보세요" : "수사 진행 중...";
       }
@@ -513,9 +515,12 @@
       
       if(selectedIdx === m.ans) {
         btnEl.classList.add('correct');
+        
+        let isNewlySolved = false;
         if(!state.solvedCases.includes(id)) {
           state.solvedCases.push(id);
-          saveState();
+          isNewlySolved = true;
+          saveState(); // 이 안에서 updateUI()가 실행됩니다.
         }
         
         feedback.querySelector('strong').innerText = '✅ 정답입니다!';
@@ -530,6 +535,11 @@
         allBtns.forEach(b => b.disabled = true);
         
         showToast("단서를 정확히 찾았습니다! +100 XP");
+
+        // 방금 풀어서 8개가 모두 완료된 순간에만 팝업을 띄웁니다.
+        if(isNewlySolved && state.solvedCases.length === 8) {
+          setTimeout(() => showCertificate(), 800);
+        }
       } else {
         btnEl.classList.add('wrong');
         showToast("❌ 수치를 다시 한 번 신중하게 확인해보세요.");
@@ -555,7 +565,7 @@
     }
 
     function showCertificate() {
-      closePanel();
+      // closePanel()을 호출하지 않으므로 사용자가 다시 언제든지 문제와 정답을 리뷰할 수 있습니다.
       document.getElementById('certificate-backdrop').classList.add('open');
       const colors = ["#ffd05a", "#ff765f", "#30c9c5", "#ffffff", "#087f8c"];
       for (let i = 0; i < 60; i++) {
@@ -570,7 +580,9 @@
       }
     }
 
-    function closeCertificate() { document.getElementById('certificate-backdrop').classList.remove('open'); }
+    function closeCertificate() { 
+      document.getElementById('certificate-backdrop').classList.remove('open'); 
+    }
     
     function resetAll() {
       if(confirm("모든 글로벌 미션 진행 상황을 초기화하시겠습니까?")) {
@@ -579,7 +591,9 @@
       }
     }
 
-    document.getElementById('certificate-backdrop').addEventListener('click', function(e) { if (e.target === this) closeCertificate(); });
+    document.getElementById('certificate-backdrop').addEventListener('click', function(e) { 
+      if (e.target === this) closeCertificate(); 
+    });
 
     window.onload = () => {
       initMissions();
