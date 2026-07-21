@@ -12,6 +12,7 @@
 * [🗂️ 백업 파일 1 (index (2).html)](https://mission2027vision.github.io/challenges/index%20(2).html)
 * [🗂️ 백업 파일 2 (index(1) (1).html)](https://mission2027vision.github.io/challenges/index(1)%20(1).html)
 * 📸 [TRACE 02 행동 인증 페이지 (wwf_rangers_trace02.html)](https://mission2027vision.github.io/challenges/wwf_rangers_trace02.html)
+* * 💬 [보너스 미션: TRACE TALK Q&A (trace_talk.html)](https://mission2027vision.github.io/challenges/trace_talk.html)
 ---
 
 ## 미션 구조
