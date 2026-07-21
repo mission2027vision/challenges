@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#062f38">
-  <title>WWF Rangers 2 | Follow the Trace</title>
+  <meta name="description" content="ShellBank 임팩트 리포트 데이터를 바탕으로 한 바다거북 DNA 추적 미션">
+  <title>ShellBank Ocean Rangers | 바다거북 DNA 추적 미션</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
@@ -27,16 +28,8 @@
     * { box-sizing: border-box; }
     body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Gowun Dodum", sans-serif; overflow: hidden; background: var(--deep-bg); }
     
-    /* 🛠️ 지도 깨짐 방지 완벽 적용 */
-    #map { 
-      position: fixed !important; 
-      top: 0 !important; 
-      left: 0 !important; 
-      width: 100vw !important; 
-      height: 100vh !important; 
-      z-index: 1; 
-      background: var(--deep-bg); 
-    }
+    /* 지도 깨짐 방지 */
+    #map { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 1; background: var(--deep-bg); }
     .leaflet-container { font-family: inherit; }
     
     /* Top HUD */
@@ -62,28 +55,34 @@
     .status-text strong { display: block; font-size: 15px; color: #082a45; font-family: "Jua"; }
     .status-text small { font-size: 11px; color: #5e7478; }
     
-    /* Left Dock */
+    /* Left Dock - 8 Missions */
     .mission-dock {
       position: absolute; top: 90px; left: 20px; bottom: 20px; width: 360px;
       background: var(--panel-bg); border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
       display: flex; flex-direction: column; z-index: 500; overflow: hidden; color: var(--text-main);
     }
-    .dock-header { padding: 25px 20px 15px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .dock-header { padding: 25px 20px 15px; display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; }
     .dock-header small { font-size: 10px; color: var(--highlight); font-weight: bold; letter-spacing: 0.1em; }
     .dock-header h2 { font-family: "Jua"; font-size: 24px; margin: 5px 0 8px; font-weight: normal; }
     .dock-header p { font-size: 12px; color: var(--text-sub); margin: 0; line-height: 1.5; }
     .reset-btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; transition: 0.2s; }
     .reset-btn:hover { background: var(--coral); transform: rotate(90deg); }
     
-    .journey-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex: 1; margin-bottom: 20px;}
+    .journey-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex: 1; }
+    
+    /* 스크롤바 커스텀 */
+    .journey-list::-webkit-scrollbar { width: 6px; }
+    .journey-list::-webkit-scrollbar-track { background: transparent; }
+    .journey-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
     .journey-item {
       display: flex; align-items: center; gap: 12px; background: var(--card-bg);
       padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s;
     }
-    .journey-item:hover { background: rgba(255,255,255,0.1); }
+    .journey-item:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
     .journey-item.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(255,208,90,0.2); }
     .journey-item.done { border-color: var(--highlight); background: rgba(48,201,197,0.1); }
-    .journey-icon { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,0.1); font-family: "Jua"; font-size: 14px; }
+    .journey-icon { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,0.1); font-size: 16px; }
     .done .journey-icon { background: var(--highlight); color: var(--panel-bg); }
     .journey-text { flex: 1; }
     .journey-text strong { display: block; font-size: 14px; margin-bottom: 3px; }
@@ -91,18 +90,7 @@
     .journey-badge { font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 8px; background: rgba(255,255,255,0.1); }
     .done .journey-badge { background: var(--highlight); color: var(--panel-bg); }
 
-    .case-section { padding: 0 20px 20px; }
-    .case-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: var(--highlight); margin-bottom: 10px; }
-    .case-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .case-btn {
-      aspect-ratio: 2/1; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);
-      color: white; font-family: "Jua"; cursor: pointer; transition: 0.2s; display: grid; place-items: center;
-    }
-    .case-btn:hover { background: rgba(255,255,255,0.15); }
-    .case-btn.active { border-color: var(--accent); background: rgba(255,208,90,0.15); color: var(--accent); }
-    .case-btn.solved { background: var(--highlight); border-color: var(--highlight); color: var(--panel-bg); }
-
-    /* Right Side Panel */
+    /* Right Side Panel - Dynamic Content */
     .side-panel {
       position: absolute; top: 90px; right: 20px; bottom: 20px; width: 440px;
       background: #ffffff; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);
@@ -115,68 +103,58 @@
     .close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; transition: 0.2s;}
     .close-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
     .panel-hero small { font-size: 11px; letter-spacing: 0.1em; color: var(--highlight); font-weight: bold; }
-    .panel-hero h2 { font-family: "Jua"; font-size: 26px; margin: 8px 0; font-weight: normal; }
-    .panel-hero p { font-size: 13px; color: var(--text-sub); margin: 0; line-height: 1.5; }
+    .panel-hero h2 { font-family: "Jua"; font-size: 26px; margin: 8px 0; font-weight: normal; display: flex; align-items: center; gap: 8px; }
+    .panel-hero p { font-size: 13px; color: var(--text-sub); margin: 0; }
     
     .panel-body { flex: 1; padding: 25px; overflow-y: auto; color: #17343a; }
+    .story-text { font-size: 14px; line-height: 1.6; margin-bottom: 20px; word-break: keep-all; }
     
-    /* Forms & Interactive UI */
-    .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: var(--panel-bg); border: none; border-radius: 14px; font-family: "Jua"; font-size: 18px; cursor: pointer; transition: 0.2s; box-shadow: 0 6px 15px rgba(255,208,90,0.3); }
-    .btn-primary:hover { transform: translateY(-2px); background: #fcd571; }
-    .btn-primary:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; box-shadow: none; }
+    /* Chips Layout */
+    .chip-container { display: flex; gap: 8px; margin-bottom: 20px; }
+    .data-chip { flex: 1; background: #ecf9f7; padding: 12px 8px; border-radius: 12px; text-align: center; }
+    .data-chip strong { display: block; font-family: "Jua"; font-size: 18px; color: var(--ocean); margin-bottom: 4px; }
+    .data-chip span { font-size: 11px; color: #5e7478; line-height: 1.3; display: block; word-break: keep-all;}
     
-    .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-    .input-box { display: flex; flex-direction: column; flex: 1; }
-    .input-box label { font-size: 11px; font-weight: bold; color: var(--panel-bg); margin-bottom: 6px; letter-spacing: 0.05em; }
-    .input-box input { padding: 14px; border: 2px solid #cfe7e4; border-radius: 12px; font-family: "Gowun Dodum"; font-size: 15px; outline: none; transition: 0.2s; }
-    .input-box input:focus { border-color: var(--highlight); background: #f4fcfa; }
+    /* Learn Box */
+    .learn-box { background: var(--cert-bg); border-left: 4px solid var(--accent); padding: 15px; border-radius: 0 12px 12px 0; margin-bottom: 20px; }
+    .learn-box strong { display: block; font-size: 13px; color: #805e00; margin-bottom: 5px; }
+    .learn-box p { margin: 0; font-size: 12px; color: #6d6449; line-height: 1.5; word-break: keep-all; }
     
-    .stat-row { display: flex; gap: 10px; margin-bottom: 20px; }
-    .stat-box { flex: 1; background: #f0f8f7; padding: 15px 10px; border-radius: 14px; text-align: center; }
-    .stat-box strong { display: block; font-family: "Jua"; font-size: 20px; color: var(--ocean); margin-bottom: 4px; }
-    .stat-box span { font-size: 11px; color: #5e7478; }
+    /* Source text */
+    .source-text { font-size: 11px; color: #8a9c9f; margin-bottom: 25px; line-height: 1.5; display: flex; gap: 6px; }
+    .source-text b { color: var(--ocean); }
 
-    .success-box { background: #e8fff6; border-left: 4px solid var(--highlight); padding: 15px; border-radius: 8px 12px 12px 8px; margin-bottom: 20px; display: none; }
-    .success-box.show { display: block; animation: fadeIn 0.3s ease; }
-    .success-box strong { display: block; color: #086c51; font-size: 13px; margin-bottom: 4px; }
-    .success-box p { margin: 0; font-size: 12px; color: #17343a; line-height: 1.5; }
-
-    .action-radio { display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #cfe7e4; border-radius: 14px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; background: white; }
-    .action-radio:hover { border-color: var(--highlight); background: #f9fdfc; }
-    .action-radio.active { border-color: var(--highlight); background: #e8fff6; }
-    .action-icon { font-size: 24px; }
-    .action-text strong { display: block; font-size: 15px; color: var(--panel-bg); margin-bottom: 3px; }
-    .action-text span { font-size: 12px; color: #5e7478; }
-    .radio-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cfe7e4; display: flex; justify-content: center; align-items: center; margin-left: auto; background: white; }
-    .action-radio.active .radio-dot { border-color: var(--ocean); }
-    .action-radio.active .radio-dot::after { content: ''; width: 10px; height: 10px; background: var(--ocean); border-radius: 50%; }
-
-    .promise-result { border: 2px dashed #cfe7e4; background: #f9fdfc; padding: 15px; border-radius: 12px; margin-top: 20px; font-size: 13px; line-height: 1.6; color: #17343a; display: none; }
-    .promise-result.show { display: block; animation: fadeIn 0.3s ease; }
-    .btn-copy { margin-top: 10px; padding: 10px 15px; background: #e2f0ee; color: var(--panel-bg); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 12px; }
-    .btn-copy:hover { background: #cce4e1; }
-
-    /* Quiz Option UI (Mission 3) */
+    /* Quiz Box */
     .quiz-section { border-top: 2px dashed #e2f0ee; padding-top: 20px; }
-    .quiz-label { font-size: 11px; font-weight: bold; color: #ff765f; letter-spacing: 0.1em; }
-    .quiz-question { font-size: 16px; font-weight: bold; margin: 10px 0 20px; line-height: 1.4; }
+    .quiz-label { font-size: 11px; font-weight: bold; color: var(--coral); letter-spacing: 0.1em; }
+    .quiz-question { font-size: 15px; font-weight: bold; margin: 10px 0 20px; line-height: 1.5; word-break: keep-all; }
+    
     .options { display: flex; flex-direction: column; gap: 10px; }
-    .option-btn { padding: 14px; text-align: left; background: #f8fbfb; border: 2px solid #e2f0ee; border-radius: 12px; cursor: pointer; font-size: 14px; transition: 0.2s; display: flex; gap: 10px; align-items: center; color: #17343a; }
-    .option-btn:hover:not(:disabled) { border-color: var(--highlight); background: #f0fafa; }
+    .option-btn { padding: 14px 16px; text-align: left; background: #f8fbfb; border: 2px solid #e2f0ee; border-radius: 12px; cursor: pointer; font-size: 14px; transition: 0.2s; display: flex; gap: 12px; align-items: center; color: #17343a; font-family: inherit; line-height: 1.4;}
+    .option-btn:hover:not(:disabled) { border-color: var(--highlight); background: #f0fafa; transform: translateY(-2px); }
     .option-btn.correct { border-color: #22b99a; background: #e8fff6; font-weight: bold; color: #086c51; }
-    .option-btn.wrong { border-color: #ff765f; background: #fff0ec; color: #9f3526; opacity: 0.7; }
+    .option-btn.wrong { border-color: var(--coral); background: #fff0ec; color: #9f3526; opacity: 0.7; }
+    .option-btn span { font-family: "Jua"; color: var(--ocean); }
+
+    .feedback { background: #e8fff6; border: 1px solid #22b99a; padding: 15px; border-radius: 12px; margin-top: 15px; display: none; }
+    .feedback.show { display: block; animation: popIn 0.3s ease; }
+    .feedback strong { display: block; color: #086c51; font-size: 14px; margin-bottom: 6px; }
+    .feedback p { margin: 0; font-size: 13px; color: #17343a; line-height: 1.5; word-break: keep-all; }
 
     /* Map Markers */
-    .tiny-turtle { font-size: 14px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); opacity: 0.7; transition: 0.3s; text-align: center; line-height: 1; }
-    .tiny-turtle.glow { font-size: 32px; filter: drop-shadow(0 0 15px var(--accent)); opacity: 1; z-index: 999 !important; transform: translate(-25%, -25%); }
-    .tiny-turtle.glow::after { content: '내 거북이 찾음!'; position: absolute; top: 35px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); color: var(--accent); font-family: "Jua"; font-size: 12px; padding: 4px 8px; border-radius: 8px; white-space: nowrap; }
-    
-    .custom-marker { width: 36px; height: 36px; background: var(--card-bg); border: 3px solid white; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: grid; place-items: center; color: white; font-family: "Jua"; font-size: 16px; cursor: pointer; transition: 0.3s; z-index: 500;}
-    .custom-marker.solved { background: var(--highlight); }
-    .custom-marker.active { transform: scale(1.2); border-color: var(--accent); z-index: 1000 !important; }
+    .marker-pin {
+      width: 44px; height: 44px; background: var(--coral); border: 3px solid white;
+      border-radius: 50% 50% 50% 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: grid; place-items: center;
+      color: white; font-size: 20px; cursor: pointer; transition: 0.3s; transform: rotate(-45deg);
+      z-index: 500;
+    }
+    .marker-pin span { transform: rotate(45deg); display: block; }
+    .marker-pin.solved { background: #22b99a; }
+    .marker-pin.active { filter: drop-shadow(0 0 12px var(--accent)); transform: rotate(-45deg) scale(1.15); z-index: 1000 !important; }
+    .marker-label { position: absolute; top: 55px; left: 50%; transform: translateX(-50%); background: rgba(6,47,56,0.9); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; white-space: nowrap; font-weight: bold; }
 
     /* Certificate Modal */
-    .modal-backdrop { position: fixed; inset: 0; z-index: 2000; display: none; place-items: center; padding: 18px; background: rgba(6, 47, 56, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 2000; display: none; place-items: center; padding: 18px; background: rgba(6, 47, 56, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
     .modal-backdrop.open { display: grid; animation: fadeIn 0.3s ease; }
     .certificate-modal { position: relative; width: min(760px, 100%); max-height: 90vh; overflow: auto; border-radius: 30px; background: var(--cert-bg); box-shadow: 0 28px 80px rgba(0,0,0,0.4); }
     .modal-close { position: absolute; z-index: 10; top: 16px; right: 16px; width: 42px; height: 42px; border: 0; border-radius: 14px; color: var(--cert-border); background: rgba(255,255,255,0.9); cursor: pointer; font-size: 20px; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -200,12 +178,14 @@
     .btn-primary-cert { background: var(--cert-border); color: white; box-shadow: 0 8px 20px rgba(8,127,140,0.3); }
     .btn-primary-cert:hover { background: #066570; transform: translateY(-2px); }
 
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--panel-bg); color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: 0.3s; z-index: 3000; pointer-events: none; }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--panel-bg); color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 3000; pointer-events: none; }
     .toast.show { transform: translateX(-50%) translateY(0); }
     .confetti { position: fixed; z-index: 2100; top: -20px; width: 10px; height: 18px; border-radius: 3px; pointer-events: none; animation: confetti-fall 2.5s linear forwards; }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes confetti-fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0.5; } }
+    @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes confetti-fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0.6; } }
+
     @media print {
       body * { visibility: hidden !important; }
       #certificate-backdrop, #certificate-backdrop * { visibility: visible !important; }
@@ -230,10 +210,10 @@
     </div>
     <div class="status-card">
       <div class="status-badge">
-        <div class="progress-circle" id="total-progress">0%</div>
+        <div class="progress-circle" id="total-progress">0/8</div>
         <div class="status-text">
-          <strong>Mission Progress</strong>
-          <small id="status-desc">여정을 시작해 보세요</small>
+          <strong>Ocean DNA Expedition</strong>
+          <small id="status-desc">미션을 시작해 보세요</small>
         </div>
       </div>
     </div>
@@ -242,33 +222,28 @@
   <aside class="mission-dock">
     <div class="dock-header">
       <div>
-        <small>ONE LINK · THREE DROPS</small>
-        <h2>Rangers Mission Hub</h2>
-        <p>1년 동안 세 번 도착하는 미션을 한곳에서 확인하세요.</p>
+        <small>GLOBAL SHELLBANK MISSION</small>
+        <h2>8대 바다거북 DNA 수사</h2>
+        <p>전 세계 바다에서 벌어지는 사건을 해결하세요.</p>
       </div>
       <button class="reset-btn" onclick="resetAll()" title="데이터 초기화">↻</button>
     </div>
     
     <div class="journey-list" id="main-missions">
-      <!-- M1, M2, M3 클릭 버튼 영역 (JS에서 상태에 따라 업데이트) -->
-    </div>
-
-    <div class="case-section" id="case-section">
-      <div class="case-header"><span>MISSION 03 · CASE FILES</span> <span id="case-count">0/8</span></div>
-      <div class="case-grid" id="case-grid"></div>
+      <!-- JS에서 미션 8개가 생성됩니다 -->
     </div>
   </aside>
 
-  <!-- 다이내믹 패널 (미션 1, 2, 3의 내용이 여기에 렌더링됨) -->
+  <!-- 다이내믹 퀴즈 패널 -->
   <section class="side-panel" id="mission-panel">
     <div class="panel-hero">
       <button class="close-btn" onclick="closePanel()">✕</button>
       <small id="p-kicker">MISSION</small>
       <h2 id="p-title">제목</h2>
-      <p id="p-desc">설명</p>
+      <p id="p-location">위치</p>
     </div>
     <div class="panel-body" id="p-body">
-      <!-- JS가 내용을 교체합니다 -->
+      <!-- JS에서 내용 교체 -->
     </div>
   </section>
 
@@ -281,10 +256,10 @@
           <small>SHELLBANK OCEAN RANGERS</small>
           <h2 id="certificate-title">바다거북 DNA 탐험 인증서</h2>
           <input class="certificate-name" id="ranger-name" type="text" maxlength="24" value="Ocean Ranger" aria-label="인증서 이름">
-          <p>위 레인저는 220명의 흔적과 연결되고, Ocean Action을 실천하며, ShellBank DNA 사건 8개를 해결해 세 번의 미션을 완주했음을 인증합니다.</p>
+          <p>위 레인저는 ShellBank의 과학적 추적 원리와 세계 현장 사례를 학습하고, 8개의 글로벌 데이터 미션을 모두 완수했음을 인증합니다.</p>
           <div class="certificate-stats">
-            <span>미션 <b>ALL CLEAR</b></span>
-            <span>획득 <b>900 XP</b></span>
+            <span>미션 <b>8/8 CLEAR</b></span>
+            <span>획득 <b>800 XP</b></span>
           </div>
         </div>
         <div class="certificate-actions">
@@ -302,338 +277,275 @@
     // --------------------------------------------------
     // 1. 상태 관리 (State)
     // --------------------------------------------------
-    let state = JSON.parse(localStorage.getItem('wwf_rangers_state')) || {
-      m1: { done: false, rangerId: '', nickname: '' },
-      m2: { done: false, action: '', promise: '' },
-      m3: { solvedCases: [] }
+    let state = JSON.parse(localStorage.getItem('shellbank_8missions_v1')) || {
+      solvedCases: []
     };
 
     function saveState() {
-      localStorage.setItem('wwf_rangers_state', JSON.stringify(state));
+      localStorage.setItem('shellbank_8missions_v1', JSON.stringify(state));
       updateUI();
     }
 
     // --------------------------------------------------
-    // 2. 지도 초기화 및 220마리 거북이 마커 생성
+    // 2. 지도 초기화
     // --------------------------------------------------
     const bounds = [[-85, -180], [85, 180]];
     const map = L.map('map', {
-      maxBounds: bounds, maxBoundsViscosity: 1.0, worldCopyJump: false, minZoom: 2, maxZoom: 7, zoomControl: false
-    }).setView([20, 100], 2.5);
+      maxBounds: bounds, maxBoundsViscosity: 1.0, worldCopyJump: false, minZoom: 2, maxZoom: 6, zoomControl: false
+    }).setView([15, 120], 2.5);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap', noWrap: true, bounds: bounds
     }).addTo(map);
 
-    // 창 크기 변경 시 지도 찌그러짐 방지 로직
     const fixMap = () => map.invalidateSize();
     window.addEventListener('load', () => { setTimeout(fixMap, 200); setTimeout(fixMap, 800); });
     window.addEventListener('resize', fixMap);
 
-    // 220마리 거북이 전 세계(바다 위주) 랜덤 생성
-    const turtles = [];
-    const turtleMarkers = {};
-    const oceanRegions = [
-      { lat: [-30, 30], lng: [130, 180] },   // 서태평양
-      { lat: [-30, 30], lng: [-180, -110] }, // 동태평양
-      { lat: [-30, 40], lng: [-70, -10] },   // 대서양
-      { lat: [-30, 15], lng: [50, 100] }     // 인도양
-    ];
-
-    for(let i = 1; i <= 220; i++) {
-      const region = oceanRegions[Math.floor(Math.random() * oceanRegions.length)];
-      const lat = Math.random() * (region.lat[1] - region.lat[0]) + region.lat[0];
-      const lng = Math.random() * (region.lng[1] - region.lng[0]) + region.lng[0];
-      
-      const marker = L.marker([lat, lng], {
-        icon: L.divIcon({ className: 'tiny-turtle', html: '🐢', iconSize: [20, 20] })
-      }).addTo(map);
-      
-      turtleMarkers[i] = marker;
-      turtles.push({ id: i, lat, lng, marker });
-    }
-
     // --------------------------------------------------
-    // 3. 미션 3 (DNA 사건 8개) 데이터
+    // 3. 8대 미션 데이터 (임팩트 리포트 기반 완벽 재구성)
     // --------------------------------------------------
-    const dnaCases = [
-      { id: 1, lat: 46.8, lng: 8.2, title: "글로벌 DNA 추적의 시작", q: "1990년 이후 불법 착취된 바다거북 최소 수치는?", opts: ["11만", "110만", "1,100만"], ans: 1, exp: "최소 110만 마리가 불법 착취되었습니다." },
-      { id: 2, lat: 25.0, lng: -70.0, title: "온라인 데이터베이스 출범", q: "ShellBank DB가 전 세계에 공개된 연도는?", opts: ["2022년", "2023년", "2024년"], ans: 2, exp: "2024년 6월 세계 바다거북의 날에 런칭되었습니다." },
-      { id: 3, lat: -4.5, lng: 110.0, title: "자바해 유전 보물찾기", q: "발견된 새로운 유전 집단은 몇 개일까요?", opts: ["5개", "9개", "14개"], ans: 0, exp: "5개의 완전히 새로운 유전 집단이 식별되었습니다." },
-      { id: 4, lat: 15.0, lng: -75.0, title: "영국 국경 압수품 수사", q: "압수품의 가장 유력한 기원지로 밝혀진 곳은?", opts: ["호주", "자바해", "카리브해 연안"], ans: 2, exp: "콜롬비아와 토바고 주변 카리브해로 확인되었습니다." },
-      { id: 5, lat: -9.0, lng: 147.0, title: "파푸아뉴기니 이동 추적", q: "위성 추적 장치를 부착한 거북은 몇 마리?", opts: ["15마리", "48마리", "75마리"], ans: 0, exp: "15마리에게 위성 장치를 달아 이동 경로를 입증했습니다." },
-      { id: 6, lat: 22.3, lng: 114.1, title: "홍콩 거래망 추적", q: "분석 대상이 된 과거 압수품 샘플 수는?", opts: ["58점", "120점", "200점"], ans: 2, exp: "약 200점의 과거 샘플 분석을 통해 거래망을 파악합니다." },
-      { id: 7, lat: -15.0, lng: 175.0, title: "서태평양 대규모 연구", q: "연구 대상 국가가 아닌 곳은?", opts: ["파푸아뉴기니", "인도네시아 자바해", "피지 및 통가"], ans: 1, exp: "자바해는 서태평양 연구와 별개의 지역입니다." },
-      { id: 8, lat: 0.0, lng: 15.0, title: "글로벌 DB 규모", q: "등록된 두 종의 유전 집단 수를 합치면?", opts: ["85개", "103개", "293개"], ans: 1, exp: "푸른바다거북 56개 + 대모거북 47개 = 103개입니다." }
+    const missions = [
+      { 
+        id: 1, lat: -25.0, lng: 135.0, // 호주/글로벌
+        icon: '🧬', title: "DNA 추적 실험실", location: "호주 · 글로벌 과학 네트워크",
+        story: "거북의 조직이나 등딱지 조각에서도 DNA를 추출할 수 있어요. 유전형(haplotype)을 기준 데이터와 비교하면 어느 개체군에서 왔는지 추정하고, 가장 위험한 개체군을 찾아 보호 우선순위를 세울 수 있습니다.",
+        chips: [{v:"6단계", t:"DNA 추적 과정"}, {v:"3종", t:"산란·해양·거래 데이터"}, {v:"2022", t:"공식 출범"}],
+        learnTitle: "유전형(haplotype)이란?",
+        learnDesc: "같은 종 안에서도 나타나는 DNA 서열의 변이형입니다. 특정 지역에서 자주 발견되는 유전형은 거북의 기원을 추정하는 단서가 됩니다.",
+        q: "범죄 현장에서 발견된 바다거북 등딱지! 이 조각에서 추출한 DNA(유전형)를 ShellBank 기준 데이터와 대조할 때, 가장 먼저 알아낼 수 있는 결정적 단서는 무엇일까요?",
+        opts: ["거북의 정확한 나이", "유력한 고향(기원 개체군)", "알을 낳은 정확한 날짜"], ans: 1,
+        exp: "정답입니다! DNA 유전형을 기준 데이터와 대조하면 가능성 높은 개체군 기원을 추정할 수 있어요. 나이나 산란 날짜를 직접 알아내는 검사는 아닙니다."
+      },
+      { 
+        id: 2, lat: -4.5, lng: 110.0, // 자바해
+        icon: '🏝️', title: "자바해 유전 보물찾기", location: "인도네시아 · 자바해",
+        story: "인도네시아 최초의 광범위한 대모거북 유전 연구에서 놀라운 다양성이 확인됐습니다. 연구진은 자바해의 섬 지역을 조사해 세계 기준 데이터의 중요한 빈칸을 채웠어요.",
+        chips: [{v:"5개", t:"신규 유전 집단"}, {v:"9곳", t:"신규 산란 해변"}, {v:"6곳", t:"조사 산란지"}],
+        learnTitle: "왜 산란 해변이 중요할까요?",
+        learnDesc: "암컷 바다거북은 태어난 해변으로 돌아오는 경향이 있습니다. 산란지 DNA는 다른 지역에서 발견된 개체의 고향을 추정하는 기준선이 됩니다.",
+        q: "고 Hawis Madduppa 박사님의 헌신으로 시작된 이 인도네시아 자바해 연구에서, 새롭게 기준 데이터에 반영된 '신규 산란 해변'은 모두 몇 곳일까요?",
+        opts: ["5곳", "6곳", "9곳"], ans: 2,
+        exp: "정답입니다! 신규 산란 해변은 9곳, 새로 구분된 유전 집단은 5개입니다. 두 수치를 헷갈리지 마세요!"
+      },
+      { 
+        id: 3, lat: -9.0, lng: 147.0, // PNG
+        icon: '🛰️', title: "태평양 이동경로 추적", location: "파푸아뉴기니",
+        story: "파푸아뉴기니(PNG) 두 산란지의 대모거북을 유전 분석하고 일부 개체에는 위성 발신기를 달았습니다. 유전 정보와 실제 이동 정보를 함께 보니 국경을 넘는 서식지 연결이 명확해졌어요.",
+        chips: [{v:"75마리", t:"산란 암컷 표본"}, {v:"15마리", t:"위성 추적"}, {v:"3가지", t:"이동 전략"}],
+        learnTitle: "두 도구를 함께 쓰는 이유?",
+        learnDesc: "DNA는 많은 개체의 기원을 적은 비용으로 보여주고, 위성 추적은 실제 이동 경로를 상세히 보여줍니다. 함께 사용하면 연결성을 더 정확히 이해할 수 있어요.",
+        q: "유전자 분석과 함께, 거북이들의 실제 이동 경로를 지도로 그리기 위해 '위성 추적 장치'를 등에 달고 호주 동부까지 여행을 떠난 특공대 거북이는 몇 마리일까요?",
+        opts: ["15마리", "48마리", "75마리"], ans: 0,
+        exp: "정답입니다! 75마리의 DNA를 분석했고, 그중 15마리에게 위성 추적 장치를 달아 서식지 연결성을 명확히 입증했습니다."
+      },
+      { 
+        id: 4, lat: 15.0, lng: -75.0, // 카리브해 연안 (UK 압수품 기원)
+        icon: '🔎', title: "압수품 DNA 수사", location: "영국 → 카리브해",
+        story: "영국 국경에서 압수된 대모거북 등딱지 조각들을 분석했습니다. DNA와 압수 정보를 함께 해석하자 이들이 어디서 불법 포획되었는지 주요 기원 후보가 드러났습니다.",
+        chips: [{v:"58점", t:"분석한 등딱지"}, {v:"48점", t:"DNA 추출 성공"}, {v:"8종", t:"대모거북 유전형"}],
+        learnTitle: "수치로 보는 분석 성공률",
+        learnDesc: "오래되거나 가공된 야생동물 제품은 DNA가 손상될 수 있어 모든 시료에서 100% 결과를 얻지는 못합니다.",
+        q: "영국 국경 수비대가 압수한 58점의 등딱지 조각 중 DNA 추출에 성공한 48점의 결과를 분석했을 때, 이 거북이들의 유력한 '기원지(고향)'로 밝혀진 곳은 어디일까요?",
+        opts: ["호주 동부 해안", "인도네시아 자바해", "콜롬비아 카리브해 연안"], ans: 2,
+        exp: "정답입니다! DNA 수사와 정보 분석을 종합한 결과, 이 압수품들의 주요 기원지는 카리브해 연안의 콜롬비아와 토바고 주변으로 확인되었습니다."
+      },
+      { 
+        id: 5, lat: 22.3, lng: 114.1, // 홍콩
+        icon: '⚖️', title: "30년 항구 기록 수사", location: "홍콩",
+        story: "홍콩대학교와 홍콩 정부가 항구에서 장기간 압수된 대모거북 제품들의 기원을 추적하고 있습니다. 과거 압수품도 유전 정보가 남아 있다면 거대한 불법 거래망을 밝히는 단서가 됩니다.",
+        chips: [{v:"200점", t:"분석 계획 표본"}, {v:"30년", t:"압수 기간"}, {v:"1목표", t:"거래망 기원 추적"}],
+        learnTitle: "거래 데이터는 왜 보호될까요?",
+        learnDesc: "ShellBank의 기준 데이터는 공개되지만, 수사에 관련된 거래 데이터는 민감 정보를 보호하기 위해 철저히 제한적으로 관리됩니다.",
+        q: "홍콩 항구의 비밀 창고에서 30년 동안 압수되어 잠들어 있다가, 아시아 불법 거래망의 뿌리를 밝히기 위해 이번 연구 분석대에 오르게 될 대모거북 샘플은 약 몇 점일까요?",
+        opts: ["58점", "120점", "200점"], ans: 2,
+        exp: "정답입니다! 홍콩 프로젝트는 약 30년에 걸쳐 압수된 표본 200점을 분석해 불법 거래 제품의 기원을 추적할 계획입니다."
+      },
+      { 
+        id: 6, lat: -15.0, lng: 175.0, // 솔로몬/피지 근처
+        icon: '🌊', title: "서태평양 500+ 프로젝트", location: "솔로몬제도 외 3개국",
+        story: "서태평양에서 포획된 바다거북이 어느 산란 개체군과 연결되는지 확인하는 대규모 연구입니다. 포획이 개체군에 미치는 영향을 알아야 지속가능한 관리 기준을 세울 수 있어요.",
+        chips: [{v:"500+", t:"분석 표본"}, {v:"4곳", t:"대상 국가·지역"}, {v:"최대", t:"적용 규모"}],
+        learnTitle: "혼합 개체군 분석(MSA)이란?",
+        learnDesc: "여러 산란지의 유전형 빈도를 기준으로, 포획지나 먹이터에 섞여 있는 거북들이 어느 산란 개체군에서 왔는지 비율로 추정하는 방법입니다.",
+        q: "500마리 이상의 푸른바다거북을 분석하는 이 거대한 서태평양 연구 프로젝트! 다음 중 이 연구 대상 국가 4곳에 포함되지 않는 지역은 어디일까요?",
+        opts: ["파푸아뉴기니 (PNG)", "자바해 (인도네시아)", "피지 및 통가"], ans: 1,
+        exp: "정답입니다! 솔로몬제도, 파푸아뉴기니, 피지, 통가의 표본을 분석하는 연구입니다. 자바해는 별도로 진행된 대모거북 연구 지역입니다."
+      },
+      { 
+        id: 7, lat: 0.0, lng: -20.0, // 글로벌 중앙 바다
+        icon: '📊', title: "두 종 데이터 대결", location: "글로벌 ShellBank DB",
+        story: "ShellBank에는 대모거북과 푸른바다거북의 산란·해양·거래 데이터가 모입니다. 지표를 비교하면 어느 종, 어느 지역의 기준 데이터가 더 필요한지 한눈에 찾을 수 있어요.",
+        chips: [{v:"15,000+", t:"전체 개체 데이터"}, {v:"47개", t:"대모거북 유전 집단"}, {v:"56개", t:"푸른바다거북 유전 집단"}],
+        learnTitle: "숫자가 적으면 개체가 적다는 뜻일까요?",
+        learnDesc: "아닙니다. 데이터 수는 연구와 표본 수집 정도에 영향을 받습니다. 표본이 적은 곳은 거북이가 없는 게 아니라 우선 조사 후보일 수 있어요.",
+        q: "치열한 데이터 대결! 현재 ShellBank에 등록된 '유전 집단(Genetic Stocks)' 수가 더 많은 종은 누구이며, 두 종의 집단 수 차이는 몇 개일까요?",
+        opts: ["대모거북이 9개 더 많음", "푸른바다거북이 9개 더 많음", "두 종 모두 56개로 같음"], ans: 1,
+        exp: "정답입니다! 푸른바다거북 유전 집단은 56개, 대모거북은 47개로 푸른바다거북이 9개 더 많습니다."
+      },
+      { 
+        id: 8, lat: 20.0, lng: 30.0, // 유럽/아프리카 근처 상징적 위치
+        icon: '🤝', title: "글로벌 협력망 완성", location: "28개 참여 국가",
+        story: "ShellBank는 연구자들만의 것이 아닙니다. 현장 보전가, 법 집행기관, 박물관, 지역사회와 정부가 함께 표준화된 데이터와 훈련을 통해 거북을 추적합니다.",
+        chips: [{v:"28개국", t:"프로젝트 참여"}, {v:"5회", t:"워크숍·훈련"}, {v:"12회", t:"학회 발표"}],
+        learnTitle: "협력이 과학의 정확도를 높이는 법!",
+        learnDesc: "여러 지역이 같은 기준으로 표본을 수집하고 유전형 이름을 표준화하면, 서로 다른 연구를 연결하여 국경을 넘는 거래도 추적할 수 있습니다.",
+        q: "바다거북을 지키기 위한 글로벌 어벤져스 결성! 2023-2024년 동안 전 세계에서 ShellBank 프로젝트에 동참하고 협력한 국가는 모두 몇 개국일까요?",
+        opts: ["7개국", "28개국", "120개국"], ans: 1,
+        exp: "정답입니다! 지난 리포트 기간 동안 총 28개국이 프로젝트에 참여하여 120명 이상의 인원이 교육을 받고 데이터를 모았습니다."
+      }
     ];
     
-    const dnaMarkers = {};
+    let activeMissionId = null;
+    const markers = {};
 
-    function initDNACases() {
-      const grid = document.getElementById('case-grid');
-      grid.innerHTML = '';
-      dnaCases.forEach(c => {
-        const btn = document.createElement('div');
-        btn.className = `case-btn ${state.m3.solvedCases.includes(c.id) ? 'solved' : ''}`;
-        btn.id = `btn-case-${c.id}`;
-        btn.innerText = c.id;
-        btn.onclick = () => openMission(3, c.id);
-        grid.appendChild(btn);
-
-        const icon = L.divIcon({ className: 'custom-icon', html: `<div class="custom-marker ${state.m3.solvedCases.includes(c.id) ? 'solved' : ''}" id="marker-case-${c.id}">${state.m3.solvedCases.includes(c.id) ? '✓' : c.id}</div>`, iconSize: [36,36], iconAnchor: [18,18] });
-        const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(map);
-        marker.on('click', () => openMission(3, c.id));
-        dnaMarkers[c.id] = marker;
+    function initMissions() {
+      missions.forEach(m => {
+        // 지도 마커 생성
+        const icon = L.divIcon({
+          className: 'custom-icon',
+          html: `
+            <div class="marker-pin ${state.solvedCases.includes(m.id) ? 'solved' : ''}" id="marker-${m.id}">
+              <span>${state.solvedCases.includes(m.id) ? '✓' : m.icon}</span>
+            </div>
+            <div class="marker-label">MISSION ${m.id}</div>
+          `,
+          iconSize: [44, 44],
+          iconAnchor: [22, 44]
+        });
+        const marker = L.marker([m.lat, m.lng], { icon: icon }).addTo(map);
+        marker.on('click', () => openMission(m.id));
+        markers[m.id] = marker;
       });
+      updateUI();
     }
 
-    // --------------------------------------------------
-    // 4. UI 렌더링 및 미션 로직
-    // --------------------------------------------------
-    const mainMissions = [
-      { id: 1, title: "TRACE 나의 흔적 찾기", desc: "Ranger ID와 220개의 거북이 흔적", k: "MISSION 01", pTitle: "TRACE MY TURTLE", pDesc: "지도 위 거북이 한 마리 한 마리는 개인정보를 노출하지 않은 Ranger #001~#220의 흔적입니다. 가입 시 받은 고유번호를 입력해 나의 거북이를 밝혀주세요." },
-      { id: 2, title: "ACT Ocean Action", desc: "행동 하나를 선택하고 스탬프 획득", k: "MISSION 02", pTitle: "OCEAN ACTION", pDesc: "큰 결심 대신 오늘 가능한 행동 하나를 선택합니다. 참여 장벽을 낮추기 위해 하나만 선택하며, 받은 문구는 SNS 인증에 활용할 수 있습니다." },
-      { id: 3, title: "INVESTIGATE DNA 사건 수사", desc: "ShellBank 세계지도 퀴즈 8개", k: "MISSION 03", pTitle: "", pDesc: "" }
-    ];
-
     function updateUI() {
-      // 1. 왼쪽 Dock 업데이트
+      // 사이드바 목록 업데이트
       const list = document.getElementById('main-missions');
       list.innerHTML = '';
       
-      mainMissions.forEach(m => {
-        const isDone = (m.id === 1 && state.m1.done) || (m.id === 2 && state.m2.done) || (m.id === 3 && state.m3.solvedCases.length === 8);
+      missions.forEach(m => {
+        const isDone = state.solvedCases.includes(m.id);
         const div = document.createElement('div');
-        div.className = `journey-item ${isDone ? 'done' : ''}`;
+        div.className = `journey-item ${isDone ? 'done' : ''} ${activeMissionId === m.id ? 'active' : ''}`;
         div.onclick = () => openMission(m.id);
         div.innerHTML = `
-          <div class="journey-icon">${isDone ? '✓' : m.id}</div>
-          <div class="journey-text"><strong>${m.title}</strong><small>${m.desc}</small></div>
+          <div class="journey-icon">${isDone ? '✓' : m.icon}</div>
+          <div class="journey-text"><strong>${m.title}</strong><small>${m.location}</small></div>
           <div class="journey-badge" style="${!isDone ? 'color:var(--accent); background:transparent;' : ''}">${isDone ? 'DONE' : 'OPEN'}</div>
         `;
         list.appendChild(div);
       });
 
-      // DNA Case 현황 업데이트
-      document.getElementById('case-count').innerText = `${state.m3.solvedCases.length}/8`;
-      
-      // 전체 프로그레스 (M1, M2, M3 완수 시 100%)
-      let progressCount = 0;
-      if (state.m1.done) progressCount++;
-      if (state.m2.done) progressCount++;
-      if (state.m3.solvedCases.length === 8) progressCount++;
-      
-      const pct = (progressCount / 3) * 100;
-      document.getElementById('total-progress').innerText = `${Math.round(pct)}%`;
+      // 진행률 업데이트
+      const count = state.solvedCases.length;
+      document.getElementById('total-progress').innerText = `${count}/8`;
+      const pct = (count / 8) * 100;
       document.querySelector('.progress-circle').style.background = `conic-gradient(#ff765f ${pct}%, #ffe4df 0)`;
-      document.getElementById('status-desc').innerText = progressCount === 3 ? "모든 미션 완수!" : `${progressCount}/3 미션 완료`;
-
-      // 1번 미션 완료 상태면 내 거북이 유지
-      if (state.m1.done && state.m1.rangerId) {
-        const t = turtleMarkers[state.m1.rangerId];
-        if(t) t.getElement().classList.add('glow');
-      }
-
-      // 최종 완료 체크
-      if(progressCount === 3) {
-        setTimeout(showCertificate, 800);
+      
+      if(count === 8) {
+        document.getElementById('status-desc').innerText = "모든 수사 완료!";
+        setTimeout(() => showCertificate(), 800);
+      } else {
+        document.getElementById('status-desc').innerText = count === 0 ? "미션을 시작해 보세요" : "수사 진행 중...";
       }
     }
 
-    function openMission(id, caseId = null) {
-      const panel = document.getElementById('mission-panel');
-      const b = document.getElementById('p-body');
-      const m = mainMissions.find(x => x.id === id);
+    function openMission(id) {
+      activeMissionId = id;
+      const m = missions.find(x => x.id === id);
+      const isDone = state.solvedCases.includes(id);
       
-      document.getElementById('p-kicker').innerText = m.k;
-      document.getElementById('p-title').innerText = m.pTitle;
-      document.getElementById('p-desc').innerText = m.pDesc;
+      // UI 하이라이트 변경
+      document.querySelectorAll('.marker-pin').forEach(el => el.classList.remove('active'));
+      document.getElementById(`marker-${id}`).classList.add('active');
+      updateUI(); // 사이드바 활성화 갱신을 위해
+
+      // 지도 이동
+      map.flyTo([m.lat, m.lng], 4, { duration: 1.2 });
+
+      // 오른쪽 패널 렌더링
+      document.getElementById('p-kicker').innerText = `MISSION 0${id} · ${isDone ? '완료' : '진행 중'}`;
+      document.getElementById('p-title').innerHTML = `${m.icon} ${m.title}`;
+      document.getElementById('p-location').innerText = m.location;
       
-      if (id === 1) renderMission1(b);
-      if (id === 2) renderMission2(b);
-      if (id === 3 && caseId) renderMission3(b, caseId);
+      let chipsHtml = m.chips.map(c => `<div class="data-chip"><strong>${c.v}</strong><span>${c.t}</span></div>`).join('');
       
-      if (id === 3 && !caseId) {
-        showToast("아래의 8개 CASE FILE 중 하나를 지도나 목록에서 선택해주세요.");
-        return;
-      }
-
-      panel.classList.add('open');
-    }
-
-    function closePanel() {
-      document.getElementById('mission-panel').classList.remove('open');
-      map.setView([20, 100], 2.5, { duration: 1.0 });
-    }
-
-    // --- 미션 1 (TRACE) 렌더링 ---
-    function renderMission1(container) {
-      container.innerHTML = `
-        <div class="stat-row">
-          <div class="stat-box"><strong>220명</strong><span>Rangers 2 참여자</span></div>
-          <div class="stat-box"><strong>5개</strong><span>상징적 해역 경로</span></div>
-          <div class="stat-box"><strong>1년</strong><span>함께할 보전 여정</span></div>
-        </div>
-        
-        <div class="success-box ${state.m1.done ? 'show' : ''}" id="m1-success">
-          <strong>✓ TRACE STAMP 획득</strong>
-          <p>Ranger #${state.m1.rangerId}의 거북이가 지도에서 빛나고 있습니다.</p>
-        </div>
-
-        <div class="input-group">
-          <div class="input-box">
-            <label>RANGER NUMBER (1~220)</label>
-            <input type="number" id="m1-num" min="1" max="220" value="${state.m1.rangerId}" placeholder="예: 56">
-          </div>
-          <div class="input-box">
-            <label>DISPLAY NAME</label>
-            <input type="text" id="m1-name" value="${state.m1.nickname}" placeholder="닉네임(선택)">
-          </div>
-        </div>
-        <p style="font-size:10px; color:#5e7478; margin-top:-10px; margin-bottom:20px;">입력값은 현재 브라우저에만 저장되며 외부로 전송되지 않습니다.</p>
-        <button class="btn-primary" onclick="submitMission1()">${state.m1.done ? '내 거북이 다시 찾기 →' : '내 거북이 찾기 →'}</button>
-      `;
-    }
-
-    function submitMission1() {
-      const num = parseInt(document.getElementById('m1-num').value);
-      const name = document.getElementById('m1-name').value;
-      
-      if(isNaN(num) || num < 1 || num > 220) {
-        showToast("1에서 220 사이의 Ranger Number를 입력해주세요."); return;
-      }
-      
-      // 기존 거북이 빛 끄기
-      if (state.m1.rangerId && turtleMarkers[state.m1.rangerId]) {
-        turtleMarkers[state.m1.rangerId].getElement().classList.remove('glow');
-      }
-
-      state.m1 = { done: true, rangerId: num, nickname: name };
-      saveState();
-
-      // 지도 이동 및 빛내기
-      const t = turtles.find(x => x.id === num);
-      map.flyTo([t.lat, t.lng], 5, { duration: 1.5 });
-      setTimeout(() => { turtleMarkers[num].getElement().classList.add('glow'); }, 1500);
-
-      renderMission1(document.getElementById('p-body'));
-      showToast(`Ranger #${num} 거북이를 찾았습니다!`);
-    }
-
-    // --- 미션 2 (ACT) 렌더링 ---
-    function renderMission2(container) {
-      const acts = [
-        { id: 'act1', icon: '♻️', title: '일회용품 하나 줄이기', desc: '오늘 하루 일회용 컵·비닐·빨대 중 하나를 거절해요.' },
-        { id: 'act2', icon: '🧤', title: '쓰레기 세 개 줍기', desc: '집 주변이나 산책길에서 쓰레기 세 개를 안전하게 수거해요.' },
-        { id: 'act3', icon: '📣', title: 'Turtle Signal 공유하기', desc: '배운 ShellBank 사실 하나를 친구나 SNS에 알려요.' }
-      ];
-
-      let actsHtml = acts.map(a => `
-        <div class="action-radio ${state.m2.action === a.title ? 'active' : ''}" onclick="selectAct('${a.title}')">
-          <div class="action-icon">${a.icon}</div>
-          <div class="action-text"><strong>${a.title}</strong><span>${a.desc}</span></div>
-          <div class="radio-dot"></div>
-        </div>
-      `).join('');
-
-      container.innerHTML = `
-        <div class="success-box ${state.m2.done ? 'show' : ''}" id="m2-success">
-          <strong>✓ OCEAN ACTION STAMP 획득</strong>
-          <p>'${state.m2.action}'을(를) 나의 흔적으로 남겼습니다.</p>
-        </div>
-        
-        <div id="act-list">${actsHtml}</div>
-
-        <div class="input-box" style="margin-top:20px;">
-          <label>MY OCEAN PROMISE · 선택</label>
-          <input type="text" id="m2-promise" value="${state.m2.promise}" placeholder="나만의 다짐을 짧게 적어보세요">
-        </div>
-        
-        <button class="btn-primary" style="margin-top:15px;" onclick="submitMission2()">인증 문구 업데이트 →</button>
-        
-        <div class="promise-result ${state.m2.done ? 'show' : ''}" id="m2-result">
-          <span id="m2-text">나는 오늘 바다거북의 편이 되었습니다. 🐢 ${state.m2.action} ${state.m2.promise} #WWFRangers #ShellBank #FollowTheTrace</span>
-          <br><button class="btn-copy" onclick="copyPromise()">인증 문구 복사</button>
-        </div>
-      `;
-    }
-
-    function selectAct(title) {
-      state.m2.action = title;
-      renderMission2(document.getElementById('p-body'));
-    }
-
-    function submitMission2() {
-      if(!state.m2.action) { showToast("실천할 행동 하나를 먼저 선택해주세요."); return; }
-      state.m2.promise = document.getElementById('m2-promise').value;
-      state.m2.done = true;
-      saveState();
-      renderMission2(document.getElementById('p-body'));
-      showToast("행동 약속이 업데이트 되었습니다!");
-    }
-
-    function copyPromise() {
-      const text = document.getElementById('m2-text').innerText;
-      navigator.clipboard.writeText(text).then(() => showToast("인증 문구가 복사되었습니다. SNS에 공유해보세요!"));
-    }
-
-    // --- 미션 3 (INVESTIGATE) 렌더링 ---
-    function renderMission3(container, caseId) {
-      const c = dnaCases.find(x => x.id === caseId);
-      const isSolved = state.m3.solvedCases.includes(caseId);
-      
-      document.getElementById('p-kicker').innerText = `MISSION 03 · CASE 0${caseId}`;
-      document.getElementById('p-title').innerText = c.title;
-      document.getElementById('p-desc').innerText = "DATA CHECK";
-
-      let optsHtml = c.opts.map((opt, i) => {
+      let optsHtml = m.opts.map((opt, i) => {
         let cls = 'option-btn';
-        if (isSolved && i === c.ans) cls += ' correct';
-        return `<button class="${cls}" ${isSolved ? 'disabled' : ''} onclick="checkAnswer(${caseId}, ${i}, this)"><span>${String.fromCharCode(65+i)}.</span> ${opt}</button>`;
+        if (isDone && i === m.ans) cls += ' correct';
+        return `<button class="${cls}" ${isDone ? 'disabled' : ''} onclick="checkAnswer(${id}, ${i}, this)"><span>${String.fromCharCode(65+i)}.</span> ${opt}</button>`;
       }).join('');
 
-      container.innerHTML = `
-        <div class="quiz-question">${c.q}</div>
-        <div class="options">${optsHtml}</div>
-        <div class="success-box ${isSolved ? 'show' : ''}" id="m3-feedback" style="margin-top:20px; border-left-color:var(--ocean);">
-          <strong>${isSolved ? '✅ 데이터 분석 완료' : ''}</strong>
-          <p id="m3-exp">${isSolved ? c.exp : ''}</p>
+      document.getElementById('p-body').innerHTML = `
+        <div class="story-text">${m.story}</div>
+        <div class="chip-container">${chipsHtml}</div>
+        
+        <div class="learn-box">
+          <strong>💡 ${m.learnTitle}</strong>
+          <p>${m.learnDesc}</p>
+        </div>
+        
+        <div class="source-text">
+          <b>▣</b>
+          <span>출처: ShellBank Impact Report 2023/24. 수치는 리포트 공개 시점 기준입니다.</span>
+        </div>
+
+        <div class="quiz-section">
+          <div class="quiz-label">DATA CHECK</div>
+          <div class="quiz-question">${m.q}</div>
+          <div class="options">${optsHtml}</div>
+          
+          <div class="feedback ${isDone ? 'show' : ''}" id="m-feedback">
+            <strong>${isDone ? '✅ 이미 완료한 미션입니다.' : ''}</strong>
+            <p>${isDone ? m.exp : ''}</p>
+          </div>
         </div>
       `;
-      
-      map.flyTo([c.lat, c.lng], 4, { duration: 1.2 });
+
+      document.getElementById('mission-panel').classList.add('open');
     }
 
-    function checkAnswer(caseId, selectedIndex, btnEl) {
-      const c = dnaCases.find(x => x.id === caseId);
-      const feedback = document.getElementById('m3-feedback');
+    function checkAnswer(id, selectedIdx, btnEl) {
+      const m = missions.find(x => x.id === id);
+      const feedback = document.getElementById('m-feedback');
       
-      if(selectedIndex === c.ans) {
+      if(selectedIdx === m.ans) {
         btnEl.classList.add('correct');
-        if(!state.m3.solvedCases.includes(caseId)) state.m3.solvedCases.push(caseId);
-        saveState();
+        if(!state.solvedCases.includes(id)) {
+          state.solvedCases.push(id);
+          saveState();
+        }
         
-        feedback.querySelector('strong').innerText = '✅ 데이터 분석 완료';
-        feedback.querySelector('p').innerText = c.exp;
+        feedback.querySelector('strong').innerText = '✅ 정답입니다!';
+        feedback.querySelector('p').innerText = m.exp;
         feedback.classList.add('show');
         
         // 아이콘 업데이트
-        document.getElementById(`btn-case-${caseId}`).classList.add('solved');
-        const markerEl = document.getElementById(`marker-case-${caseId}`);
-        if(markerEl) { markerEl.classList.add('solved'); markerEl.innerText = '✓'; }
+        document.getElementById(`marker-${id}`).classList.add('solved');
+        document.getElementById(`marker-${id}`).querySelector('span').innerText = '✓';
         
         const allBtns = btnEl.parentElement.querySelectorAll('.option-btn');
         allBtns.forEach(b => b.disabled = true);
         
-        showToast("단서를 정확히 찾았습니다!");
+        showToast("단서를 정확히 찾았습니다! +100 XP");
       } else {
         btnEl.classList.add('wrong');
-        showToast("수치를 다시 한 번 신중하게 확인해보세요.");
+        showToast("❌ 수치를 다시 한 번 신중하게 확인해보세요.");
       }
     }
 
+    function closePanel() {
+      document.getElementById('mission-panel').classList.remove('open');
+      document.querySelectorAll('.marker-pin').forEach(el => el.classList.remove('active'));
+      activeMissionId = null;
+      updateUI();
+      map.flyTo([15, 120], 2.5, { duration: 1.0 });
+    }
+
     // --------------------------------------------------
-    // 5. 공통 유틸 및 인증서
+    // 4. 유틸 및 이벤트
     // --------------------------------------------------
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -661,19 +573,16 @@
     function closeCertificate() { document.getElementById('certificate-backdrop').classList.remove('open'); }
     
     function resetAll() {
-      if(confirm("모든 미션 진행 상황을 초기화하시겠습니까?")) {
-        localStorage.removeItem('wwf_rangers_state');
+      if(confirm("모든 글로벌 미션 진행 상황을 초기화하시겠습니까?")) {
+        localStorage.removeItem('shellbank_8missions_v1');
         location.reload();
       }
     }
 
-    // 모달 배경 클릭 닫기
     document.getElementById('certificate-backdrop').addEventListener('click', function(e) { if (e.target === this) closeCertificate(); });
 
-    // 초기화 실행
     window.onload = () => {
-      initDNACases();
-      updateUI();
+      initMissions();
     };
   </script>
 </body>
