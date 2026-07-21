@@ -17,6 +17,9 @@
       --accent: #ffd05a;
       --text-main: #ffffff;
       --text-sub: #bce7e5;
+      /* Certificate Colors */
+      --cert-border: #087f8c;
+      --cert-bg: #fff4cf;
     }
     * { box-sizing: border-box; }
     body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Gowun Dodum", sans-serif; overflow: hidden; background: var(--deep-bg); }
@@ -41,9 +44,7 @@
     .brand-text small { display: block; font-size: 10px; letter-spacing: 0.1em; color: var(--text-sub); font-weight: bold; }
     .brand-text strong { font-family: "Jua", sans-serif; font-size: 20px; font-weight: normal; letter-spacing: 0.05em; }
     
-    .status-card {
-      display: flex; gap: 15px; pointer-events: auto;
-    }
+    .status-card { display: flex; gap: 15px; pointer-events: auto; }
     .status-badge {
       display: flex; align-items: center; gap: 12px; background: #ffffff; padding: 8px 20px 8px 8px;
       border-radius: 99px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -51,23 +52,16 @@
     .progress-circle {
       width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
       background: conic-gradient(#ff765f 100%, #ffe4df 0); font-family: "Jua"; font-size: 18px; color: #ff765f;
-      border: 3px solid #ffe4df;
+      border: 3px solid #ffe4df; transition: background 0.5s ease;
     }
     .status-text strong { display: block; font-size: 15px; color: #082a45; font-family: "Jua"; }
     .status-text small { font-size: 11px; color: #5e7478; }
     
-    .icon-btn {
-      width: 46px; height: 46px; border-radius: 14px; background: #ffffff; border: none;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-size: 22px; cursor: pointer; transition: transform 0.2s;
-    }
-    .icon-btn:hover { transform: translateY(-3px); }
-
     /* Left Dock - Mission Hub */
     .mission-dock {
       position: absolute; top: 90px; left: 20px; bottom: 20px; width: 340px;
       background: var(--panel-bg); border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-      display: flex; flex-direction: column; z-index: 500; overflow: hidden;
-      color: var(--text-main);
+      display: flex; flex-direction: column; z-index: 500; overflow: hidden; color: var(--text-main);
     }
     .dock-header { padding: 25px 20px 15px; }
     .dock-header small { font-size: 10px; color: var(--highlight); font-weight: bold; letter-spacing: 0.1em; }
@@ -113,7 +107,8 @@
     .side-panel.open { transform: translateX(0); }
     
     .panel-hero { background: var(--panel-bg); color: white; padding: 30px 25px 25px; position: relative; }
-    .close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; }
+    .close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; transition: 0.2s;}
+    .close-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
     .panel-hero small { font-size: 11px; letter-spacing: 0.1em; color: var(--highlight); font-weight: bold; }
     .panel-hero h2 { font-family: "Jua"; font-size: 26px; margin: 8px 0; font-weight: normal; }
     .panel-hero p { font-size: 13px; color: var(--text-sub); margin: 0; }
@@ -137,7 +132,7 @@
     .option-btn:disabled { cursor: default; }
 
     .feedback { margin-top: 15px; padding: 15px; border-radius: 12px; font-size: 13px; line-height: 1.5; display: none; }
-    .feedback.show { display: block; }
+    .feedback.show { display: block; animation: popIn 0.3s ease; }
     .feedback.success { background: #e8fff6; color: #086c51; border: 1px solid #22b99a; }
     .feedback.error { background: #fff0ec; color: #9f3526; border: 1px solid #ff765f; }
 
@@ -150,6 +145,79 @@
     .custom-marker.solved { background: var(--highlight); }
     .custom-marker.active { transform: scale(1.2); border-color: var(--accent); z-index: 1000 !important; }
 
+    /* =======================================================
+       ✨ 고도화된 인증서 (Certificate) CSS 영역 ✨ 
+       ======================================================= */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 2000; display: none; place-items: center; padding: 18px;
+      background: rgba(6, 47, 56, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    .modal-backdrop.open { display: grid; animation: fadeIn 0.3s ease; }
+    
+    .certificate-modal {
+      position: relative; width: min(760px, 100%); max-height: 90vh; overflow: auto;
+      border-radius: 30px; background: var(--cert-bg); box-shadow: 0 28px 80px rgba(0,0,0,0.4);
+    }
+    
+    .modal-close {
+      position: absolute; z-index: 10; top: 16px; right: 16px; width: 42px; height: 42px; border: 0; 
+      border-radius: 14px; color: var(--cert-border); background: rgba(255,255,255,0.9); cursor: pointer; 
+      font-size: 20px; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .modal-close:hover { background: white; transform: scale(1.08); }
+
+    .certificate-wrap { padding: 44px; text-align: center; }
+    .certificate {
+      position: relative; padding: 45px 30px; border: 7px double var(--cert-border); border-radius: 20px;
+      background: white radial-gradient(circle at 10% 20%, rgba(48,201,197,0.08), transparent 28%);
+    }
+    /* 거북이 장식 */
+    .certificate::before, .certificate::after { content: "🐢"; position: absolute; font-size: 42px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+    .certificate::before { left: 20px; top: 20px; transform: rotate(-18deg); }
+    .certificate::after { right: 20px; bottom: 20px; transform: rotate(18deg); }
+    
+    .certificate small { color: var(--cert-border); font-weight: 800; letter-spacing: 0.15em; font-size: 13px; }
+    .certificate h2 { margin: 15px 0 10px; font-family: "Jua", sans-serif; font-size: 38px; font-weight: 400; color: #093740; }
+    
+    /* 사용자 이름 입력 필드 */
+    .certificate-name { 
+      min-width: 240px; max-width: 80%; margin: 20px auto 15px; padding: 10px 15px; border: 0; 
+      border-bottom: 3px solid var(--cert-border); text-align: center; font-family: "Jua", sans-serif; 
+      font-size: 28px; color: #093740; background: transparent; transition: 0.2s;
+    }
+    .certificate-name:focus { outline: none; border-bottom-color: var(--highlight); background: rgba(48,201,197,0.05); }
+    
+    .certificate p { max-width: 520px; margin: 0 auto; line-height: 1.7; font-size: 15px; color: #17343a; word-break: keep-all; }
+    
+    .certificate-stats { display: flex; justify-content: center; gap: 20px; margin-top: 25px; font-size: 16px; color: #5e7478; }
+    .certificate-stats b { color: #ff765f; font-family: "Jua", sans-serif; font-size: 22px; }
+    
+    .certificate-actions { display: flex; justify-content: center; gap: 12px; margin-top: 25px; }
+    .btn-action { 
+      font-family: "Jua", sans-serif; font-size: 16px; padding: 12px 24px; border-radius: 999px; 
+      cursor: pointer; transition: transform 0.2s, background 0.2s; border: none;
+    }
+    .btn-secondary { background: white; color: #093740; border: 2px solid #cfe7e4; }
+    .btn-secondary:hover { background: #f0f8f7; transform: translateY(-2px); }
+    .btn-primary { background: var(--cert-border); color: white; box-shadow: 0 8px 20px rgba(8,127,140,0.3); }
+    .btn-primary:hover { background: #066570; transform: translateY(-2px); }
+
+    /* 빵빠레(Confetti) 파티클 애니메이션 */
+    .confetti { position: fixed; z-index: 2100; top: -20px; width: 10px; height: 18px; border-radius: 3px; pointer-events: none; animation: confetti-fall 2.5s linear forwards; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes confetti-fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0.5; } }
+
+    /* 인쇄(PDF 저장) 시 최적화: 모달창만 깨끗하게 출력되도록 설정 */
+    @media print {
+      body * { visibility: hidden !important; }
+      #certificate-backdrop, #certificate-backdrop * { visibility: visible !important; }
+      #certificate-backdrop { position: absolute; inset: 0; display: block; padding: 0; background: white; }
+      .certificate-modal { width: 100%; max-height: none; box-shadow: none; background: white; }
+      .certificate-wrap { padding: 10mm; background: white; }
+      .certificate-actions, .modal-close { display: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -234,6 +302,30 @@
     </div>
   </section>
 
+  <!-- 🏆 완료 인증서 모달 (새로 추가됨) -->
+  <div class="modal-backdrop" id="certificate-backdrop" role="dialog" aria-modal="true" aria-labelledby="certificate-title">
+    <div class="modal certificate-modal">
+      <button class="modal-close" onclick="closeCertificate()" type="button" aria-label="수료증 닫기">✕</button>
+      <div class="certificate-wrap">
+        <div class="certificate">
+          <small>SHELLBANK OCEAN RANGERS</small>
+          <h2 id="certificate-title">바다거북 DNA 탐험 인증서</h2>
+          <!-- 사용자가 직접 이름을 수정할 수 있도록 input 태그 사용 -->
+          <input class="certificate-name" id="ranger-name" type="text" maxlength="24" value="Ocean Ranger" aria-label="인증서 이름">
+          <p>위 레인저는 ShellBank의 과학적 추적 원리와 세계 현장 사례를 학습하고, 8개의 데이터 미션을 모두 완수했음을 인증합니다.</p>
+          <div class="certificate-stats">
+            <span>미션 <b id="certificate-cases">8/8</b></span>
+            <span>획득 <b id="certificate-xp">800 XP</b></span>
+          </div>
+        </div>
+        <div class="certificate-actions">
+          <button class="btn-action btn-secondary" onclick="closeCertificate()" type="button">지도로 돌아가기</button>
+          <button class="btn-action btn-primary" onclick="window.print()" type="button">인증서 인쇄·PDF 저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Leaflet & App Logic -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
@@ -310,7 +402,6 @@
     let markers = {};
 
     // 2. Leaflet Map Setup
-    // 지도가 무한 반복(갈라짐)되지 않도록 경계(bounds)와 noWrap 설정 적용
     const bounds = [[-85, -180], [85, 180]];
     const map = L.map('map', {
       maxBounds: bounds,
@@ -318,7 +409,7 @@
       worldCopyJump: false,
       minZoom: 2,
       maxZoom: 7,
-      zoomControl: false // UI 가림 방지를 위해 줌 컨트롤 제거
+      zoomControl: false
     }).setView([20, 100], 2.5);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
@@ -446,12 +537,56 @@
       const conicProgress = (count / 8) * 100;
       document.querySelector('.progress-circle').style.background = `conic-gradient(#ff765f ${conicProgress}%, #ffe4df 0)`;
       
+      // ✨ 모든 미션 완료 시 인증서 팝업 띄우기 ✨
       if(count === 8) {
         setTimeout(() => {
-          alert('축하합니다! 8개의 DNA 사건 파일 수사를 모두 완료하여 최종 인증 요건을 달성했습니다.');
-        }, 500);
+          openCertificate();
+        }, 700); // UI 업데이트 후 자연스럽게 뜨도록 0.7초 지연
       }
     }
+
+    // ==========================================
+    // ✨ 새롭게 추가된 인증서 및 축하 로직 ✨
+    // ==========================================
+    function openCertificate() {
+      // 획득한 XP 및 달성률 반영 (예: 1문제당 110~125XP 등 자유롭게 설정 가능. 여기서는 900XP 고정 출력 또는 계산식 적용)
+      const earnedXP = solvedCases.size * 112 + 4; // 8개 * 112 + 4 = 900XP (사진과 맞춤)
+      document.getElementById('certificate-xp').innerHTML = `${earnedXP} XP`;
+      
+      // 사이드 패널이 열려있으면 닫기
+      closePanel();
+      
+      // 모달 띄우기
+      document.getElementById('certificate-backdrop').classList.add('open');
+      
+      // 빵빠레 효과 발생
+      burstConfetti(65);
+    }
+
+    function closeCertificate() {
+      document.getElementById('certificate-backdrop').classList.remove('open');
+    }
+
+    function burstConfetti(amount) {
+      const colors = ["#ffd05a", "#ff765f", "#30c9c5", "#ffffff", "#087f8c"];
+      for (let i = 0; i < amount; i++) {
+        const piece = document.createElement("i");
+        piece.className = "confetti"; 
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.background = colors[i % colors.length]; 
+        piece.style.animationDelay = `${Math.random() * 0.6}s`;
+        piece.style.transform = `rotate(${Math.random() * 180}deg)`; 
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 3000);
+      }
+    }
+
+    // 모달 바깥 영역 클릭 시 닫기 기능
+    document.getElementById('certificate-backdrop').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeCertificate();
+      }
+    });
 
     // Run Initialization
     window.onload = initUI;
