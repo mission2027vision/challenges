@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WWF Rangers 2nd Generation - TRACE TALK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #007B7F;
+            --dark-navy: #0B2536;
+            --bg: #F4F8F9;
+            --gray-light: #EBEFEF;
+            --text-dark: #333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); color: var(--text-dark); display: flex; justify-content: center; padding: 40px 20px; }
+        
+        .container { max-width: 1000px; width: 100%; display: flex; flex-direction: column; gap: 30px; }
+
+        /* Header */
+        .header { border-bottom: 2px solid var(--gray-light); padding-bottom: 20px; }
+        .header h4 { color: var(--primary); font-size: 14px; letter-spacing: 1px; font-weight: 700; margin-bottom: 8px; }
+        .header h1 { font-size: 30px; color: var(--dark-navy); font-weight: 800; margin-bottom: 10px; }
+        .header p { font-size: 16px; color: var(--primary); font-weight: 600; }
+
+        /* Topic Grid */
+        .topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .topic-card { background: #fff; border: 2px solid var(--gray-light); border-radius: 16px; padding: 20px; cursor: pointer; transition: 0.3s; text-align: center; }
+        .topic-card:hover, .topic-card.selected { border-color: var(--primary); background-color: #f0f7f7; transform: translateY(-3px); }
+        .topic-icon { font-size: 35px; margin-bottom: 10px; }
+        .topic-title { font-size: 16px; font-weight: 700; color: var(--dark-navy); margin-bottom: 8px; }
+        .topic-desc { font-size: 13px; color: #666; line-height: 1.4; }
+
+        /* Question Form Section */
+        .question-box { background: #fff; border: 3px solid var(--primary); border-radius: 20px; padding: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .form-title { font-family: 'Jua', sans-serif; font-size: 24px; color: var(--dark-navy); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        
+        .input-group { margin-bottom: 20px; }
+        .input-label { display: block; font-size: 14px; font-weight: 700; color: var(--dark-navy); margin-bottom: 8px; }
+        .text-input, .textarea-input { width: 100%; padding: 14px; border: 2px solid var(--gray-light); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; font-family: inherit; }
+        .text-input:focus, .textarea-input:focus { border-color: var(--primary); }
+        .textarea-input { resize: vertical; min-height: 100px; }
+
+        .submit-btn { width: 100%; padding: 16px; background-color: var(--dark-navy); color: white; border: none; border-radius: 20px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .submit-btn:hover { background-color: #081B28; }
+
+        /* Success Card (Hidden initially) */
+        .success-card { display: none; background: #fff; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 3px solid var(--primary); animation: fadeIn 0.4s ease; }
+        .success-card.active { display: block; }
+        .success-card h3 { font-family: 'Jua', sans-serif; font-size: 26px; color: var(--primary); margin: 15px 0; }
+        .success-card p { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 25px; }
+        .badge-box { background: #f0f7f7; border: 2px dashed var(--primary); padding: 15px; border-radius: 12px; font-weight: 700; color: var(--dark-navy); margin-bottom: 25px; display: inline-block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h4>WWF RANGERS 2ND GENERATION — BONUS TRACE</h4>
+        <h1>TRACE TALK: Ask a Researcher 🐢</h1>
+        <p>바다거북의 흔적을 해독하기 전에, 연구자에게 당신의 궁금증을 남겨주세요!</p>
+    </div>
+
+    <!-- Question Form Container -->
+    <div id="form-container" class="question-box">
+        <div class="form-title">💬 질문 분야를 선택하고 질문을 남겨주세요</div>
+        
+        <div class="topic-grid">
+            <div class="topic-card" onclick="selectTopic(this, 'DNA와 ShellBank')">
+                <div class="topic-icon">🧬</div>
+                <div class="topic-title">DNA와 ShellBank</div>
+                <div class="topic-desc">바다거북 DNA로 어디까지 알 수 있나요?</div>
+            </div>
+            <div class="topic-card" onclick="selectTopic(this, '현장 조사')">
+                <div class="topic-icon">🏖️</div>
+                <div class="topic-title">현장 조사</div>
+                <div class="topic-desc">시료는 어떻게 수집하고 활용되나요?</div>
+            </div>
+            <div class="topic-card" onclick="selectTopic(this, '위협과 보전')">
+                <div class="topic-icon">🚨</div>
+                <div class="topic-title">위협과 보전</div>
+                <div class="topic-desc">불법 거래와 정책 연계 과정이 궁금해요</div>
+            </div>
+            <div class="topic-card" onclick="selectTopic(this, '연구자와 보전활동')">
+                <div class="topic-icon">👩‍🔬</div>
+                <div class="topic-title">연구자와 보전활동</div>
+                <div class="topic-desc">시민이 보전에 기여할 방법은 무엇인가요?</div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">선택된 주제</label>
+            <input type="text" id="selected-topic" class="text-input" readonly placeholder="위의 4가지 주제 중 하나를 클릭해주세요" style="background-color: #f9f9f9; color: var(--primary); font-weight: bold;">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">레인저 코드 (8자리)</label>
+            <input type="text" id="ranger-code" class="text-input" placeholder="예: A1B2C3D4" maxlength="8">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">연구자에게 하고 싶은 질문 한 개</label>
+            <textarea id="question-text" class="textarea-input" placeholder="ShellBank 데이터나 바다거북 보전에 대해 평소 궁금했던 점을 적어주세요!"></textarea>
+        </div>
+
+        <button class="submit-btn" onclick="submitQuestion()">질문 제출하고 단서 요청하기 🚀</button>
+    </div>
+
+    <!-- Success Card Container -->
+    <div id="success-card" class="success-card">
+        <div style="font-size: 60px;">🐢✨</div>
+        <h3>Your Question Has Joined the Trace</h3>
+        <p>레인저님이 남겨주신 소중한 질문이 접수되었습니다!<br>주요 질문은 선정되어 연구자의 Q&A 영상 및 답변으로 공개됩니다.</p>
+        <div class="badge-box">
+            🎁 [Bonus Trace] 디지털 참여 완료 카드 발급됨
+        </div>
+        <div>
+            <button class="submit-btn" onclick="location.reload()" style="max-width: 250px;">다른 질문 추가하기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chosenTopic = "";
+
+    function selectTopic(card, topicName) {
+        document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        chosenTopic = topicName;
+        document.getElementById('selected-topic').value = topicName;
+    }
+
+    function submitQuestion() {
+        if (!chosenTopic) {
+            alert("질문 분야(주제)를 먼저 선택해주세요!");
+            return;
+        }
+        const code = document.getElementById('ranger-code').value.trim();
+        if (code.length !== 8) {
+            alert("8자리 레인저 코드를 정확히 입력해주세요.");
+            return;
+        }
+        const qText = document.getElementById('question-text').value.trim();
+        if (qText.length < 5) {
+            alert("질내용을 5자 이상 상세히 작성해주세요!");
+            return;
+        }
+
+        // Switch to success view
+        document.getElementById('form-container').style.display = 'none';
+        document.getElementById('success-card').classList.add('active');
+    }
+</script>
+
+</body>
+</html>
