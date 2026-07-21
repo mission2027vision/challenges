@@ -1,381 +1,260 @@
-<!DOCTYPE html>
+html_content = """<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WWF Rangers 2nd Generation - TRACE 01</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #007B7F; /* 바다거북 청록색 */
-            --dark-navy: #0B2536; /* 어두운 네이비 */
-            --bg-color: #F4F8F9; /* 배경 연한 회청색 */
+            --primary: #007B7F;
+            --dark-navy: #0B2536;
+            --bg: #F4F8F9;
             --gray-light: #EBEFEF;
             --text-dark: #333;
-            --text-gray: #666;
+            --toon-border: #2c3e50;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); color: var(--text-dark); display: flex; justify-content: center; padding: 40px 20px; }
+        
+        .container { max-width: 1100px; width: 100%; display: grid; grid-template-columns: 350px 1fr; gap: 40px; }
+        @media (max-width: 850px) { .container { grid-template-columns: 1fr; } }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            line-height: 1.6;
-            padding: 40px 20px;
-        }
+        /* Header */
+        .header-full { grid-column: 1 / -1; margin-bottom: 20px; border-bottom: 2px solid var(--gray-light); padding-bottom: 20px; }
+        .header-full h4 { color: var(--primary); font-size: 14px; letter-spacing: 1px; font-weight: 700;}
+        .header-full h1 { font-size: 34px; color: var(--dark-navy); font-weight: 800; margin: 10px 0; }
+        .header-full h2 { font-size: 20px; color: var(--primary); font-weight: 600; }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        /* Phone UI */
+        .phone-mockup { background: #fff; border: 14px solid var(--dark-navy); border-radius: 40px; padding: 30px 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; min-height: 700px; position: sticky; top: 40px; }
+        .phone-title { text-align: center; font-size: 18px; font-weight: 700; color: var(--dark-navy); margin-bottom: 30px; }
+        
+        .input-group { margin-bottom: 25px; }
+        .code-input { width: 100%; padding: 15px; border: 2px solid var(--gray-light); border-radius: 12px; font-size: 16px; outline: none; transition: 0.3s; text-align: center; letter-spacing: 2px; font-weight: bold; }
+        .code-input:focus { border-color: var(--primary); }
 
-        /* Header Styles */
-        .header {
-            margin-bottom: 40px;
-            border-bottom: 2px solid var(--gray-light);
-            padding-bottom: 20px;
-        }
+        .section-subtitle { font-size: 14px; font-weight: 700; margin-bottom: 15px; color: var(--text-dark); text-align: center; background: #e0f2f1; padding: 8px; border-radius: 8px; }
+        
+        .radio-btn { width: 100%; padding: 16px; text-align: center; border-radius: 20px; font-size: 15px; cursor: pointer; margin-bottom: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; font-weight: 700; }
+        .radio-btn.active { background-color: var(--primary); color: white; box-shadow: 0 6px 15px rgba(0, 123, 127, 0.3); transform: translateY(-2px); }
+        .radio-btn.inactive { background-color: var(--gray-light); color: #888; border-color: #ddd; }
+        .radio-btn.inactive:hover { background-color: #e4e9e9; }
 
-        .header h4 {
-            color: var(--primary-color);
-            font-size: 14px;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-        }
+        .submit-btn { margin-top: auto; width: 100%; padding: 18px; background-color: var(--dark-navy); color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .submit-btn:hover { background-color: #081B28; box-shadow: 0 4px 12px rgba(11, 37, 54, 0.4); }
 
-        .header h1 {
-            font-size: 32px;
-            color: var(--dark-navy);
-            margin-bottom: 10px;
-            font-weight: 800;
-        }
+        /* Right Panel */
+        .right-panel { display: flex; flex-direction: column; gap: 20px; position: relative; }
+        
+        /* 4-Cut Webtoon Layout */
+        .webtoon-panel { display: none; animation: fadeIn 0.5s ease forwards; }
+        .webtoon-panel.active { display: block; }
+        
+        .toon-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 3px dashed var(--gray-light); }
+        .toon-avatar { font-size: 40px; background: #e0f2f1; border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1); }
+        .toon-title { font-family: 'Jua', sans-serif; font-size: 28px; color: var(--dark-navy); text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
 
-        .header h2 {
-            font-size: 20px;
-            color: var(--primary-color);
-            font-weight: 500;
-        }
+        .instatoon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .instatoon-grid { grid-template-columns: 1fr; } }
 
-        /* Main Content Grid */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: start;
-        }
+        .toon-cut { background: white; border: 4px solid var(--toon-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; box-shadow: 4px 4px 0px var(--toon-border); overflow: hidden; }
+        .toon-cut::before { content: attr(data-cut); position: absolute; top: 10px; left: 10px; background: var(--toon-border); color: white; font-family: 'Jua', sans-serif; padding: 2px 8px; border-radius: 8px; font-size: 14px; }
+        
+        .toon-visual { font-size: 60px; margin: 15px 0; padding: 20px; background: var(--bg); border-radius: 50%; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; }
+        
+        .speech-bubble { font-family: 'Jua', sans-serif; font-size: 16px; line-height: 1.5; color: #333; background: #f0f7f7; padding: 15px; border-radius: 15px; border: 2px solid var(--primary); position: relative; width: 100%; margin-top: 5px; word-break: keep-all; }
+        .speech-bubble::after { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); border-width: 0 10px 10px 10px; border-style: solid; border-color: transparent transparent var(--primary) transparent; }
 
-        @media (max-width: 768px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* Emphasis text in toon */
+        .highlight { color: #d35400; font-weight: bold; background: linear-gradient(180deg, rgba(255,255,255,0) 60%, #ffeaa7 40%); }
 
-        /* Mobile Phone Mockup */
-        .phone-mockup {
-            background: #fff;
-            border: 12px solid var(--dark-navy);
-            border-radius: 36px;
-            padding: 30px 20px;
-            width: 100%;
-            max-width: 320px;
-            margin: 0 auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative;
-            min-height: 550px;
-            display: flex;
-            flex-direction: column;
-        }
+        /* Success Card */
+        .success-card { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); opacity: 0; transform: translateY(20px); transition: 0.5s; position: absolute; top: 0; left: 0; width: 100%; z-index: 10; pointer-events: none; border: 3px solid var(--primary); }
+        .success-card.show { opacity: 1; transform: translateY(0); pointer-events: auto; position: relative; margin-bottom: 20px; }
+        
+        .success-header { background-color: var(--primary); color: white; text-align: center; padding: 25px; font-size: 20px; font-weight: 700; position: relative; }
+        .success-body { padding: 40px 20px; text-align: center; background-image: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M20 20.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z" fill="%23007B7F" fill-opacity="0.1" fill-rule="evenodd"/></svg>'); }
+        .success-body h3 { font-size: 22px; color: var(--text-dark); margin-bottom: 15px; font-family: 'Jua', sans-serif; }
+        .success-body p { font-size: 18px; color: var(--dark-navy); font-weight: 700; margin-bottom: 25px; background: #e0f2f1; display: inline-block; padding: 10px 20px; border-radius: 12px; border: 1px dashed var(--primary); }
+        .check-mark { width: 60px; height: 60px; margin: 0 auto; background: var(--primary); clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
 
-        .phone-title {
-            text-align: center;
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: var(--dark-navy);
-        }
-
-        .input-group {
-            margin-bottom: 30px;
-        }
-
-        .code-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #B0C4C4;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .code-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(0, 123, 127, 0.1);
-        }
-
-        .section-subtitle {
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-dark);
-        }
-
-        .radio-btn {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            text-align: center;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            border: none;
-        }
-
-        .radio-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-            box-shadow: 0 4px 10px rgba(0, 123, 127, 0.2);
-        }
-
-        .radio-btn.inactive {
-            background-color: var(--gray-light);
-            color: #999;
-        }
-
-        .submit-btn {
-            margin-top: auto;
-            width: 100%;
-            padding: 15px;
-            background-color: var(--dark-navy);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .submit-btn:hover {
-            background-color: #081B28;
-        }
-
-        /* Right Side Content & Success Card */
-        .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .success-card {
-            background: #fff;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none;
-        }
-
-        .success-card.show {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
-
-        .success-header {
-            background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: 700;
-            position: relative;
-        }
-
-        /* CSS로 거북이 아이콘 실루엣 느낌 대체 */
-        .turtle-icon {
-            width: 60px;
-            height: 60px;
-            background-color: #fff;
-            border-radius: 50%;
-            position: absolute;
-            top: -30px;
-            right: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-
-        .success-body {
-            padding: 30px;
-            text-align: center;
-        }
-
-        .success-body h3 {
-            font-size: 16px;
-            color: var(--text-dark);
-            margin-bottom: 10px;
-        }
-
-        .success-body p {
-            font-size: 14px;
-            color: var(--text-gray);
-            margin-bottom: 15px;
-        }
-
-        .check-mark {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto;
-            background: var(--dark-navy);
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-        }
-
-        /* Info Text Section */
-        .info-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        }
-
-        .info-section h4 {
-            color: var(--primary-color);
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-
-        .info-list {
-            list-style: none;
-        }
-
-        .info-list li {
-            position: relative;
-            padding-left: 15px;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: var(--text-dark);
-        }
-
-        .info-list li::before {
-            content: "•";
-            color: var(--text-gray);
-            position: absolute;
-            left: 0;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
+    <div class="header-full">
         <h4>WWF RANGERS 2ND GENERATION</h4>
         <h1>나의 코드를 활성화하고 첫 흔적을 남겨라</h1>
         <h2>TRACE 01 — Activate Your Code</h2>
     </div>
 
-    <div class="content-grid">
-        <!-- Left: Mobile UI Mockup -->
-        <div class="phone-mockup">
-            <div class="phone-title">레인저 코드 등록</div>
-            
-            <div class="input-group">
-                <input type="text" id="rangerCode" class="code-input" placeholder="8자리 코드 입력 (예: A1B2C3D4)" maxlength="8">
-            </div>
-
-            <div class="input-group">
-                <div class="section-subtitle">가장 궁금한 흔적 선택</div>
-                <button type="button" class="radio-btn active" onclick="selectTrace(this)">바다거북의 탄생</button>
-                <button type="button" class="radio-btn inactive" onclick="selectTrace(this)">서식지 파괴와 흔적</button>
-            </div>
-
-            <button class="submit-btn" onclick="submitForm()">등록 완료</button>
+    <!-- Left: Mobile UI -->
+    <div class="phone-mockup">
+        <div class="phone-title">레인저 코드 등록</div>
+        
+        <div class="input-group">
+            <input type="text" id="rangerCode" class="code-input" placeholder="8자리 코드 (예: A1B2C3D4)" maxlength="8">
         </div>
 
-        <!-- Right: Success Card & Information -->
-        <div class="right-panel">
-            <div class="success-card" id="successCard">
-                <div class="success-header">
-                    <div class="turtle-icon">🐢</div>
-                    First Trace Registered
-                </div>
-                <div class="success-body">
-                    <h3>첫 번째 흔적 등록 완료!</h3>
-                    <p id="displayCode">임명 코드: ACGT-2024-001</p>
-                    <div class="check-mark"></div>
-                </div>
-            </div>
+        <div class="input-group">
+            <div class="section-subtitle">가장 궁금한 흔적 선택 (클릭!)</div>
+            <button type="button" class="radio-btn active" onclick="selectTrace(1, this)">🚨 위기에 처한 바다거북</button>
+            <button type="button" class="radio-btn inactive" onclick="selectTrace(2, this)">🧬 비밀 신분증, ShellBank</button>
+            <button type="button" class="radio-btn inactive" onclick="selectTrace(3, this)">🕵️ 글로벌 추적 네트워크</button>
+        </div>
 
-            <div class="info-section">
-                <h4>제공 콘텐츠</h4>
-                <ul class="info-list">
-                    <li>바다거북의 생태와 위협 정보</li>
-                    <li>DNA 흔적의 과학적 가치</li>
-                    <li>ShellBank의 역할과 보전 기여</li>
-                    <li>Rangers 2기 1년 로드맵</li>
-                </ul>
+        <button class="submit-btn" onclick="submitForm()">흔적 남기기 완료</button>
+    </div>
+
+    <!-- Right: Instatoon Content & Success Card -->
+    <div class="right-panel">
+        
+        <!-- Success Card (Hidden by default) -->
+        <div class="success-card" id="successCard">
+            <div class="success-header">
+                First Trace Registered 🐢
             </div>
-            
-            <div class="info-section">
-                <h4>후원자 행동</h4>
-                <ul class="info-list">
-                    <li>1. 임명장의 8자리 코드 입력</li>
-                    <li>2. 관심 있는 생태 흔적 하나 선택</li>
-                    <li>3. 짧은 Trace Note 작성</li>
-                    <li>4. 첫 흔적 등록 완료</li>
-                </ul>
+            <div class="success-body">
+                <h3>첫 번째 흔적 등록이 완료되었습니다!</h3>
+                <p id="displayCode">임명 코드: </p>
+                <div class="check-mark"></div>
             </div>
         </div>
+
+        <!-- Webtoon Panel 1 (Ecology & Threats) -->
+        <div id="toon1" class="webtoon-panel active">
+            <div class="toon-header">
+                <div class="toon-avatar">🐢</div>
+                <div class="toon-title">거북이들의 바다 생존기!</div>
+            </div>
+            <div class="instatoon-grid">
+                <div class="toon-cut" data-cut="CUT 1">
+                    <div class="toon-visual">🌊</div>
+                    <div class="speech-bubble">안녕! 난 바다거북이야. 전 세계 우리 친구들 7종 중 무려 <span class="highlight">5종이 멸종 위협</span>을 받고 있어! ㅠㅠ</div>
+                </div>
+                <div class="toon-cut" data-cut="CUT 2">
+                    <div class="toon-visual">🕸️</div>
+                    <div class="speech-bubble">불법 포획과 어업 중 그물에 걸리는 혼획 때문에, 1990년 이후로 무려 <span class="highlight">110만 마리 이상</span>이 희생됐대...</div>
+                </div>
+                <div class="toon-cut" data-cut="CUT 3">
+                    <div class="toon-visual">🏗️</div>
+                    <div class="speech-bubble">게다가 우리가 알을 낳는 해변도 무분별한 개발과 기후변화로 훼손되고 있어서 갈 곳이 없어지고 있어.</div>
+                </div>
+                <div class="toon-cut" data-cut="CUT 4">
+                    <div class="toon-visual">😥</div>
+                    <div class="speech-bubble">압수된 우리 친구들이 어디서 왔는지 정확히 알아야 도와줄 수 있는데, <span class="highlight">추적할 방법이 부족</span>해서 막막했지...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webtoon Panel 2 (ShellBank & DNA) -->
+        <div id="toon2" class="webtoon-panel">
+            <div class="toon-header">
+                <div class="toon-avatar">🧬</div>
+                <div class="toon-title">우리의 비밀 신분증, 쉘뱅크!</div>
+            </div>
+            <div class="instatoon-grid">
+                <div class="toon-cut" data-cut="CUT 1">
+                    <div class="toon-visual">💡</div>
+                    <div class="speech-bubble">하지만 희망이 생겼어! 바로 바다거북 DNA 글로벌 데이터베이스 <span class="highlight">'ShellBank(쉘뱅크)'</span>야!</div>
+                </div>
+                <div class="toon-cut" data-cut="CUT 2">
+                    <div class="toon-visual">🔍</div>
+                    <div class="speech-bubble">우리가 말을 남기진 못해도, 몸속에 고유한 <span class="highlight">DNA 흔적</span>을 남기잖아? 조직이나 등껍질에서 이 DNA를 추출해!</div>
+                </div>
+                <div class="toon-cut" data-cut="CUT 3">
+                    <div class="toon-visual">📊</div>
+                    <div class="speech-bubble">추출한 DNA의 염기서열(A,C,G,T)을 분석해서 쉘뱅크에 등록하면, 우리가 <span class="highlight">어느 개체군에서 왔는지</span> 알 수 있어!</div>
+                </div>
+                <div class="toon-cut" data-cut="CUT 4">
+                    <div class="toon-visual">🌍</div>
+                    <div class="speech-bubble">현재 쉘뱅크에는 전 세계에서 모인 <span class="highlight">15,000건 이상의 유전정보</span>가 쌓여있어. 정말 거대한 네트워크지?</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webtoon Panel 3 (Tracking & Action) -->
+        <div id="toon3" class="webtoon-panel">
+            <div class="toon-header">
+                <div class="toon-avatar">🚨</div>
+                <div class="toon-title">보이지 않는 흔적을 연결하다</div>
+            </div>
+            <div class="instatoon-grid">
+                <div class="toon-cut" data-cut="CUT 1">
+                    <div class="toon-visual">🕵️‍♂️</div>
+                    <div class="speech-bubble">쉘뱅크 덕분에 수사기관은 <span class="highlight">압수된 거북이 제품의 원산지</span>를 정확히 추적할 수 있게 되었어!</div>
+                </div>
+                <div class="toon-cut" data-cut="CUT 2">
+                    <div class="toon-visual">🎯</div>
+                    <div class="speech-bubble">불법 포획과 거래가 집중되는 고위험 지역을 지도로 파악해서, <span class="highlight">가장 필요한 곳에 단속을 집중</span>할 수 있지.</div>
+                </div>
+                <div class="toon-cut" data-cut="CUT 3">
+                    <div class="toon-visual">🤝</div>
+                    <div class="speech-bubble">WWF, 호주 박물관, NOAA 등 <span class="highlight">글로벌 파트너들</span>이 함께 데이터를 모으고 기술을 개발하고 있어.</div>
+                </div>
+                <div class="toon-cut" data-cut="CUT 4">
+                    <div class="toon-visual">✨</div>
+                    <div class="speech-bubble">너의 코드 등록이 바로 이 거대한 <span class="highlight">보전 여정의 첫걸음</span>이야! 레인저가 된 걸 환영해!</div>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </div>
 
 <script>
-    // 흔적 선택 토글 스크립트
-    function selectTrace(clickedBtn) {
-        // 모든 버튼을 inactive로 변경
+    function selectTrace(panelId, clickedBtn) {
+        // Update Buttons
         const buttons = document.querySelectorAll('.radio-btn');
         buttons.forEach(btn => {
             btn.classList.remove('active');
             btn.classList.add('inactive');
         });
-        
-        // 클릭된 버튼만 active로 변경
         clickedBtn.classList.remove('inactive');
         clickedBtn.classList.add('active');
+        
+        // Hide all toon panels, show the selected one
+        document.querySelectorAll('.webtoon-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+        document.getElementById('toon' + panelId).classList.add('active');
     }
 
-    // 등록 완료 제출 스크립트
     function submitForm() {
         const codeInput = document.getElementById('rangerCode').value.trim();
         
-        // 간단한 유효성 검사 (8자리 입력 확인)
         if (codeInput.length !== 8) {
-            alert("8자리 레인저 코드를 정확히 입력해주세요.");
+            alert("8자리 레인저 코드를 정확히 입력해주세요! (예: A1B2C3D4)");
             return;
         }
 
-        // 성공 카드 노출 및 텍스트 업데이트
+        // Hide all webtoon panels
+        document.querySelectorAll('.webtoon-panel').forEach(panel => {
+            panel.style.display = 'none';
+        });
+
+        // Disable interaction on phone mockup
+        const buttons = document.querySelectorAll('.radio-btn, .submit-btn, .code-input');
+        buttons.forEach(btn => btn.style.pointerEvents = 'none');
+        document.querySelector('.submit-btn').innerText = '등록이 완료되었습니다';
+        document.querySelector('.submit-btn').style.backgroundColor = '#007B7F';
+
+        // Show success card
         const successCard = document.getElementById('successCard');
         const displayCode = document.getElementById('displayCode');
         
-        // 입력받은 코드를 포맷에 맞게 카드에 렌더링
         displayCode.innerText = `임명 코드: ${codeInput.toUpperCase()}-2024-001`;
-        
-        // 애니메이션 클래스 추가
         successCard.classList.add('show');
     }
 </script>
 
 </body>
 </html>
+"""
+
+with open('wwf_rangers_trace01_extended.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
