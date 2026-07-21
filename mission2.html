@@ -275,19 +275,19 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // --------------------------------------------------
-    // 1. 상태 관리 (State)
+    // 1. 상태 관리 (State) - 이전 캐시를 초기화하기 위해 v2로 변경
     // --------------------------------------------------
-    let state = JSON.parse(localStorage.getItem('shellbank_8missions_v1')) || {
+    let state = JSON.parse(localStorage.getItem('shellbank_8missions_v2')) || {
       solvedCases: []
     };
 
     function saveState() {
-      localStorage.setItem('shellbank_8missions_v1', JSON.stringify(state));
+      localStorage.setItem('shellbank_8missions_v2', JSON.stringify(state));
       updateUI();
     }
 
     // --------------------------------------------------
-    // 2. 지도 초기화
+    // 2. 지도 초기화 (나라 이름 표시되는 일반 Voyager 타일 적용)
     // --------------------------------------------------
     const bounds = [[-85, -180], [85, 180]];
     const map = L.map('map', {
@@ -586,7 +586,7 @@
     
     function resetAll() {
       if(confirm("모든 글로벌 미션 진행 상황을 초기화하시겠습니까?")) {
-        localStorage.removeItem('shellbank_8missions_v1');
+        localStorage.removeItem('shellbank_8missions_v2');
         location.reload();
       }
     }
