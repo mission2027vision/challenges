@@ -4,14 +4,14 @@
 
 ## 🔗 웹페이지 바로가기 (작업 목록)
 
-* [🐢 메인 페이지 (index.html)](https://mission2027vision.github.io/challenges/)
-* [🏝️ 미션 2 페이지 (mission2.html)](https://mission2027vision.github.io/challenges/mission2.html)
-* [🎲 프리뷰 페이지 (preview.html)](https://mission2027vision.github.io/challenges/preview.html)
-* [🗺️ 맵 퀘스트 테스트 방 (mapquest.html)](https://mission2027vision.github.io/challenges/mapquest.html)
-* [🧬 DNA 매칭 미션 (dna_matching_mission.html)](https://mission2027vision.github.io/challenges/dna_matching_mission.html)
-* [🗂️ 백업 파일 1 (index (2).html)](https://mission2027vision.github.io/challenges/index%20(2).html)
-* [🗂️ 백업 파일 2 (index(1) (1).html)](https://mission2027vision.github.io/challenges/index(1)%20(1).html)
-
+* 🐢 [메인 페이지 (index.html)](index.html)
+* 📸 [TRACE 02 행동 인증 페이지 (wwf_rangers_trace02.html)](wwf_rangers_trace02.html)
+* 🌴 [미션 2 페이지 (mission2.html)](mission2.html)
+* 🎲 [프리뷰 페이지 (preview.html)](preview.html)
+* 🗺️ [맵 퀘스트 테스트 방 (mapquest.html)](mapquest.html)
+* 🧬 [DNA 매칭 미션 (dna_matching_mission.html)](dna_matching_mission.html)
+* 🗂️ [백업 파일 1 (index (2).html)](index%20(2).html)
+* 🗂️ [백업 파일 2 (index(1) (1).html)](index(1)%20(1).html)
 ---
 
 ## 미션 구조
