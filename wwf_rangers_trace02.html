@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WWF Rangers 2nd Generation - TRACE 02</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #007B7F;
+            --dark-navy: #0B2536;
+            --bg: #F4F8F9;
+            --gray-light: #EBEFEF;
+            --text-dark: #333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); color: var(--text-dark); display: flex; justify-content: center; padding: 40px 20px; }
+        
+        .container { max-width: 1200px; width: 100%; display: flex; flex-direction: column; gap: 30px; }
+
+        /* Header */
+        .header { margin-bottom: 10px; border-bottom: 2px solid var(--gray-light); padding-bottom: 20px; }
+        .header h4 { color: var(--primary); font-size: 14px; letter-spacing: 1px; font-weight: 700; margin-bottom: 10px; }
+        .header h1 { font-size: 32px; color: var(--dark-navy); font-weight: 800; margin-bottom: 15px; }
+        .header p { font-size: 18px; color: var(--primary); font-weight: 600; }
+
+        /* Threat Cards Grid */
+        .threat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        
+        .threat-card { background: #fff; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: center; cursor: pointer; border: 3px solid transparent; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .threat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .threat-card.selected { border-color: var(--primary); background-color: #f0f7f7; }
+        
+        .threat-icon { font-size: 50px; background: var(--bg); border-radius: 15px; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .threat-content { flex-grow: 1; }
+        .threat-label { font-size: 14px; color: var(--primary); font-weight: 700; margin-bottom: 5px; }
+        .threat-title { font-size: 22px; color: var(--dark-navy); font-weight: 800; margin-bottom: 15px; }
+        .threat-action { background: var(--gray-light); padding: 10px 15px; border-radius: 8px; font-size: 15px; font-weight: 600; color: var(--primary); display: inline-block; }
+        .threat-card.selected .threat-action { background: var(--primary); color: white; }
+
+        /* Verification Form Section (Hidden initially) */
+        .verification-section { display: none; background: #fff; border: 4px solid var(--primary); border-radius: 25px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); animation: slideUp 0.5s ease forwards; margin-bottom: 40px; }
+        .verification-section.active { display: block; }
+        
+        .form-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px dashed var(--gray-light); }
+        .form-avatar { font-size: 40px; background: #e0f2f1; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
+        .form-title { font-family: 'Jua', sans-serif; font-size: 28px; color: var(--dark-navy); }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+
+        /* Photo Upload UI */
+        .upload-area { border: 3px dashed #B0C4C4; border-radius: 20px; padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; background-color: #fafafa; position: relative; overflow: hidden; }
+        .upload-area:hover, .upload-area.dragover { border-color: var(--primary); background-color: #f0f7f7; }
+        .upload-icon { font-size: 50px; margin-bottom: 15px; color: var(--primary); }
+        .upload-text { font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 10px; }
+        .upload-hint { font-size: 13px; color: #888; }
+        
+        #preview-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 17px; }
+
+        /* Form Inputs */
+        .input-group { margin-bottom: 25px; }
+        .input-label { display: block; font-size: 15px; font-weight: 700; color: var(--dark-navy); margin-bottom: 10px; }
+        .text-input, .textarea-input { width: 100%; padding: 15px; border: 2px solid var(--gray-light); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; font-family: inherit; }
+        .text-input:focus, .textarea-input:focus { border-color: var(--primary); }
+        .textarea-input { resize: vertical; min-height: 120px; }
+        
+        .submit-btn { width: 100%; padding: 18px; background-color: var(--dark-navy); color: white; border: none; border-radius: 25px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .submit-btn:hover { background-color: #081B28; box-shadow: 0 4px 12px rgba(11, 37, 54, 0.4); transform: translateY(-2px); }
+
+        /* Process Bar */
+        .process-bar { background: var(--dark-navy); border-radius: 50px; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; overflow-x: auto; }
+        .process-step { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.5); font-weight: 600; font-size: 14px; white-space: nowrap; }
+        .process-step.active { color: white; }
+        .process-step.completed { color: var(--primary); }
+        .process-line { height: 2px; flex-grow: 1; background: rgba(255,255,255,0.2); margin: 0 15px; min-width: 30px; }
+        
+        /* Success Overlay */
+        .success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 37, 54, 0.9); z-index: 100; display: none; justify-content: center; align-items: center; }
+        .success-overlay.active { display: flex; animation: fadeIn 0.3s; }
+        .success-modal { background: white; padding: 50px; border-radius: 30px; text-align: center; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .success-modal h2 { font-family: 'Jua', sans-serif; font-size: 32px; color: var(--primary); margin: 20px 0; }
+        .success-modal p { font-size: 16px; line-height: 1.6; color: var(--text-dark); margin-bottom: 30px; }
+        .turtle-jump { font-size: 80px; display: inline-block; animation: jump 1s infinite alternate; }
+        .close-btn { background: var(--dark-navy); color: white; padding: 15px 40px; border-radius: 20px; font-weight: 700; cursor: pointer; border: none; font-size: 16px; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes jump { 0% { transform: translateY(0); } 100% { transform: translateY(-20px) scale(1.1); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h4>WWF RANGERS 2ND GENERATION</h4>
+        <h1>TRACE 02 — Erase the Threat: 바다거북을 위협하는 흔적을 행동으로 지워라</h1>
+        <p>위협을 이해하고, 내가 실천할 수 있는 단 하나의 행동을 선택합니다. 🐢</p>
+    </div>
+
+    <!-- Threat Selection Grid -->
+    <div class="threat-grid">
+        <div class="threat-card" onclick="selectAction(this, '플라스틱과 해양쓰레기', '[줄이기] 일회용품 하나 사용하지 않기')">
+            <div class="threat-icon">🥤</div>
+            <div class="threat-content">
+                <div class="threat-label">위협 01</div>
+                <div class="threat-title">플라스틱과 해양쓰레기</div>
+                <div class="threat-action">행동: [줄이기] 일회용품 하나 사용하지 않기</div>
+            </div>
+        </div>
+
+        <div class="threat-card" onclick="selectAction(this, '폐어구와 혼획', '[줍기] 산책 중 쓰레기 3개 이상 줍기')">
+            <div class="threat-icon">🕸️</div>
+            <div class="threat-content">
+                <div class="threat-label">위협 02</div>
+                <div class="threat-title">폐어구와 혼획</div>
+                <div class="threat-action">행동: [줍기] 산책 중 쓰레기 3개 이상 줍기</div>
+            </div>
+        </div>
+
+        <div class="threat-card" onclick="selectAction(this, '산란지 광공해와 개발', '[알리기] 바다거북 보전 콘텐츠 공유하기')">
+            <div class="threat-icon">🏖️</div>
+            <div class="threat-content">
+                <div class="threat-label">위협 03</div>
+                <div class="threat-title">산란지 광공해와 개발</div>
+                <div class="threat-action">행동: [알리기] 바다거북 보전 콘텐츠 공유하기</div>
+            </div>
+        </div>
+
+        <div class="threat-card" onclick="selectAction(this, '기후변화와 서식환경', '[지키기] 친환경 행동 약속하기')">
+            <div class="threat-icon">🌡️</div>
+            <div class="threat-content">
+                <div class="threat-label">위협 04</div>
+                <div class="threat-title">기후변화와 서식환경</div>
+                <div class="threat-action">행동: [지키기] 친환경 행동 약속하기</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Section -->
+    <div id="verification-section" class="verification-section">
+        <div class="form-header">
+            <div class="form-avatar">📸</div>
+            <div class="form-title">나의 행동 인증하기</div>
+        </div>
+        
+        <div class="form-grid">
+            <!-- Left: Photo Upload -->
+            <div>
+                <label class="input-label">인증 사진 업로드</label>
+                <div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text" id="upload-text">클릭하거나 사진을 드래그하여 업로드하세요</div>
+                    <div class="upload-hint">지원: JPG, PNG (최대 5MB)</div>
+                    <img id="preview-img" alt="미리보기">
+                    <input type="file" id="file-input" style="display: none;" accept="image/*" onchange="handleFileSelect(this)">
+                </div>
+            </div>
+
+            <!-- Right: Form Inputs -->
+            <div>
+                <div class="input-group">
+                    <label class="input-label">선택한 행동</label>
+                    <input type="text" id="selected-action-input" class="text-input" readonly style="background-color: #f0f7f7; color: var(--primary); font-weight: bold;">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">레인저 코드 (8자리)</label>
+                    <input type="text" id="ranger-code" class="text-input" placeholder="TRACE 01에서 발급받은 코드를 입력하세요" maxlength="8">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">한 줄 소감 (Trace Note)</label>
+                    <textarea id="trace-note" class="textarea-input" placeholder="오늘 실천한 행동에 대한 짧은 소감을 남겨주세요! (예: 텀블러를 사용하니 거북이를 구한 기분이에요!)"></textarea>
+                </div>
+                
+                <button class="submit-btn" onclick="submitVerification()">인증 완료 및 흔적 추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Bar -->
+    <div class="process-bar">
+        <div class="process-step completed" id="step1">위협 이해</div>
+        <div class="process-line"></div>
+        <div class="process-step active" id="step2">행동 선택</div>
+        <div class="process-line"></div>
+        <div class="process-step" id="step3">인증(사진/캡처)</div>
+        <div class="process-line"></div>
+        <div class="process-step" id="step4">한 줄 소감(Trace Note)</div>
+        <div class="process-line"></div>
+        <div class="process-step" id="step5">지도 흔적 추가 완료</div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="success-overlay" id="success-overlay">
+    <div class="success-modal">
+        <div class="turtle-jump">🐢✨</div>
+        <h2>행동 인증 완료!</h2>
+        <p>레인저님의 멋진 실천이 바다거북을 위협하는<br>흔적을 지우는 데 큰 도움이 되었습니다.<br>익명 참여 지도에 흔적이 추가되었습니다!</p>
+        <button class="close-btn" onclick="location.reload()">새로운 흔적 지우기</button>
+    </div>
+</div>
+
+<script>
+    let isActionSelected = false;
+
+    // Handle Card Selection
+    function selectAction(card, threat, actionText) {
+        // Reset styles
+        document.querySelectorAll('.threat-card').forEach(c => c.classList.remove('selected'));
+        // Select clicked card
+        card.classList.add('selected');
+        
+        // Show Verification Section
+        document.getElementById('verification-section').classList.add('active');
+        
+        // Fill input
+        document.getElementById('selected-action-input').value = `[${threat}] ${actionText}`;
+        
+        // Update Process Bar
+        document.getElementById('step2').classList.replace('active', 'completed');
+        document.getElementById('step3').classList.add('active');
+        
+        isActionSelected = true;
+        
+        // Scroll to form
+        setTimeout(() => {
+            document.getElementById('verification-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
+
+    // Handle File Upload Preview
+    function handleFileSelect(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('preview-img');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                document.getElementById('step3').classList.replace('active', 'completed');
+                document.getElementById('step4').classList.add('active');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Drag and Drop functionality
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            document.getElementById('file-input').files = e.dataTransfer.files;
+            handleFileSelect(document.getElementById('file-input'));
+        }
+    });
+
+    // Handle Submit
+    function submitVerification() {
+        if (!isActionSelected) {
+            alert("먼저 실천할 행동을 선택해주세요!");
+            return;
+        }
+        
+        const fileInput = document.getElementById('file-input');
+        if (!fileInput.files.length) {
+            alert("인증 사진을 업로드해주세요! 📷");
+            return;
+        }
+
+        const code = document.getElementById('ranger-code').value.trim();
+        if (code.length !== 8) {
+            alert("8자리 레인저 코드를 정확히 입력해주세요.");
+            return;
+        }
+
+        const note = document.getElementById('trace-note').value.trim();
+        if (note.length < 5) {
+            alert("5자 이상의 한 줄 소감을 남겨주세요!");
+            return;
+        }
+
+        // Show Success
+        document.getElementById('step4').classList.replace('active', 'completed');
+        document.getElementById('step5').classList.add('completed');
+        document.getElementById('success-overlay').classList.add('active');
+    }
+</script>
+
+</body>
+</html>
