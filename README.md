@@ -10,8 +10,8 @@
 * 🎲 [프리뷰 페이지 (preview.html)](preview.html)
 * 🗺️ [맵 퀘스트 테스트 방 (mapquest.html)](mapquest.html)
 * 🧬 [DNA 매칭 미션 (dna_matching_mission.html)](dna_matching_mission.html)
-* 🗂️ [백업 파일 1 (index (2).html)](index%20(2).html)
-* 🗂️ [백업 파일 2 (index(1) (1).html)](index(1)%20(1).html)
+* 🗂️ [백업 파일 1 (index (2).html)](<index (2).html>)
+* 🗂️ [백업 파일 2 (index(1) (1).html)](<index(1) (1).html>)
 ---
 
 ## 미션 구조
