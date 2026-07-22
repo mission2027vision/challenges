@@ -243,13 +243,10 @@
         submitBtn.innerText = '구글 시트로 전송 중... ⏳';
         submitBtn.disabled = true;
 
-        // 구글 시트로 보낼 데이터 구성
-        let formData = new FormData();
-        formData.append('rangerCode', codeInput);
-        formData.append('selectedTrace', selectedInterest);
+        // 🌟 수정 포인트: GET 방식으로 데이터를 URL 파라미터에 붙여서 보냄 (가장 안정적)
+        const fetchURL = `${scriptURL}?rangerCode=${encodeURIComponent(codeInput)}&selectedTrace=${encodeURIComponent(selectedInterest)}`;
 
-        // Fetch API를 사용해 백그라운드에서 구글 스크립트로 데이터 전송 (CORS 우회용 no-cors 사용)
-        fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' })
+        fetch(fetchURL, { method: 'GET', mode: 'no-cors' })
             .then(() => {
                 // 전송 성공 시 UI 변경
                 document.querySelectorAll('.webtoon-panel').forEach(panel => {
