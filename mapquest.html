@@ -43,7 +43,8 @@
         .radio-btn.inactive:hover { background-color: #e4e9e9; }
 
         .submit-btn { margin-top: auto; width: 100%; padding: 18px; background-color: var(--dark-navy); color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .submit-btn:hover { background-color: #081B28; box-shadow: 0 4px 12px rgba(11, 37, 54, 0.4); }
+        .submit-btn:hover:not(:disabled) { background-color: #081B28; box-shadow: 0 4px 12px rgba(11, 37, 54, 0.4); }
+        .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
         /* Right Panel */
         .right-panel { display: flex; flex-direction: column; gap: 20px; position: relative; }
@@ -67,7 +68,6 @@
         .speech-bubble { font-family: 'Jua', sans-serif; font-size: 16px; line-height: 1.5; color: #333; background: #f0f7f7; padding: 15px; border-radius: 15px; border: 2px solid var(--primary); position: relative; width: 100%; margin-top: 5px; word-break: keep-all; }
         .speech-bubble::after { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); border-width: 0 10px 10px 10px; border-style: solid; border-color: transparent transparent var(--primary) transparent; }
 
-        /* Emphasis text in toon */
         .highlight { color: #d35400; font-weight: bold; background: linear-gradient(180deg, rgba(255,255,255,0) 60%, #ffeaa7 40%); }
 
         /* Success Card */
@@ -102,18 +102,17 @@
 
         <div class="input-group">
             <div class="section-subtitle">가장 궁금한 흔적 선택 (클릭!)</div>
-            <button type="button" class="radio-btn active" onclick="selectTrace(1, this)">🚨 위기에 처한 바다거북</button>
-            <button type="button" class="radio-btn inactive" onclick="selectTrace(2, this)">🧬 비밀 신분증, ShellBank</button>
-            <button type="button" class="radio-btn inactive" onclick="selectTrace(3, this)">🕵️ 글로벌 추적 네트워크</button>
+            <button type="button" class="radio-btn active" onclick="selectTrace(1, this, '🚨 위기에 처한 바다거북')">🚨 위기에 처한 바다거북</button>
+            <button type="button" class="radio-btn inactive" onclick="selectTrace(2, this, '🧬 비밀 신분증, ShellBank')">🧬 비밀 신분증, ShellBank</button>
+            <button type="button" class="radio-btn inactive" onclick="selectTrace(3, this, '🕵️ 글로벌 추적 네트워크')">🕵️ 글로벌 추적 네트워크</button>
         </div>
 
-        <button class="submit-btn" onclick="submitForm()">흔적 남기기 완료</button>
+        <button class="submit-btn" id="submitBtn" onclick="submitForm()">흔적 남기기 완료</button>
     </div>
 
     <!-- Right: Instatoon Content & Success Card -->
     <div class="right-panel">
         
-        <!-- Success Card (Hidden by default) -->
         <div class="success-card" id="successCard">
             <div class="success-header">
                 First Trace Registered 🐢
@@ -207,7 +206,15 @@
 </div>
 
 <script>
-    function selectTrace(panelId, clickedBtn) {
+    // ✅ 앱스 스크립트 웹 앱 URL을 여기에 붙여넣으세요!
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzfRITu0T4AGU_Z2VJRS06gTChC8Uh7asZJwLsDtgWtnXg5__8lpJaVZK3aT_GKi_G2qA/exec'; 
+    
+    // 사용자가 선택한 흔적 상태 저장 (기본값 설정)
+    let selectedInterest = "🚨 위기에 처한 바다거북";
+
+    function selectTrace(panelId, clickedBtn, interestText) {
+        selectedInterest = interestText;
+
         // Update Buttons
         const buttons = document.querySelectorAll('.radio-btn');
         buttons.forEach(btn => {
@@ -232,23 +239,40 @@
             return;
         }
 
-        // Hide all webtoon panels
-        document.querySelectorAll('.webtoon-panel').forEach(panel => {
-            panel.style.display = 'none';
-        });
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerText = '구글 시트로 전송 중... ⏳';
+        submitBtn.disabled = true;
 
-        // Disable interaction on phone mockup
-        const buttons = document.querySelectorAll('.radio-btn, .submit-btn, .code-input');
-        buttons.forEach(btn => btn.style.pointerEvents = 'none');
-        document.querySelector('.submit-btn').innerText = '등록이 완료되었습니다';
-        document.querySelector('.submit-btn').style.backgroundColor = '#007B7F';
+        // 구글 시트로 보낼 데이터 구성
+        let formData = new FormData();
+        formData.append('rangerCode', codeInput);
+        formData.append('selectedTrace', selectedInterest);
 
-        // Show success card
-        const successCard = document.getElementById('successCard');
-        const displayCode = document.getElementById('displayCode');
-        
-        displayCode.innerText = `임명 코드: ${codeInput.toUpperCase()}-2024-001`;
-        successCard.classList.add('show');
+        // Fetch API를 사용해 백그라운드에서 구글 스크립트로 데이터 전송 (CORS 우회용 no-cors 사용)
+        fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' })
+            .then(() => {
+                // 전송 성공 시 UI 변경
+                document.querySelectorAll('.webtoon-panel').forEach(panel => {
+                    panel.style.display = 'none';
+                });
+
+                const buttons = document.querySelectorAll('.radio-btn, .code-input');
+                buttons.forEach(btn => btn.style.pointerEvents = 'none');
+                
+                submitBtn.innerText = '등록 및 전송이 완료되었습니다 ✅';
+                submitBtn.style.backgroundColor = '#007B7F';
+
+                const successCard = document.getElementById('successCard');
+                const displayCode = document.getElementById('displayCode');
+                displayCode.innerText = `임명 코드: ${codeInput.toUpperCase()}-2024-001`;
+                successCard.classList.add('show');
+            })
+            .catch(error => {
+                // 에러 발생 시 처리
+                alert("통신 중 오류가 발생했습니다. 다시 시도해주세요.");
+                submitBtn.innerText = '흔적 남기기 완료';
+                submitBtn.disabled = false;
+            });
     }
 </script>
 
