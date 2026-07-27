@@ -1,4 +1,4 @@
-html_content = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -39,7 +39,7 @@ html_content = """<!DOCTYPE html>
         .threat-action { background: var(--gray-light); padding: 10px 15px; border-radius: 8px; font-size: 15px; font-weight: 600; color: var(--primary); display: inline-block; }
         .threat-card.selected .threat-action { background: var(--primary); color: white; }
 
-        /* Verification Form Section (Hidden initially) */
+        /* Verification Form Section */
         .verification-section { display: none; background: #fff; border: 4px solid var(--primary); border-radius: 25px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); animation: slideUp 0.5s ease forwards; margin-bottom: 40px; }
         .verification-section.active { display: block; }
         
@@ -67,7 +67,8 @@ html_content = """<!DOCTYPE html>
         .textarea-input { resize: vertical; min-height: 120px; }
         
         .submit-btn { width: 100%; padding: 18px; background-color: var(--dark-navy); color: white; border: none; border-radius: 25px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .submit-btn:hover { background-color: #081B28; box-shadow: 0 4px 12px rgba(11, 37, 54, 0.4); transform: translateY(-2px); }
+        .submit-btn:hover:not(:disabled) { background-color: #081B28; box-shadow: 0 4px 12px rgba(11, 37, 54, 0.4); transform: translateY(-2px); }
+        .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
         /* Process Bar */
         .process-bar { background: var(--dark-navy); border-radius: 50px; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; overflow-x: auto; }
@@ -91,6 +92,16 @@ html_content = """<!DOCTYPE html>
     </style>
 </head>
 <body>
+
+<!-- 🌟 구글 시트 연동을 위한 백그라운드 폼 구조 추가 -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){submitSuccess();}"></iframe>
+<form id="googleForm" action="https://docs.google.com/spreadsheets/d/1ZsAqmpM0A8AW7c4RB_XiViQ5FdmfTZfAZ0kz6NS468I/edit?usp=sharing" method="POST" target="hidden_iframe" style="display:none;">
+    <input type="hidden" name="formType" value="Trace02"> <!-- TRACE 02 이름표 -->
+    <input type="hidden" name="rangerCode" id="formRangerCode">
+    <input type="hidden" name="selectedAction" id="formSelectedAction">
+    <input type="hidden" name="traceNote" id="formTraceNote">
+    <input type="hidden" name="photoData" id="formPhotoData"> <!-- Base64 변환 이미지 -->
+</form>
 
 <div class="container">
     <div class="header">
@@ -175,7 +186,7 @@ html_content = """<!DOCTYPE html>
                     <textarea id="trace-note" class="textarea-input" placeholder="오늘 실천한 행동에 대한 짧은 소감을 남겨주세요! (예: 텀블러를 사용하니 거북이를 구한 기분이에요!)"></textarea>
                 </div>
                 
-                <button class="submit-btn" onclick="submitVerification()">인증 완료 및 흔적 추가</button>
+                <button class="submit-btn" id="submitBtn" onclick="submitVerification()">인증 완료 및 흔적 추가</button>
             </div>
         </div>
     </div>
@@ -206,30 +217,22 @@ html_content = """<!DOCTYPE html>
 
 <script>
     let isActionSelected = false;
+    let submitted = false; 
+    let base64Image = ""; // 🌟 사진을 텍스트로 변환해서 구글 시트에 넣기 위한 변수
 
     // Handle Card Selection
     function selectAction(card, threat, actionText) {
-        // Reset styles
         document.querySelectorAll('.threat-card').forEach(c => c.classList.remove('selected'));
-        // Select clicked card
         card.classList.add('selected');
         
-        // Show Verification Section
         document.getElementById('verification-section').classList.add('active');
-        
-        // Fill input
         document.getElementById('selected-action-input').value = `[${threat}] ${actionText}`;
         
-        // Update Process Bar
         document.getElementById('step2').classList.replace('active', 'completed');
         document.getElementById('step3').classList.add('active');
         
         isActionSelected = true;
-        
-        // Scroll to form
-        setTimeout(() => {
-            document.getElementById('verification-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
+        setTimeout(() => { document.getElementById('verification-section').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
 
     // Handle File Upload Preview
@@ -242,6 +245,9 @@ html_content = """<!DOCTYPE html>
                 preview.style.display = 'block';
                 document.getElementById('step3').classList.replace('active', 'completed');
                 document.getElementById('step4').classList.add('active');
+                
+                // 🌟 구글 폼 전송을 위해 base64 데이터 저장
+                base64Image = e.target.result;
             }
             reader.readAsDataURL(input.files[0]);
         }
@@ -249,14 +255,8 @@ html_content = """<!DOCTYPE html>
 
     // Drag and Drop functionality
     const dropZone = document.getElementById('drop-zone');
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
-    dropZone.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-    });
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); });
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.classList.remove('dragover');
@@ -291,7 +291,27 @@ html_content = """<!DOCTYPE html>
             return;
         }
 
-        // Show Success
+        // 🌟 버튼 상태 변경 (클릭 방지)
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = '구글 시트로 안전하게 전송 중... ⏳';
+        submitBtn.disabled = true;
+
+        // 🌟 숨겨진 구글 폼에 값 채워넣기
+        document.getElementById('formRangerCode').value = code;
+        document.getElementById('formSelectedAction').value = document.getElementById('selected-action-input').value;
+        document.getElementById('formTraceNote').value = note;
+        document.getElementById('formPhotoData').value = base64Image;
+
+        // 🌟 구글 시트로 폼 전송!
+        submitted = true;
+        document.getElementById('googleForm').submit();
+        
+        // 전송 완료 시 성공 팝업 띄우기 대기
+        setTimeout(submitSuccess, 1500);
+    }
+    
+    // 🌟 성공 시 보여줄 화면 전환 로직 분리
+    function submitSuccess() {
         document.getElementById('step4').classList.replace('active', 'completed');
         document.getElementById('step5').classList.add('completed');
         document.getElementById('success-overlay').classList.add('active');
@@ -300,9 +320,3 @@ html_content = """<!DOCTYPE html>
 
 </body>
 </html>
-"""
-
-with open('wwf_rangers_trace02.html', 'w', encoding='utf-8') as f:
-    f.write(html_content)
-
-print("File generated: wwf_rangers_trace02.html")
