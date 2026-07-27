@@ -237,7 +237,7 @@
     let submitted = false;
     let base64Image = ""; // 구글 시트에 텍스트 형태로 이미지를 저장하기 위한 변수
 
-    // 1. 드래그 앤 드롭 및 사진 미리보기 로직
+    // 1. 드래그 앤 드롭 로직
     const dropZone = document.getElementById('drop-zone');
     
     dropZone.addEventListener('dragover', (e) => {
@@ -257,26 +257,42 @@
         }
     });
 
+    // 🌟 2. 사진 미리보기 및 용량 압축(리사이징) 로직 업데이트 적용 완료!
     function handleFileSelect(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             
             reader.onload = function(e) {
-                // UI 업데이트
-                const preview = document.getElementById('preview-img');
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-                document.getElementById('re-upload-btn').style.display = 'block';
+                // 이미지 크기 압축을 위해 Image 객체와 Canvas 사용
+                const img = new Image();
+                img.src = e.target.result;
                 
-                // 구글 폼 전송을 위해 base64 데이터 저장
-                base64Image = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 300; // 가로 길이를 300px로 확 줄임 (구글 시트 5만자 제한 통과용)
+                    const scaleSize = MAX_WIDTH / img.width;
+                    
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // 화질을 낮춰서 JPEG로 변환
+                    base64Image = canvas.toDataURL('image/jpeg', 0.6);
+                    
+                    // UI 업데이트
+                    const preview = document.getElementById('preview-img');
+                    preview.src = base64Image;
+                    preview.style.display = 'block';
+                    document.getElementById('re-upload-btn').style.display = 'block';
+                }
             }
-            // 이미지를 Data URL (Base64) 형태로 읽기
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    // 2. 제출 로직 (Google Form 연동)
+    // 3. 제출 로직 (Google Form 연동)
     function submitVerification() {
         // 검증
         if (!base64Image) {
@@ -316,7 +332,7 @@
         setTimeout(submitSuccess, 1500);
     }
 
-    // 3. 성공 팝업 로직
+    // 4. 성공 팝업 로직
     function submitSuccess() {
         document.getElementById('success-overlay').classList.add('active');
         // 카드 내의 요소들 비활성화
