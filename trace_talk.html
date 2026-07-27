@@ -2,157 +2,315 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WWF Rangers 2nd Generation - TRACE TALK</title>
-    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>WWF Rangers | TRACE TALK: Ask a Researcher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --primary: #007B7F;
-            --dark-navy: #0B2536;
-            --bg: #F4F8F9;
-            --gray-light: #EBEFEF;
-            --text-dark: #333;
+            --primary-dark: #005a5d;
+            --navy: #0B2536;
+            --accent: #FF765F;
+            --bg-light: #F4F8F9;
+            --text-dark: #222;
+            --text-gray: #666;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); color: var(--text-dark); display: flex; justify-content: center; padding: 40px 20px; }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--navy); color: white; line-height: 1.6; overflow-x: hidden; }
         
-        .container { max-width: 1000px; width: 100%; display: flex; flex-direction: column; gap: 30px; }
+        .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
 
-        /* Header */
-        .header { border-bottom: 2px solid var(--gray-light); padding-bottom: 20px; }
-        .header h4 { color: var(--primary); font-size: 14px; letter-spacing: 1px; font-weight: 700; margin-bottom: 8px; }
-        .header h1 { font-size: 30px; color: var(--dark-navy); font-weight: 800; margin-bottom: 10px; }
-        .header p { font-size: 16px; color: var(--primary); font-weight: 600; }
+        /* ================= Header ================= */
+        .header { text-align: center; margin-bottom: 50px; animation: fadeInDown 0.8s ease; }
+        .header .badge { display: inline-block; background: var(--accent); color: white; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; margin-bottom: 15px; letter-spacing: 1px; }
+        .header h1 { font-family: 'Jua', sans-serif; font-size: 48px; color: white; margin-bottom: 15px; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .header h1 span { color: var(--primary); }
+        .header p { font-size: 18px; color: #bce7e5; font-weight: 400; word-break: keep-all; }
 
-        /* Topic Grid */
-        .topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .topic-card { background: #fff; border: 2px solid var(--gray-light); border-radius: 16px; padding: 20px; cursor: pointer; transition: 0.3s; text-align: center; }
-        .topic-card:hover, .topic-card.selected { border-color: var(--primary); background-color: #f0f7f7; transform: translateY(-3px); }
-        .topic-icon { font-size: 35px; margin-bottom: 10px; }
-        .topic-title { font-size: 16px; font-weight: 700; color: var(--dark-navy); margin-bottom: 8px; }
-        .topic-desc { font-size: 13px; color: #666; line-height: 1.4; }
-
-        /* Question Form Section */
-        .question-box { background: #fff; border: 3px solid var(--primary); border-radius: 20px; padding: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .form-title { font-family: 'Jua', sans-serif; font-size: 24px; color: var(--dark-navy); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        /* ================= Section 1: Documentary Video ================= */
+        .section-title { font-family: 'Jua', sans-serif; font-size: 28px; color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .section-title::before { content: ''; display: inline-block; width: 8px; height: 28px; background: var(--accent); border-radius: 4px; }
         
-        .input-group { margin-bottom: 20px; }
-        .input-label { display: block; font-size: 14px; font-weight: 700; color: var(--dark-navy); margin-bottom: 8px; }
-        .text-input, .textarea-input { width: 100%; padding: 14px; border: 2px solid var(--gray-light); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; font-family: inherit; }
-        .text-input:focus, .textarea-input:focus { border-color: var(--primary); }
-        .textarea-input { resize: vertical; min-height: 100px; }
+        .video-box { position: relative; width: 100%; border-radius: 24px; overflow: hidden; background: #1a3a4d url('https://images.unsplash.com/photo-1551244072-5d12893278ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 4px solid rgba(255,255,255,0.1); margin-bottom: 60px; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .video-overlay { position: absolute; inset: 0; background: rgba(11, 37, 54, 0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .play-btn { width: 80px; height: 80px; background: rgba(0, 123, 127, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; box-shadow: 0 0 0 10px rgba(0, 123, 127, 0.3); animation: pulse 2s infinite; }
+        .play-btn:hover { transform: scale(1.1); background: var(--accent); box-shadow: 0 0 0 10px rgba(255, 118, 95, 0.3); }
+        .play-btn svg { width: 30px; height: 30px; fill: white; margin-left: 5px; }
+        .video-text { margin-top: 20px; font-weight: 700; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .video-time { background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 10px; font-size: 12px; margin-top: 10px; }
 
-        .submit-btn { width: 100%; padding: 16px; background-color: var(--dark-navy); color: white; border: none; border-radius: 20px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .submit-btn:hover { background-color: #081B28; }
+        /* ================= Section 2: Ask a Researcher ================= */
+        .ask-container { background: white; border-radius: 30px; padding: 40px; color: var(--text-dark); margin-bottom: 60px; }
+        .ask-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
+        @media (max-width: 600px) { .ask-grid { grid-template-columns: 1fr; } }
+        
+        .ask-card { background: var(--bg-light); border: 2px solid var(--gray-light); border-radius: 16px; padding: 20px; cursor: pointer; transition: 0.3s; text-align: left; }
+        .ask-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .ask-card.selected { background: #e0f2f1; border-color: var(--primary); }
+        .ask-card h4 { font-size: 18px; color: var(--navy); margin-bottom: 8px; }
+        .ask-card p { font-size: 13px; color: var(--text-gray); }
 
-        /* Success Card (Hidden initially) */
-        .success-card { display: none; background: #fff; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 3px solid var(--primary); animation: fadeIn 0.4s ease; }
-        .success-card.active { display: block; }
-        .success-card h3 { font-family: 'Jua', sans-serif; font-size: 26px; color: var(--primary); margin: 15px 0; }
-        .success-card p { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 25px; }
-        .badge-box { background: #f0f7f7; border: 2px dashed var(--primary); padding: 15px; border-radius: 12px; font-weight: 700; color: var(--dark-navy); margin-bottom: 25px; display: inline-block; }
+        .question-box { display: none; animation: fadeIn 0.4s; }
+        .question-box.active { display: block; }
+        .question-input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 12px; font-size: 16px; font-family: inherit; margin-bottom: 15px; resize: vertical; min-height: 100px; }
+        .question-input:focus { outline: none; border-color: var(--primary); }
+        .btn-submit-q { background: var(--navy); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; width: 100%; }
+        .btn-submit-q:hover { background: var(--primary); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* ================= Section 3: Q&A Gallery (Flip Cards) ================= */
+        .gallery-container { margin-bottom: 60px; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        
+        .flip-card { background-color: transparent; height: 220px; perspective: 1000px; cursor: pointer; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; }
+        .flip-card.active .flip-card-inner { transform: rotateY(180deg); }
+        
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; padding: 25px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        
+        .flip-card-front { background: linear-gradient(135deg, #1a3a4d, #0B2536); border: 2px solid rgba(255,255,255,0.1); }
+        .flip-card-front .badge { background: var(--accent); font-size: 12px; padding: 4px 10px; border-radius: 10px; margin-bottom: 15px; align-self: flex-start; font-weight: bold; }
+        .flip-card-front h3 { font-size: 20px; font-weight: 700; line-height: 1.4; text-align: left; margin-bottom: 10px; }
+        .flip-card-front .click-hint { font-size: 13px; color: var(--primary); align-self: flex-end; margin-top: auto; animation: bounceX 1.5s infinite; }
+
+        .flip-card-back { background: var(--primary); color: white; transform: rotateY(180deg); text-align: left; }
+        .flip-card-back h4 { font-family: 'Jua'; font-size: 22px; margin-bottom: 10px; color: #fff; }
+        .flip-card-back p { font-size: 15px; line-height: 1.5; color: #e0f2f1; }
+
+        /* ================= Section 4: Final Mission Form ================= */
+        .mission-box { background: linear-gradient(to bottom, #11344a, #0B2536); border: 3px dashed var(--primary); border-radius: 30px; padding: 40px; text-align: center; }
+        .mission-box h2 { font-family: 'Jua', sans-serif; font-size: 32px; color: var(--accent); margin-bottom: 10px; }
+        .mission-box > p { color: #bce7e5; margin-bottom: 30px; }
+        
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-label { display: block; font-size: 14px; font-weight: 700; color: white; margin-bottom: 8px; }
+        .final-input { width: 100%; padding: 16px; border: 2px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); border-radius: 12px; font-size: 16px; color: white; font-family: inherit; transition: 0.3s; }
+        .final-input:focus { outline: none; border-color: var(--accent); background: rgba(0,0,0,0.4); }
+        
+        .btn-unlock { width: 100%; padding: 20px; background: var(--accent); color: white; border: none; border-radius: 15px; font-family: 'Jua', sans-serif; font-size: 24px; cursor: pointer; transition: 0.3s; margin-top: 10px; box-shadow: 0 10px 20px rgba(255, 118, 95, 0.3); }
+        .btn-unlock:hover { background: #e65c40; transform: translateY(-3px); }
+        .btn-unlock:disabled { background: #555; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        /* ================= Modal ================= */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.4s; }
+        .modal-content { background: white; color: var(--navy); padding: 50px 40px; border-radius: 30px; text-align: center; max-width: 450px; width: 90%; }
+        .modal-content h2 { font-family: 'Jua'; font-size: 36px; color: var(--primary); margin-bottom: 15px; }
+        .modal-content p { font-size: 16px; margin-bottom: 30px; font-weight: 600; color: #444; }
+        .unlock-icon { font-size: 70px; margin-bottom: 10px; animation: bounce 1s infinite alternate; }
+        .btn-next { background: var(--navy); color: white; padding: 18px 40px; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; font-size: 18px; width: 100%; transition: 0.3s; }
+        .btn-next:hover { background: var(--primary); }
+
+        /* Animations */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 123, 127, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(0, 123, 127, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 123, 127, 0); } }
+        @keyframes bounceX { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+        @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-15px); } }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="wrap">
+    <!-- Header -->
     <div class="header">
-        <h4>WWF RANGERS 2ND GENERATION — BONUS TRACE</h4>
-        <h1>TRACE TALK: Ask a Researcher 🐢</h1>
-        <p>바다거북의 흔적을 해독하기 전에, 연구자에게 당신의 궁금증을 남겨주세요!</p>
+        <div class="badge">TRACE 05 시뮬레이션</div>
+        <h1>TRACE TALK : <span>Ask a Researcher</span></h1>
+        <p>바다거북의 흔적을 해독하기 전, 당신의 질문이 다음 단서가 됩니다.<br>연구자와 현장 활동가에게 직접 물어보고, 새로운 바다의 비밀을 해금하세요!</p>
     </div>
 
-    <!-- Question Form Container -->
-    <div id="form-container" class="question-box">
-        <div class="form-title">💬 질문 분야를 선택하고 질문을 남겨주세요</div>
+    <!-- Section 1: Video -->
+    <div class="section-title">01. 현장에서 온 단서 영상</div>
+    <div class="video-box" onclick="alert('🎥 [시뮬레이션] 제주 현장 활동가의 영상이 재생됩니다. (실제 운영 시 유튜브/비메오 삽입)')">
+        <div class="video-overlay">
+            <div class="play-btn">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="video-text">"제주 바다에서 발견된 이 작은 시료 하나가..."</div>
+            <div class="video-time">00:48</div>
+        </div>
+    </div>
+
+    <!-- Section 2: Ask (Question Submit) -->
+    <div class="section-title">02. 레인저의 질문 제출</div>
+    <div class="ask-container">
+        <h3 style="font-family:'Jua'; font-size: 24px; color:var(--primary); margin-bottom: 20px;">무엇이 가장 궁금하신가요? 🤔</h3>
         
-        <div class="topic-grid">
-            <div class="topic-card" onclick="selectTopic(this, 'DNA와 ShellBank')">
-                <div class="topic-icon">🧬</div>
-                <div class="topic-title">DNA와 ShellBank</div>
-                <div class="topic-desc">바다거북 DNA로 어디까지 알 수 있나요?</div>
+        <div class="ask-grid">
+            <div class="ask-card" onclick="selectCategory(this, 'DNA와 ShellBank')">
+                <h4>🧬 DNA와 ShellBank</h4>
+                <p>DNA 데이터베이스는 어떻게 작동하나요?</p>
             </div>
-            <div class="topic-card" onclick="selectTopic(this, '현장 조사')">
-                <div class="topic-icon">🏖️</div>
-                <div class="topic-title">현장 조사</div>
-                <div class="topic-desc">시료는 어떻게 수집하고 활용되나요?</div>
+            <div class="ask-card" onclick="selectCategory(this, '현장 조사')">
+                <h4>🏝️ 현장 조사</h4>
+                <p>시료 수집과 분석은 어떤 과정으로 이루어지나요?</p>
             </div>
-            <div class="topic-card" onclick="selectTopic(this, '위협과 보전')">
-                <div class="topic-icon">🚨</div>
-                <div class="topic-title">위협과 보전</div>
-                <div class="topic-desc">불법 거래와 정책 연계 과정이 궁금해요</div>
+            <div class="ask-card" onclick="selectCategory(this, '위협과 보전')">
+                <h4>⚠️ 위협과 보전</h4>
+                <p>이 데이터가 실제 정책과 보호구역 지정에 어떻게 쓰이나요?</p>
             </div>
-            <div class="topic-card" onclick="selectTopic(this, '연구자와 보전활동')">
-                <div class="topic-icon">👩‍🔬</div>
-                <div class="topic-title">연구자와 보전활동</div>
-                <div class="topic-desc">시민이 보전에 기여할 방법은 무엇인가요?</div>
+            <div class="ask-card" onclick="selectCategory(this, '연구자와 보전활동')">
+                <h4>👩‍🔬 연구자와 보전활동</h4>
+                <p>연구자들의 실제 현장 이야기가 궁금해요!</p>
             </div>
         </div>
 
-        <div class="input-group">
-            <label class="input-label">선택된 주제</label>
-            <input type="text" id="selected-topic" class="text-input" readonly placeholder="위의 4가지 주제 중 하나를 클릭해주세요" style="background-color: #f9f9f9; color: var(--primary); font-weight: bold;">
+        <div id="question-box" class="question-box">
+            <textarea class="question-input" id="user-question" placeholder="선택한 주제에 대해 현장 연구자에게 궁금한 점을 자유롭게 적어주세요! (예: DNA만으로 거북이의 정확한 출생지를 알 수 있나요?)"></textarea>
+            <button class="btn-submit-q" onclick="submitQuestion()">연구자에게 질문 보내기 ➔</button>
         </div>
-
-        <div class="input-group">
-            <label class="input-label">레인저 코드 (8자리)</label>
-            <input type="text" id="ranger-code" class="text-input" placeholder="예: A1B2C3D4" maxlength="8">
-        </div>
-
-        <div class="input-group">
-            <label class="input-label">연구자에게 하고 싶은 질문 한 개</label>
-            <textarea id="question-text" class="textarea-input" placeholder="ShellBank 데이터나 바다거북 보전에 대해 평소 궁금했던 점을 적어주세요!"></textarea>
-        </div>
-
-        <button class="submit-btn" onclick="submitQuestion()">질문 제출하고 단서 요청하기 🚀</button>
     </div>
 
-    <!-- Success Card Container -->
-    <div id="success-card" class="success-card">
-        <div style="font-size: 60px;">🐢✨</div>
-        <h3>Your Question Has Joined the Trace</h3>
-        <p>레인저님이 남겨주신 소중한 질문이 접수되었습니다!<br>주요 질문은 선정되어 연구자의 Q&A 영상 및 답변으로 공개됩니다.</p>
-        <div class="badge-box">
-            🎁 [Bonus Trace] 디지털 참여 완료 카드 발급됨
+    <!-- Section 3: Q&A Gallery (Flip Cards) -->
+    <div class="section-title">03. 레인저 큐레이션 Q&A 갤러리</div>
+    <p style="margin-bottom: 20px; color: #bce7e5;">레인저스들이 가장 많이 남겨준 대표 질문들에 현장 전문가가 직접 답했습니다. 카드를 클릭해 해답을 확인하세요!</p>
+    
+    <div class="gallery-container">
+        <div class="gallery-grid">
+            <!-- Card 1 -->
+            <div class="flip-card" onclick="this.classList.toggle('active')">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="badge">DNA와 ShellBank</span>
+                        <h3>Q. ShellBank는 바다거북의 실시간 위치를 추적하는 시스템인가요?</h3>
+                        <div class="click-hint">클릭해서 답변 보기 ➔</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <h4>A. 아닙니다! 🙅‍♀️</h4>
+                        <p>ShellBank는 위치 추적기(GPS)가 아닌 <b>'DNA 데이터베이스'</b>입니다. 추출된 염기서열을 비교하여, 불법 거래된 거북이나 혼획된 개체의 원래 고향(유전 집단)을 역추적하는 과학 수사망과 같습니다.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card 2 -->
+            <div class="flip-card" onclick="this.classList.toggle('active')">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="badge">현장 조사</span>
+                        <h3>Q. 이미 폐사한 바다거북의 DNA도 보전에 도움이 될까요?</h3>
+                        <div class="click-hint">클릭해서 답변 보기 ➔</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <h4>A. 네, 매우 중요한 단서입니다! 💡</h4>
+                        <p>해변으로 밀려온 사체에서 채취한 조직 시료는 해당 해역에서 어떤 유전 집단이 위협(그물 혼획 등)을 받고 있는지 알려주는 결정적 증거가 되어 보호 정책 수립에 쓰입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="flip-card" onclick="this.classList.toggle('active')">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="badge">위협과 보전</span>
+                        <h3>Q. 여러 국가가 데이터를 함께 공유해야 하는 이유는 뭔가요?</h3>
+                        <div class="click-hint">클릭해서 답변 보기 ➔</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <h4>A. 바다에는 국경이 없기 때문이죠! 🌊</h4>
+                        <p>바다거북은 태어나 수천 킬로미터를 이동합니다. 인도네시아에서 태어난 거북이가 호주에서 발견되기도 하죠. 전 세계가 데이터를 결합해야만 이동 경로 전체를 보호할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card 4 -->
+            <div class="flip-card" onclick="this.classList.toggle('active')">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <span class="badge">연구자와 보전활동</span>
+                        <h3>Q. 시민이나 후원자가 이 연구에 기여할 방법이 있나요?</h3>
+                        <div class="click-hint">클릭해서 답변 보기 ➔</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <h4>A. 레인저 활동 자체가 큰 기여입니다! ✨</h4>
+                        <p>ShellBank와 같은 대규모 글로벌 연구는 지속적인 지원 없이는 불가능합니다. 여러분이 미션에 참여하고 흔적을 기록할 때마다, 현장의 연구자들은 더 많은 바다를 지킬 동력을 얻습니다.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-            <button class="submit-btn" onclick="location.reload()" style="max-width: 250px;">다른 질문 추가하기</button>
+    </div>
+
+    <!-- Section 4: Final Mission Form -->
+    <div class="section-title">04. TRACE 03 해금하기</div>
+    <div class="mission-box">
+        <h2>🔓 기록하고 해금하라!</h2>
+        <p>Q&A 갤러리에서 확인한 내용 중 가장 인상 깊었던 답변 한 줄을 남겨주세요.<br>입력이 완료되면 다음 미션인 <b>'TRACE 03'</b> 데이터가 해금됩니다.</p>
+        
+        <div class="input-group">
+            <label class="input-label">🔑 레인저 코드 (8자리)</label>
+            <input type="text" id="ranger-code" class="final-input" placeholder="TRACE 01에서 발급받은 코드 입력" maxlength="8">
         </div>
+        
+        <div class="input-group">
+            <label class="input-label">✍️ 가장 인상 깊었던 연구자의 답변 (한 줄 기록)</label>
+            <textarea id="trace-note" class="final-input" placeholder="예: ShellBank가 위치 추적기가 아니라 DNA 수사망이라는 사실이 놀라웠어요!" rows="3"></textarea>
+        </div>
+        
+        <button class="btn-unlock" id="submitBtn" onclick="submitFinal()">TRACE 03 단서 해금하기 🚀</button>
+    </div>
+
+</div>
+
+<!-- Modal: Unlock TRACE 03 -->
+<div class="modal-overlay" id="success-modal">
+    <div class="modal-content">
+        <div class="unlock-icon">🔓✨</div>
+        <h2>TRACE 03 해금 완료!</h2>
+        <p>레인저님의 뛰어난 통찰력 덕분에 데이터 분석 권한이 열렸습니다.<br>이제 본격적인 DNA 데이터를 해독하러 가볼까요?</p>
+        <button class="btn-next" onclick="location.reload()">TRACE 03 현장으로 이동 ➔</button>
     </div>
 </div>
 
 <script>
-    let chosenTopic = "";
-
-    function selectTopic(card, topicName) {
-        document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
+    // 1. 질문 카테고리 선택 UI
+    function selectCategory(card, category) {
+        document.querySelectorAll('.ask-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
-        chosenTopic = topicName;
-        document.getElementById('selected-topic').value = topicName;
+        
+        const qBox = document.getElementById('question-box');
+        qBox.classList.add('active');
+        document.getElementById('user-question').focus();
     }
 
+    // 2. 질문 제출 (시뮬레이션)
     function submitQuestion() {
-        if (!chosenTopic) {
-            alert("질문 분야(주제)를 먼저 선택해주세요!");
+        const q = document.getElementById('user-question').value.trim();
+        if(q.length < 5) {
+            alert("현장 연구자에게 보낼 질문을 5자 이상 적어주세요! 🎤");
             return;
         }
+        alert("✨ 질문이 제주 현장 연구팀으로 성공적으로 전송되었습니다! (시뮬레이션)");
+        document.getElementById('user-question').value = "";
+    }
+
+    // 3. 최종 해금 미션 제출
+    function submitFinal() {
         const code = document.getElementById('ranger-code').value.trim();
         if (code.length !== 8) {
-            alert("8자리 레인저 코드를 정확히 입력해주세요.");
-            return;
-        }
-        const qText = document.getElementById('question-text').value.trim();
-        if (qText.length < 5) {
-            alert("질내용을 5자 이상 상세히 작성해주세요!");
+            alert("8자리 레인저 코드를 정확히 입력해주세요! 🔑");
             return;
         }
 
-        // Switch to success view
-        document.getElementById('form-container').style.display = 'none';
-        document.getElementById('success-card').classList.add('active');
+        const note = document.getElementById('trace-note').value.trim();
+        if (note.length < 5) {
+            alert("인상 깊었던 답변을 5자 이상 남겨주세요! ✍️");
+            return;
+        }
+
+        // 버튼 상태 변경
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = '권한 확인 중... ⏳';
+        submitBtn.disabled = true;
+
+        /*
+        실제 운영 시, 여기에 TRACE 02/03처럼 구글 폼 제출 코드를 넣습니다.
+        document.getElementById('googleForm').submit(); 
+        */
+
+        // 1.5초 후 성공 모달 팝업
+        setTimeout(() => {
+            document.getElementById('success-modal').classList.add('active');
+        }, 1500);
     }
 </script>
 
