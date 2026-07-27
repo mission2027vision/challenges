@@ -93,14 +93,14 @@
 </head>
 <body>
 
-<!-- 🌟 구글 시트 연동을 위한 백그라운드 폼 구조 추가 -->
+<!-- 🌟 레인저님의 찐 최종 구글 스크립트 웹 앱 URL이 적용되었습니다! -->
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){submitSuccess();}"></iframe>
-<form id="googleForm" action="https://docs.google.com/spreadsheets/d/1ZsAqmpM0A8AW7c4RB_XiViQ5FdmfTZfAZ0kz6NS468I/edit?usp=sharing" method="POST" target="hidden_iframe" style="display:none;">
-    <input type="hidden" name="formType" value="Trace02"> <!-- TRACE 02 이름표 -->
+<form id="googleForm" action="https://script.google.com/macros/s/AKfycbyMKPE7RE-CU7YuXsf2_Mnn7XmG9KsqVYH4WS82mZQSKHAyuv0k3rM_2c-W1x3SDkYbNQ/exec" method="POST" target="hidden_iframe" style="display:none;">
+    <input type="hidden" name="formType" value="Trace02">
     <input type="hidden" name="rangerCode" id="formRangerCode">
     <input type="hidden" name="selectedAction" id="formSelectedAction">
     <input type="hidden" name="traceNote" id="formTraceNote">
-    <input type="hidden" name="photoData" id="formPhotoData"> <!-- Base64 변환 이미지 -->
+    <input type="hidden" name="photoData" id="formPhotoData">
 </form>
 
 <div class="container">
@@ -218,9 +218,8 @@
 <script>
     let isActionSelected = false;
     let submitted = false; 
-    let base64Image = ""; // 🌟 사진을 텍스트로 변환해서 구글 시트에 넣기 위한 변수
+    let base64Image = ""; 
 
-    // Handle Card Selection
     function selectAction(card, threat, actionText) {
         document.querySelectorAll('.threat-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
@@ -235,7 +234,6 @@
         setTimeout(() => { document.getElementById('verification-section').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
 
-    // Handle File Upload Preview
     function handleFileSelect(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -246,14 +244,12 @@
                 document.getElementById('step3').classList.replace('active', 'completed');
                 document.getElementById('step4').classList.add('active');
                 
-                // 🌟 구글 폼 전송을 위해 base64 데이터 저장
                 base64Image = e.target.result;
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    // Drag and Drop functionality
     const dropZone = document.getElementById('drop-zone');
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); });
@@ -266,7 +262,6 @@
         }
     });
 
-    // Handle Submit
     function submitVerification() {
         if (!isActionSelected) {
             alert("먼저 실천할 행동을 선택해주세요!");
@@ -291,26 +286,21 @@
             return;
         }
 
-        // 🌟 버튼 상태 변경 (클릭 방지)
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.innerHTML = '구글 시트로 안전하게 전송 중... ⏳';
         submitBtn.disabled = true;
 
-        // 🌟 숨겨진 구글 폼에 값 채워넣기
         document.getElementById('formRangerCode').value = code;
         document.getElementById('formSelectedAction').value = document.getElementById('selected-action-input').value;
         document.getElementById('formTraceNote').value = note;
         document.getElementById('formPhotoData').value = base64Image;
 
-        // 🌟 구글 시트로 폼 전송!
         submitted = true;
         document.getElementById('googleForm').submit();
         
-        // 전송 완료 시 성공 팝업 띄우기 대기
         setTimeout(submitSuccess, 1500);
     }
     
-    // 🌟 성공 시 보여줄 화면 전환 로직 분리
     function submitSuccess() {
         document.getElementById('step4').classList.replace('active', 'completed');
         document.getElementById('step5').classList.add('completed');
