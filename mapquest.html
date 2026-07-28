@@ -35,12 +35,21 @@
         .code-input { width: 100%; padding: 15px; border: 2px solid var(--gray-light); border-radius: 12px; font-size: 16px; outline: none; transition: 0.3s; text-align: center; letter-spacing: 2px; font-weight: bold; }
         .code-input:focus { border-color: var(--primary); }
 
-        .section-subtitle { font-size: 14px; font-weight: 700; margin-bottom: 15px; color: var(--text-dark); text-align: center; background: #e0f2f1; padding: 8px; border-radius: 8px; }
+        .section-subtitle { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-dark); text-align: center; background: #e0f2f1; padding: 8px; border-radius: 8px; }
         
         .radio-btn { width: 100%; padding: 16px; text-align: center; border-radius: 20px; font-size: 15px; cursor: pointer; margin-bottom: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; font-weight: 700; }
         .radio-btn.active { background-color: var(--primary); color: white; box-shadow: 0 6px 15px rgba(0, 123, 127, 0.3); transform: translateY(-2px); }
         .radio-btn.inactive { background-color: var(--gray-light); color: #888; border-color: #ddd; }
         .radio-btn.inactive:hover { background-color: #e4e9e9; }
+
+        /* 🐢 서베이 카테고리(분류) UI 추가 */
+        .category-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .cat-btn { background: var(--gray-light); color: #666; font-size: 12px; font-weight: 700; padding: 10px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
+        .cat-btn.active { background: #e0f2f1; color: var(--primary); border-color: var(--primary); box-shadow: 0 4px 10px rgba(0, 123, 127, 0.15); transform: translateY(-2px); }
+        .cat-btn:hover:not(.active) { background: #e4e9e9; }
+        
+        .question-input { width: 100%; padding: 15px; border: 2px dashed #bce7e5; border-radius: 15px; font-size: 13px; font-family: inherit; resize: none; outline: none; transition: 0.3s; background: #f9fdfd; line-height: 1.5; }
+        .question-input:focus { border-style: solid; border-color: var(--primary); background: #fff; box-shadow: 0 4px 12px rgba(0, 123, 127, 0.1); }
 
         .submit-btn { margin-top: auto; width: 100%; padding: 18px; background-color: var(--dark-navy); color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
         .submit-btn:hover:not(:disabled) { background-color: #081B28; box-shadow: 0 4px 12px rgba(11, 37, 54, 0.4); }
@@ -92,6 +101,8 @@
 <form id="googleForm" action="https://script.google.com/macros/s/AKfycbzfRITu0T4AGU_Z2VJRS06gTChC8Uh7asZJwLsDtgWtnXg5__8lpJaVZK3aT_GKi_G2qA/exec" method="POST" target="hidden_iframe" style="display:none;">
     <input type="hidden" name="rangerCode" id="formRangerCode">
     <input type="hidden" name="selectedTrace" id="formSelectedTrace">
+    <!-- 🐢 서베이(질문) 데이터를 받을 hidden input -->
+    <input type="hidden" name="rangerQuestion" id="formRangerQuestion">
 </form>
 
 <div class="container">
@@ -116,6 +127,23 @@
             <button type="button" class="radio-btn inactive" onclick="selectTrace(3, this, '🕵️ 글로벌 추적 네트워크')">🕵️ 글로벌 추적 네트워크</button>
         </div>
 
+        <!-- 🐢 분류형 질문(서베이) 영역 -->
+        <div class="input-group">
+            <div class="section-subtitle">🐢 레인저스 2기, 무엇이든 물어보세요!</div>
+            <p style="font-size: 11px; text-align: center; color: #666; margin-bottom: 12px; word-break: keep-all;">앞으로 1년 동안 진행될 활동에 대해 궁금한 점을 남겨주세요.</p>
+            
+            <!-- 🌟 카테고리 선택 버튼 (2x2 그리드) -->
+            <div class="category-selector">
+                <div class="cat-btn active" onclick="selectQCategory(this, '운영/미션')">⚙️ 운영/미션</div>
+                <div class="cat-btn" onclick="selectQCategory(this, '모임/이벤트')">🎉 모임/이벤트</div>
+                <div class="cat-btn" onclick="selectQCategory(this, '내용/정보')">🐢 내용/정보</div>
+                <div class="cat-btn" onclick="selectQCategory(this, '기타')">🤔 기타</div>
+            </div>
+
+            <!-- 말풍선 스타일 텍스트 에어리어 -->
+            <textarea id="rangerQuestion" class="question-input" placeholder="TRACE 미션 제출 방법이나 운영 방식에 대한 질문을 적어주세요 ✍️ (선택 사항)" rows="2"></textarea>
+        </div>
+
         <button class="submit-btn" id="submitBtn" onclick="submitToGoogle()">흔적 남기기 완료</button>
     </div>
 
@@ -133,7 +161,7 @@
             </div>
         </div>
 
-        <!-- Webtoon Panel 1 (Ecology & Threats) -->
+        <!-- Webtoon Panel 1 -->
         <div id="toon1" class="webtoon-panel active">
             <div class="toon-header">
                 <div class="toon-avatar">🐢</div>
@@ -159,7 +187,7 @@
             </div>
         </div>
 
-        <!-- Webtoon Panel 2 (ShellBank & DNA) -->
+        <!-- Webtoon Panel 2 -->
         <div id="toon2" class="webtoon-panel">
             <div class="toon-header">
                 <div class="toon-avatar">🧬</div>
@@ -185,7 +213,7 @@
             </div>
         </div>
 
-        <!-- Webtoon Panel 3 (Tracking & Action) -->
+        <!-- Webtoon Panel 3 -->
         <div id="toon3" class="webtoon-panel">
             <div class="toon-header">
                 <div class="toon-avatar">🚨</div>
@@ -217,11 +245,12 @@
 <script>
     let submitted = false;
     let selectedInterest = "🚨 위기에 처한 바다거북";
+    let selectedQuestionCategory = "운영/미션"; // 질문 카테고리 기본값
 
+    // 1. 흔적 선택(웹툰) 로직
     function selectTrace(panelId, clickedBtn, interestText) {
         selectedInterest = interestText;
 
-        // 버튼 업데이트
         const buttons = document.querySelectorAll('.radio-btn');
         buttons.forEach(btn => {
             btn.classList.remove('active');
@@ -230,18 +259,41 @@
         clickedBtn.classList.remove('inactive');
         clickedBtn.classList.add('active');
         
-        // 해당 패널 보여주기
         document.querySelectorAll('.webtoon-panel').forEach(panel => {
             panel.classList.remove('active');
         });
         document.getElementById('toon' + panelId).classList.add('active');
     }
 
+    // 2. 질문 카테고리 선택 로직
+    function selectQCategory(clickedBtn, category) {
+        selectedQuestionCategory = category;
+
+        // 버튼 스타일 업데이트
+        const buttons = document.querySelectorAll('.cat-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        clickedBtn.classList.add('active');
+
+        // 카테고리에 따라 입력창 안내문구(Placeholder) 맞춤 변경
+        const qInput = document.getElementById('rangerQuestion');
+        if(category === '운영/미션') {
+            qInput.placeholder = "TRACE 미션 제출 방법이나 운영 방식에 대한 질문을 적어주세요 ✍️ (선택 사항)";
+        } else if(category === '모임/이벤트') {
+            qInput.placeholder = "오프라인 모임 진행이나 굿즈 수령 등 이벤트 관련 질문을 적어주세요 🎉 (선택 사항)";
+        } else if(category === '내용/정보') {
+            qInput.placeholder = "바다거북 보전이나 WWF 해양 생태계 활동에 대한 질문을 적어주세요 🐢 (선택 사항)";
+        } else {
+            qInput.placeholder = "레인저스 2기 활동에 대해 무엇이든 자유롭게 남겨주세요 🤔 (선택 사항)";
+        }
+    }
+
+    // 3. 구글 폼 제출 로직
     function submitToGoogle() {
         const codeInput = document.getElementById('rangerCode').value.trim();
+        const rawQuestion = document.getElementById('rangerQuestion').value.trim();
         
         if (codeInput.length !== 8) {
-            alert("8자리 레인저 코드를 정확히 입력해주세요! (예: A1B2C3D4)");
+            alert("8자리 레인저 코문을 정확히 입력해주세요! (예: A1B2C3D4)");
             return;
         }
 
@@ -249,15 +301,18 @@
         submitBtn.innerText = '구글 시트로 전송 중... ⏳';
         submitBtn.disabled = true;
 
-        // 숨겨진 폼에 값 채워넣기
+        // 질문이 있을 경우 앞에 [카테고리명]을 붙여서 시트로 전송 (관리 용이성 극대화)
+        const finalQuestion = rawQuestion.length > 0 
+            ? `[${selectedQuestionCategory}] ${rawQuestion}` 
+            : "";
+
         document.getElementById('formRangerCode').value = codeInput;
         document.getElementById('formSelectedTrace').value = selectedInterest;
+        document.getElementById('formRangerQuestion').value = finalQuestion;
 
-        // 폼 제출 (iframe으로 전송되어 페이지 새로고침 방지)
         submitted = true;
         document.getElementById('googleForm').submit();
         
-        // 폼 제출 속도를 고려해 살짝 기다렸다가 성공 화면 띄우기
         setTimeout(submitSuccess, 1000);
     }
 
@@ -270,8 +325,9 @@
             panel.style.display = 'none';
         });
 
-        const buttons = document.querySelectorAll('.radio-btn, .code-input');
-        buttons.forEach(btn => btn.style.pointerEvents = 'none');
+        // 폼 요소 비활성화
+        const interactables = document.querySelectorAll('.radio-btn, .code-input, .question-input, .cat-btn');
+        interactables.forEach(el => el.style.pointerEvents = 'none');
         
         submitBtn.innerText = '등록 및 전송이 완료되었습니다 ✅';
         submitBtn.style.backgroundColor = '#007B7F';
