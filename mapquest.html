@@ -97,8 +97,9 @@
 <!-- 🌟 필수: 화면에 보이지 않는 iframe과 폼. 이 영역이 브라우저 오류를 막아줍니다. -->
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){submitSuccess();}"></iframe>
 
-<!-- ⚠️ action 부분에 본인의 구글 웹 앱 URL을 붙여넣으세요! -->
-<form id="googleForm" action="https://script.google.com/macros/s/AKfycbzfRITu0T4AGU_Z2VJRS06gTChC8Uh7asZJwLsDtgWtnXg5__8lpJaVZK3aT_GKi_G2qA/exec" method="POST" target="hidden_iframe" style="display:none;">
+<!-- 🌟 폼 부분: 보내주신 최신 URL과 이름표(formType) 적용 완료! -->
+<form id="googleForm" action="https://script.google.com/macros/s/AKfycbzXBeH2qkWDJxz9ZylJzwmPIWpp5yHiFYDcui41IkPrtNv7khHc89eBBsCefQUyQ01K/exec" method="POST" target="hidden_iframe" style="display:none;">
+    <input type="hidden" name="formType" value="Trace01">
     <input type="hidden" name="rangerCode" id="formRangerCode">
     <input type="hidden" name="selectedTrace" id="formSelectedTrace">
     <!-- 🐢 서베이(질문) 데이터를 받을 hidden input -->
@@ -293,7 +294,7 @@
         const rawQuestion = document.getElementById('rangerQuestion').value.trim();
         
         if (codeInput.length !== 8) {
-            alert("8자리 레인저 코문을 정확히 입력해주세요! (예: A1B2C3D4)");
+            alert("8자리 레인저 코드를 정확히 입력해주세요! (예: A1B2C3D4)");
             return;
         }
 
@@ -301,7 +302,7 @@
         submitBtn.innerText = '구글 시트로 전송 중... ⏳';
         submitBtn.disabled = true;
 
-        // 질문이 있을 경우 앞에 [카테고리명]을 붙여서 시트로 전송 (관리 용이성 극대화)
+        // 질문이 있을 경우 앞에 [카테고리명]을 붙여서 시트로 전송
         const finalQuestion = rawQuestion.length > 0 
             ? `[${selectedQuestionCategory}] ${rawQuestion}` 
             : "";
