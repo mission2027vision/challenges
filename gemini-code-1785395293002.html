@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#062f38">
+    <title>WWF Rangers | 미션 허브</title>
+    
+    <!-- 폰트 및 외부 라이브러리 -->
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* ========================================================
+           GLOBAL & HUB STYLE (메인 금고 & 인트로)
+        ======================================================== */
+        :root {
+            /* Trace 2 변수 */
+            --deep-bg: #9ecbca;
+            --panel-bg: #062f38;
+            --card-bg: #093740;
+            --highlight: #30c9c5;
+            --accent: #ffd05a;
+            --ocean: #087f8c;
+            --coral: #ff765f;
+            --text-main: #ffffff;
+            --text-sub: #bce7e5;
+            /* Trace 1 변수 */
+            --t1-primary: #007B7F;
+            --t1-dark-navy: #0B2536;
+            --t1-bg: #F4F8F9;
+            --t1-gray-light: #EBEFEF;
+            --t1-toon-border: #2c3e50;
+            /* Hub 변수 */
+            --neon-cyan: #00f3ff;
+            --hub-bg: #031114;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { width: 100%; height: 100%; background: var(--hub-bg); font-family: 'Pretendard', sans-serif; overflow: hidden; }
+
+        /* 화면 전환을 위한 뷰포트 클래스 */
+        .screen { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow-y: auto; overflow-x: hidden; }
+        .screen.active { display: block; animation: fadeIn 0.6s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- 1. INTRO SCREEN --- */
+        #screen-intro {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url('image_0e34dc.jpg') center/cover no-repeat;
+            display: none; /* JS에서 제어 */
+            flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
+        }
+        #screen-intro.active { display: flex; }
+        .intro-title {
+            font-family: 'Jua', sans-serif; font-size: 50px; color: var(--neon-cyan); text-align: center;
+            text-shadow: 0 0 15px var(--neon-cyan), 0 0 30px rgba(0, 243, 255, 0.5); letter-spacing: 3px; margin-bottom: 10px;
+        }
+        .intro-sub { font-size: 20px; color: white; font-weight: 700; letter-spacing: 5px; margin-bottom: 50px; }
+        .start-btn {
+            background: transparent; border: 2px solid var(--neon-cyan); color: var(--neon-cyan);
+            padding: 15px 40px; border-radius: 50px; font-size: 18px; font-weight: 700; cursor: pointer;
+            transition: 0.3s; box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); font-family: 'Jua', sans-serif;
+        }
+        .start-btn:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 20px var(--neon-cyan); transform: scale(1.05); }
+
+        /* --- 2. VAULT HUB SCREEN --- */
+        #screen-hub { background: radial-gradient(circle at center, #0a2530 0%, #020a0d 100%); display: none; padding: 50px 20px; }
+        #screen-hub.active { display: block; }
+        .hub-header { text-align: center; margin-bottom: 40px; }
+        .hub-header h1 { font-family: 'Jua', sans-serif; color: var(--neon-cyan); font-size: 40px; text-shadow: 0 0 10px rgba(0,243,255,0.5); }
+        .hub-header p { color: #8ab4f8; font-size: 16px; margin-top: 10px; }
+
+        .vault-grid { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+        @media(max-width: 768px){ .vault-grid { grid-template-columns: 1fr; } }
+
+        .vault-card {
+            background: rgba(6, 47, 56, 0.6); border: 2px solid #1a5663; border-radius: 20px; padding: 40px 20px;
+            text-align: center; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden; backdrop-filter: blur(10px);
+        }
+        .vault-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        
+        .vault-card.locked { border-color: #333; background: rgba(20,20,20,0.8); cursor: not-allowed; }
+        .vault-card.locked:hover { transform: translateX(5px) translateY(0); /* 흔들림 효과 (아래 JS 구현) */ }
+        .vault-card.locked * { opacity: 0.5; }
+        
+        .vault-card.cleared { border-color: #2ecc71; box-shadow: 0 0 20px rgba(46, 204, 113, 0.2); }
+        .vault-card.cleared .status-badge { background: #2ecc71; color: #000; }
+
+        .vault-icon { font-size: 50px; margin-bottom: 15px; }
+        .vault-card h3 { font-family: 'Jua', sans-serif; font-size: 24px; color: white; margin-bottom: 5px; }
+        .vault-card p { color: #8ab4f8; font-size: 14px; }
+        
+        .status-badge {
+            position: absolute; top: 15px; right: 15px; background: var(--neon-cyan); color: #000;
+            padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; font-family: 'Jua', sans-serif;
+        }
+        .vault-card.locked .status-badge { background: #555; color: #ccc; }
+
+
+        /* ========================================================
+           TRACE 01 STYLE (원래 Trace 1 CSS 이식)
+        ======================================================== */
+        #screen-trace1 { background-color: var(--t1-bg); color: #333; padding: 40px 20px; }
+        #screen-trace1 .container { max-width: 1100px; width: 100%; margin: 0 auto; display: grid; grid-template-columns: 350px 1fr; gap: 40px; }
+        @media (max-width: 850px) { #screen-trace1 .container { grid-template-columns: 1fr; } }
+        /* (이하 기존 Trace 1 스타일 압축) */
+        .t1-header-full { grid-column: 1 / -1; margin-bottom: 20px; border-bottom: 2px solid var(--t1-gray-light); padding-bottom: 20px; }
+        .t1-header-full h4 { color: var(--t1-primary); font-size: 14px; font-weight: 700;}
+        .t1-header-full h1 { font-size: 34px; color: var(--t1-dark-navy); font-weight: 800; margin: 10px 0; }
+        
+        .phone-mockup { background: #fff; border: 14px solid var(--t1-dark-navy); border-radius: 40px; padding: 30px 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); display: flex; flex-direction: column; min-height: 700px; }
+        .input-group { margin-bottom: 25px; position: relative; }
+        .code-input { width: 100%; padding: 15px; border: 2px solid var(--t1-gray-light); border-radius: 12px; font-size: 16px; text-align: center; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }
+        .code-input.success { border-color: #2ecc71; background: #eafaf1; color: #27ae60; }
+        .radio-btn { width: 100%; padding: 14px; text-align: center; border-radius: 20px; font-size: 14px; cursor: pointer; margin-bottom: 8px; border: 2px solid transparent; font-weight: 700; }
+        .radio-btn.active { background-color: var(--t1-primary); color: white; }
+        .radio-btn.inactive { background-color: var(--t1-gray-light); color: #888; }
+        .submit-btn { width: 100%; padding: 18px; background-color: var(--t1-dark-navy); color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        
+        .right-panel { display: flex; flex-direction: column; gap: 20px; position: relative; }
+        .webtoon-panel { display: none; animation: fadeIn 0.5s ease forwards; }
+        .webtoon-panel.active { display: block; }
+        .instatoon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .toon-cut { background: white; border: 4px solid var(--t1-toon-border); border-radius: 16px; padding: 20px; text-align: center; position: relative; box-shadow: 4px 4px 0px var(--t1-toon-border); }
+        .toon-visual { font-size: 60px; margin: 15px 0; }
+        
+        /* Trace 1 Popup */
+        .popup-overlay { position: fixed; inset: 0; background: rgba(11, 37, 54, 0.95); z-index: 10000; display: none; justify-content: center; align-items: center; }
+        .popup-overlay.active { display: flex; }
+        .popup-modal { background: white; padding: 50px 40px; border-radius: 30px; text-align: center; max-width: 420px; width: 90%; }
+        .popup-close-btn { background: var(--t1-dark-navy); color: white; padding: 18px 40px; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; width: 100%; font-size: 16px; }
+
+        /* ========================================================
+           TRACE 02 STYLE (원래 Trace 2 CSS 이식)
+        ======================================================== */
+        #screen-trace2 { font-family: "Gowun Dodum", sans-serif; background: var(--deep-bg); overflow: hidden;}
+        #screen-trace2 #map { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+        
+        .top-hud { position: absolute; top: 20px; left: 20px; right: 20px; z-index: 500; display: flex; justify-content: space-between; pointer-events: none; }
+        .brand { display: flex; align-items: center; gap: 12px; background: var(--panel-bg); color: var(--text-main); padding: 10px 20px 10px 10px; border-radius: 99px; pointer-events: auto; }
+        .status-card { display: flex; gap: 15px; pointer-events: auto; }
+        .status-badge { display: flex; align-items: center; gap: 12px; background: #ffffff; padding: 8px 20px 8px 8px; border-radius: 99px; }
+        
+        .mission-dock { position: absolute; top: 90px; left: 20px; bottom: 20px; width: 360px; background: var(--panel-bg); border-radius: 24px; display: flex; flex-direction: column; z-index: 500; overflow: hidden; color: var(--text-main); }
+        .journey-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex: 1; }
+        .journey-item { display: flex; align-items: center; gap: 12px; background: var(--card-bg); padding: 15px; border-radius: 16px; cursor: pointer; }
+        .journey-item.done { border-color: var(--highlight); background: rgba(48,201,197,0.1); }
+        .journey-item.active { border: 1px solid var(--accent); }
+        
+        .side-panel { position: absolute; top: 90px; right: 20px; bottom: 20px; width: 440px; background: #ffffff; border-radius: 24px; z-index: 500; display: flex; flex-direction: column; transform: translateX(120%); transition: 0.4s; }
+        .side-panel.open { transform: translateX(0); }
+        .panel-hero { background: var(--panel-bg); color: white; padding: 30px 25px; position: relative; }
+        .panel-body { flex: 1; padding: 25px; overflow-y: auto; color: #17343a; }
+        
+        .marker-pin { width: 44px; height: 44px; background: var(--coral); border: 3px solid white; border-radius: 50% 50% 50% 0; display: grid; place-items: center; color: white; font-size: 20px; cursor: pointer; transform: rotate(-45deg); z-index: 500; }
+        .marker-pin.solved { background: #22b99a; }
+        .marker-pin span { transform: rotate(45deg); }
+        
+        /* Trace 2 Certificate */
+        .modal-backdrop { position: fixed; inset: 0; z-index: 10000; display: none; place-items: center; background: rgba(6, 47, 56, 0.85); }
+        .modal-backdrop.open { display: grid; }
+        .certificate-modal { background: #fff4cf; padding: 40px; border-radius: 30px; text-align: center; max-width: 600px; width: 90%; }
+        .btn-return-hub { background: var(--ocean); color: white; padding: 12px 24px; border-radius: 50px; font-family: 'Jua'; font-size: 18px; border: none; cursor: pointer; margin-top: 20px; }
+
+        /* 공통 유틸 */
+        .hub-return-float { position: fixed; bottom: 20px; right: 20px; background: var(--hub-bg); color: var(--neon-cyan); border: 2px solid var(--neon-cyan); padding: 12px 25px; border-radius: 50px; cursor: pointer; z-index: 9000; font-family: 'Jua', sans-serif; font-size: 16px; box-shadow: 0 0 10px rgba(0,243,255,0.3); }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================================
+         1. 인트로 화면 (Intro)
+    ======================================================== -->
+    <div id="screen-intro" class="screen active">
+        <div class="intro-title">WWF RANGERS</div>
+        <div class="intro-sub">2ND GENERATION</div>
+        <button class="start-btn" onclick="enterHub()">미션 여정 시작하기</button>
+    </div>
+
+    <!-- ========================================================
+         2. 메인 금고 허브 (Vault Hub)
+    ======================================================== -->
+    <div id="screen-hub" class="screen">
+        <div class="hub-header">
+            <h1>RANGERS MISSION VAULT</h1>
+            <p>단서를 해독하고 다음 미션의 금고를 열어보세요!</p>
+        </div>
+        
+        <div class="vault-grid">
+            <!-- Trace 01 -->
+            <div class="vault-card" id="vault-t1" onclick="openTrace(1)">
+                <div class="status-badge" id="badge-t1">OPEN</div>
+                <div class="vault-icon">🧬</div>
+                <h3>TRACE 01</h3>
+                <p>나의 코드 활성화하기</p>
+            </div>
+            
+            <!-- Trace 02 -->
+            <div class="vault-card locked" id="vault-t2" onclick="openTrace(2)">
+                <div class="status-badge" id="badge-t2">LOCKED</div>
+                <div class="vault-icon" id="icon-t2">🔒</div>
+                <h3>TRACE 02</h3>
+                <p>위협 단서 찾기</p>
+            </div>
+
+            <!-- Trace 03 (블로그 링크) -->
+            <div class="vault-card locked" id="vault-t3" onclick="openTrace(3)">
+                <div class="status-badge" id="badge-t3">LOCKED</div>
+                <div class="vault-icon" id="icon-t3">🔒</div>
+                <h3>TRACE 03</h3>
+                <p>나만의 바다 조각 완성하기</p>
+            </div>
+
+            <!-- Trace 04 (블로그 링크) -->
+            <div class="vault-card locked" id="vault-t4" onclick="openTrace(4)">
+                <div class="status-badge" id="badge-t4">LOCKED</div>
+                <div class="vault-icon" id="icon-t4">🔒</div>
+                <h3>TRACE 04</h3>
+                <p>The Final Ranger</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================================
+         3. TRACE 01 화면
+    ======================================================== -->
+    <div id="screen-trace1" class="screen">
+        <button class="hub-return-float" onclick="returnToHub()">← 금고로 돌아가기</button>
+        
+        <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){showFinalPopup();}"></iframe>
+        <form id="googleForm" action="#" method="POST" target="hidden_iframe" style="display:none;">
+            <!-- 실제 GAS 주소로 변경 필요 -->
+            <input type="hidden" name="formType" value="Trace01">
+            <input type="hidden" name="rangerCode" id="formRangerCode">
+            <input type="hidden" name="selectedTrace" id="formSelectedTrace">
+        </form>
+
+        <div class="container">
+            <div class="t1-header-full">
+                <h4>WWF RANGERS 2ND GENERATION</h4>
+                <h1>나의 코드를 활성화하고 첫 흔적을 남겨라</h1>
+                <h2>TRACE 01 — Activate Your Code</h2>
+            </div>
+
+            <div class="phone-mockup">
+                <div style="text-align: center; font-weight: 700; margin-bottom: 20px;">레인저 DNA 등록</div>
+                <div class="input-group">
+                    <input type="text" id="rangerCode" class="code-input" placeholder="8자리 DNA 코드 입력" maxlength="8">
+                </div>
+                <div class="input-group">
+                    <button type="button" class="radio-btn active" onclick="selectTrace(1, this, '위기에 처한 바다거북')">🚨 위기에 처한 바다거북</button>
+                    <button type="button" class="radio-btn inactive" onclick="selectTrace(2, this, '비밀 신분증, ShellBank')">🧬 비밀 신분증, ShellBank</button>
+                </div>
+                <button class="submit-btn" id="submitBtn" onclick="submitToGoogle()">흔적 남기기 완료 🚀</button>
+            </div>
+
+            <div class="right-panel">
+                <div id="toon1" class="webtoon-panel active">
+                    <div class="instatoon-grid">
+                        <div class="toon-cut"><div class="toon-visual">🌊</div><p>바다거북 5종이 멸종 위협을 받고 있어!</p></div>
+                        <div class="toon-cut"><div class="toon-visual">😥</div><p>추적할 방법이 부족해서 막막했지...</p></div>
+                    </div>
+                </div>
+                <div id="toon2" class="webtoon-panel">
+                    <div class="instatoon-grid">
+                        <div class="toon-cut"><div class="toon-visual">💡</div><p>데이터베이스 ShellBank(쉘뱅크) 등장!</p></div>
+                        <div class="toon-cut"><div class="toon-visual">🌍</div><p>DNA 흔적으로 어디서 왔는지 알 수 있어!</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 완료 팝업 -->
+        <div class="popup-overlay" id="finalPopup">
+            <div class="popup-modal">
+                <div style="font-size:60px; margin-bottom:10px;">🎉🐢🎉</div>
+                <h2 style="font-family:'Jua';">첫 번째 흔적 등록 완료!</h2>
+                <p style="margin-bottom:20px;">이제 다음 미션 금고를 열 수 있습니다.</p>
+                <button class="popup-close-btn" onclick="completeTrace1()">다음 금고 열러 가기 ➔</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================================
+         4. TRACE 02 화면
+    ======================================================== -->
+    <div id="screen-trace2" class="screen">
+        <button class="hub-return-float" onclick="returnToHub()">← 금고로 돌아가기</button>
+        <div id="map"></div>
+
+        <header class="top-hud">
+            <div class="brand">🕵️ <strong>위협 단서 찾기</strong></div>
+            <div class="status-card">
+                <div class="status-badge">
+                    <strong id="total-progress">0/8</strong>
+                </div>
+            </div>
+        </header>
+
+        <aside class="mission-dock">
+            <div style="padding: 20px;">
+                <h2 style="font-family:'Jua'; margin-bottom:5px;">바다거북 여정의 위협</h2>
+                <p style="font-size:12px; color:#bce7e5;">지도 곳곳에 숨겨진 단서를 해독하세요.</p>
+            </div>
+            <div class="journey-list" id="main-missions"></div>
+        </aside>
+
+        <section class="side-panel" id="mission-panel">
+            <div class="panel-hero">
+                <button onclick="closePanel()" style="position:absolute; right:15px; top:15px; background:transparent; color:white; border:none; font-size:20px; cursor:pointer;">✕</button>
+                <h2 id="p-title" style="font-family:'Jua'; margin-top:20px;">제목</h2>
+            </div>
+            <div class="panel-body" id="p-body"></div>
+        </section>
+
+        <!-- 완료 인증서 -->
+        <div class="modal-backdrop" id="certificate-backdrop">
+            <div class="certificate-modal">
+                <h2 style="font-family:'Jua'; font-size:30px; color:#087f8c;">바다거북 위협 해독 인증서</h2>
+                <p style="margin:20px 0;">모든 위협 단서를 성공적으로 해독하였음을 인증합니다.</p>
+                <button class="btn-return-hub" onclick="completeTrace2()">다음 금고 열러 가기 ➔</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================================
+         자바스크립트 로직 (허브 상태 관리 + 미션 로직)
+    ======================================================== -->
+    <script>
+        // ----------------------------------------------------
+        // [1] Global Hub State Management
+        // ----------------------------------------------------
+        let globalProgress = parseInt(localStorage.getItem('wwf_hub_progress')) || 0;
+        // 0: 아무것도 안함, 1: Trace1 완료, 2: Trace2 완료 (모두 오픈)
+
+        function updateHubUI() {
+            // Trace 1 처리
+            if (globalProgress >= 1) {
+                document.getElementById('vault-t1').classList.add('cleared');
+                document.getElementById('badge-t1').innerText = "CLEARED";
+                
+                // Trace 2 잠금 해제
+                const t2 = document.getElementById('vault-t2');
+                t2.classList.remove('locked');
+                document.getElementById('icon-t2').innerText = "🗺️";
+                document.getElementById('badge-t2').innerText = "OPEN";
+            }
+            // Trace 2 처리
+            if (globalProgress >= 2) {
+                document.getElementById('vault-t2').classList.add('cleared');
+                document.getElementById('badge-t2').innerText = "CLEARED";
+
+                // Trace 3, 4 잠금 해제
+                document.getElementById('vault-t3').classList.remove('locked');
+                document.getElementById('icon-t3').innerText = "🧩";
+                document.getElementById('badge-t3').innerText = "LINK";
+                
+                document.getElementById('vault-t4').classList.remove('locked');
+                document.getElementById('icon-t4').innerText = "🏆";
+                document.getElementById('badge-t4').innerText = "LINK";
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            // Map 렌더링 버그 방지
+            if (screenId === 'screen-trace2' && map) {
+                setTimeout(() => map.invalidateSize(), 300);
+            }
+        }
+
+        function enterHub() {
+            updateHubUI();
+            showScreen('screen-hub');
+        }
+
+        function returnToHub() {
+            updateHubUI();
+            showScreen('screen-hub');
+        }
+
+        function openTrace(level) {
+            if (level === 1) {
+                showScreen('screen-trace1');
+            } else if (level === 2) {
+                if (globalProgress < 1) alert("🔒 이전 금고(TRACE 01)를 먼저 해독해야 합니다!");
+                else showScreen('screen-trace2');
+            } else if (level === 3) {
+                if (globalProgress < 2) alert("🔒 TRACE 02를 완료해야 접근할 수 있습니다!");
+                else window.open("https://blog.naver.com/mission2027vision", "_blank"); // 실제 블로그 링크로 교체
+            } else if (level === 4) {
+                if (globalProgress < 2) alert("🔒 TRACE 02를 완료해야 접근할 수 있습니다!");
+                else window.open("https://blog.naver.com/mission2027vision", "_blank"); // 실제 블로그 링크로 교체
+            }
+        }
+
+        function fireConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // ----------------------------------------------------
+        // [2] Trace 01 Logic
+        // ----------------------------------------------------
+        let submitted = false;
+        let selectedInterest = "위기에 처한 바다거북";
+
+        document.getElementById('rangerCode').addEventListener('input', function() {
+            this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (this.value.length === 8) this.classList.add('success');
+            else this.classList.remove('success');
+        });
+
+        function selectTrace(panelId, btn, text) {
+            selectedInterest = text;
+            document.querySelectorAll('.radio-btn').forEach(b => { b.classList.remove('active'); b.classList.add('inactive'); });
+            btn.classList.remove('inactive'); btn.classList.add('active');
+            document.querySelectorAll('.webtoon-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('toon' + panelId).classList.add('active');
+        }
+
+        function submitToGoogle() {
+            const code = document.getElementById('rangerCode').value;
+            if(code.length !== 8) { alert("8자리 코드를 입력하세요!"); return; }
+            
+            document.getElementById('formRangerCode').value = code;
+            document.getElementById('formSelectedTrace').value = selectedInterest;
+            document.getElementById('submitBtn').innerText = "전송 중...";
+            
+            // 실제 배포시 아래 주석 해제하여 구글 폼으로 쏘기
+            // document.getElementById('googleForm').submit(); 
+            // submitted = true;
+            
+            // 시뮬레이션을 위한 강제 성공 처리
+            setTimeout(showFinalPopup, 800); 
+        }
+
+        function showFinalPopup() {
+            fireConfetti();
+            document.getElementById('finalPopup').classList.add('active');
+        }
+
+        function completeTrace1() {
+            document.getElementById('finalPopup').classList.remove('active');
+            globalProgress = Math.max(globalProgress, 1);
+            localStorage.setItem('wwf_hub_progress', globalProgress);
+            returnToHub();
+        }
+
+        // ----------------------------------------------------
+        // [3] Trace 02 Logic (Leaflet Map & Quiz)
+        // ----------------------------------------------------
+        let state = JSON.parse(localStorage.getItem('t2_state')) || { solvedCases: [] };
+        
+        const map = L.map('map', { worldCopyJump: false, minZoom: 2, maxZoom: 8, zoomControl: false }).setView([15, 120], 2.5);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+
+        const missions = [
+            { id: 1, lat: 25.0, lng: -140.0, icon: '🥤', title: "플라스틱 오염", q: "플라스틱 쓰레기를 줄이려면?", opts: ["버린다", "재활용한다"], ans: 1 },
+            { id: 2, lat: 10.0, lng: 110.0, icon: '🕸️', title: "어업 혼획", q: "혼획을 막는 장치는?", opts: ["TEDs 장치", "큰 그물"], ans: 0 },
+            // 축약본 (실제로는 8개 데이터 모두 넣으시면 됩니다)
+            { id: 3, lat: 5.0, lng: -85.0, icon: '🌡️', title: "기후변화", q: "온도 상승의 영향은?", opts: ["암컷만 부화", "더 커짐"], ans: 0 },
+            { id: 4, lat: 20.0, lng: 110.0, icon: '⚠️', title: "불법 거래", q: "ShellBank의 역할은?", opts: ["DNA 추적", "이름 짓기"], ans: 0 }
+        ];
+
+        function initMissions() {
+            missions.forEach(m => {
+                const icon = L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div class="marker-pin ${state.solvedCases.includes(m.id) ? 'solved' : ''}" id="marker-${m.id}"><span>${state.solvedCases.includes(m.id) ? '✓' : m.icon}</span></div>`,
+                    iconSize: [44, 44], iconAnchor: [22, 44]
+                });
+                const marker = L.marker([m.lat, m.lng], { icon: icon }).addTo(map);
+                marker.on('click', () => openMission(m.id));
+            });
+            updateT2UI();
+        }
+
+        function updateT2UI() {
+            const list = document.getElementById('main-missions');
+            list.innerHTML = '';
+            missions.forEach(m => {
+                const isDone = state.solvedCases.includes(m.id);
+                list.innerHTML += `<div class="journey-item ${isDone ? 'done' : ''}" onclick="openMission(${m.id})">
+                    <div style="font-size:24px;">${isDone ? '✓' : m.icon}</div>
+                    <div><strong>${m.title}</strong></div>
+                </div>`;
+            });
+            document.getElementById('total-progress').innerText = `${state.solvedCases.length} / ${missions.length}`;
+        }
+
+        function openMission(id) {
+            const m = missions.find(x => x.id === id);
+            map.flyTo([m.lat, m.lng], 4);
+            document.getElementById('p-title').innerText = m.title;
+            
+            let html = `<p style="margin-bottom:15px; font-weight:bold; color:var(--coral);">${m.q}</p>`;
+            m.opts.forEach((opt, i) => {
+                html += `<button onclick="checkAnswer(${id}, ${i})" style="display:block; width:100%; padding:15px; margin-bottom:10px; border-radius:10px; border:2px solid #ccc; cursor:pointer; background:white; font-family:inherit;">${opt}</button>`;
+            });
+            document.getElementById('p-body').innerHTML = html;
+            document.getElementById('mission-panel').classList.add('open');
+        }
+
+        function checkAnswer(id, selectedIdx) {
+            const m = missions.find(x => x.id === id);
+            if(selectedIdx === m.ans) {
+                if(!state.solvedCases.includes(id)) {
+                    state.solvedCases.push(id);
+                    localStorage.setItem('t2_state', JSON.stringify(state));
+                    updateT2UI();
+                    document.getElementById(`marker-${id}`).classList.add('solved');
+                    document.getElementById(`marker-${id}`).querySelector('span').innerText = '✓';
+                }
+                closePanel();
+                if(state.solvedCases.length === missions.length) {
+                    setTimeout(() => {
+                        fireConfetti();
+                        document.getElementById('certificate-backdrop').classList.add('open');
+                    }, 500);
+                }
+            } else {
+                alert("❌ 다시 한번 생각해보세요!");
+            }
+        }
+
+        function closePanel() { document.getElementById('mission-panel').classList.remove('open'); map.flyTo([15, 120], 2.5); }
+
+        function completeTrace2() {
+            document.getElementById('certificate-backdrop').classList.remove('open');
+            globalProgress = Math.max(globalProgress, 2);
+            localStorage.setItem('wwf_hub_progress', globalProgress);
+            returnToHub();
+        }
+
+        // 초기화
+        window.onload = () => {
+            initMissions();
+            // 로컬스토리지 진행도에 따라 허브 UI 업데이트
+            updateHubUI();
+        };
+    </script>
+</body>
+</html>
