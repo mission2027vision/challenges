@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WWF Rangers 2nd Generation - TRACE 01</title>
+    <title>WWF RANGERS 2기 (바다거북 수호대) | TRACE 01 — 코드 활성화</title>
     <link href="https://fonts.googleapis.com/css2?family=Jua&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     
     <!-- 팡파레 효과를 위한 Confetti 라이브러리 -->
@@ -16,125 +16,103 @@
             --bg: #F4F8F9;
             --gray-light: #EBEFEF;
             --text-dark: #333;
-            --toon-border: #2c3e50;
             --accent: #ff765f;
+            --sealed-red: #D32F2F; /* 도장 색상 */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); color: var(--text-dark); display: flex; justify-content: center; padding: 40px 20px; }
         
-        .container { max-width: 1100px; width: 100%; display: grid; grid-template-columns: 350px 1fr; gap: 40px; }
-        @media (max-width: 850px) { .container { grid-template-columns: 1fr; } }
+        /* 모바일 중심 1단 레이아웃으로 변경 및 중앙 정렬 */
+        .container { max-width: 450px; width: 100%; display: flex; flex-direction: column; gap: 20px; margin: 0 auto; }
 
         /* Header */
-        .header-full { grid-column: 1 / -1; margin-bottom: 20px; border-bottom: 2px solid var(--gray-light); padding-bottom: 20px; }
+        .header-full { text-align: center; margin-bottom: 10px; border-bottom: 2px solid var(--gray-light); padding-bottom: 20px; }
         .header-full h4 { color: var(--primary); font-size: 14px; letter-spacing: 1px; font-weight: 700;}
-        .header-full h1 { font-size: 34px; color: var(--dark-navy); font-weight: 800; margin: 10px 0; }
-        .header-full h2 { font-size: 20px; color: var(--primary); font-weight: 600; }
+        .header-full h1 { font-size: 30px; color: var(--dark-navy); font-weight: 800; margin: 10px 0; word-break: keep-all; }
+        .header-full h2 { font-size: 18px; color: var(--primary); font-weight: 600; }
 
         /* Phone UI */
-        .phone-mockup { background: #fff; border: 14px solid var(--dark-navy); border-radius: 40px; padding: 30px 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; min-height: 700px; position: sticky; top: 40px; overflow-y: auto; overflow-x: hidden;}
-        .phone-mockup::-webkit-scrollbar { width: 5px; }
-        .phone-mockup::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        .phone-mockup { background: #fff; border: 14px solid var(--dark-navy); border-radius: 40px; padding: 35px 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); display: flex; flex-direction: column; position: relative; overflow: hidden; }
         
         .phone-title { text-align: center; font-size: 18px; font-weight: 700; color: var(--dark-navy); margin-bottom: 20px; }
         
-        .input-group { margin-bottom: 25px; position: relative; }
+        .input-group { margin-bottom: 28px; position: relative; z-index: 10; }
         .code-input { width: 100%; padding: 15px; border: 2px solid var(--gray-light); border-radius: 12px; font-size: 16px; outline: none; transition: 0.3s; text-align: center; letter-spacing: 2px; font-weight: bold; background: #fff; }
         .code-input:focus { border-color: var(--primary); }
         .code-input.success { border-color: #2ecc71; background: #eafaf1; color: #27ae60; }
 
-        /* 단어 단위로 줄바꿈되도록 word-break: keep-all; 추가 */
-        .section-subtitle { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-dark); text-align: center; background: #e0f2f1; padding: 8px; border-radius: 8px; word-break: keep-all; }
+        .section-subtitle { font-size: 14px; font-weight: 700; margin-bottom: 15px; color: var(--text-dark); text-align: center; background: #e0f2f1; padding: 10px; border-radius: 8px; word-break: keep-all; }
         
-        .radio-btn { width: 100%; padding: 14px; text-align: center; border-radius: 20px; font-size: 14px; cursor: pointer; margin-bottom: 8px; transition: all 0.3s; border: 2px solid transparent; font-weight: 700; }
-        .radio-btn.active { background-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(0, 123, 127, 0.3); transform: translateY(-2px); }
-        .radio-btn.inactive { background-color: var(--gray-light); color: #888; border-color: #ddd; }
-
         /* 서베이 카테고리 UI */
-        .category-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-        .cat-btn { background: var(--gray-light); color: #666; font-size: 12px; font-weight: 700; padding: 10px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
+        .category-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .cat-btn { background: var(--gray-light); color: #666; font-size: 13px; font-weight: 700; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
         .cat-btn.active { background: #e0f2f1; color: var(--primary); border-color: var(--primary); }
         
-        .question-input { width: 100%; padding: 12px; border: 2px dashed #bce7e5; border-radius: 15px; font-size: 13px; font-family: inherit; resize: none; outline: none; transition: 0.3s; background: #f9fdfd; line-height: 1.5; }
+        .question-input { width: 100%; padding: 15px; border: 2px dashed #bce7e5; border-radius: 15px; font-size: 13px; font-family: inherit; resize: none; outline: none; transition: 0.3s; background: #f9fdfd; line-height: 1.5; }
         .question-input:focus { border-style: solid; border-color: var(--primary); background: #fff; }
 
-        /* 인터랙티브 요소: 인스타그램 유도 말풍선 */
-        .insta-check-container { display: flex; flex-direction: column; align-items: center; margin-top: 20px; position: relative; }
+        /* 인터랙티브 요소: 디지털 서약 도장 */
+        .pledge-container { text-align: center; padding: 20px 15px; background: #f0f7f7; border-radius: 15px; border: 1px dashed var(--primary); position: relative; overflow: hidden; word-break: keep-all; margin-bottom: 25px; }
+        .pledge-text { font-size: 13px; color: #555; font-weight: bold; margin-bottom: 15px; line-height: 1.5; }
+        .stamp-btn { background: white; border: 2px solid var(--primary); color: var(--primary); padding: 12px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; transition: 0.3s; position: relative; z-index: 2; font-family: 'Jua', sans-serif; font-size: 17px; word-break: keep-all; }
         
-        /* 단어 단위로 줄바꿈되도록 word-break: keep-all; 추가 */
-        .insta-speech-bubble {
-            background: #fff; border: 3px solid var(--primary); border-radius: 20px; padding: 18px 20px;
-            font-size: 14px; line-height: 1.5; color: var(--text-dark); text-align: center;
-            position: relative; margin-bottom: 18px; width: 100%;
-            box-shadow: 0 4px 12px rgba(0, 123, 127, 0.15);
-            animation: floatBubble 2s infinite alternate ease-in-out;
-            word-break: keep-all; 
+        /* 도장 잠금 상태 CSS 추가 (DNA 미입력 시) */
+        .stamp-btn.locked { background: var(--gray-light) !important; border-color: #ccc !important; color: #999 !important; cursor: not-allowed; }
+        .stamp-btn:hover:not(.locked) { background: var(--primary); color: white; }
+        
+        /* 🌟 마법의 SEALED 도장 마크 스타일 고도화 */
+        .stamp-mark { 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%) scale(3.5) rotate(-20deg); 
+            opacity: 0; font-size: 38px; font-weight: 900; font-family: 'Jua', sans-serif; 
+            color: var(--sealed-red); z-index: 10; pointer-events: none; 
+            border: 5px solid var(--sealed-red); padding: 5px 15px; border-radius: 8px;
+            letter-spacing: 2px; text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.85); /* 도장이 찍힐 때 기존 텍스트를 깔끔하게 가리도록 배경 추가 */
+            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out; 
         }
-        @keyframes floatBubble {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-5px); }
+        
+        /* 스탬프 찍혔을 때 버튼 텍스트는 숨기고 도장 마크만 강조 */
+        .stamp-btn.stamped { 
+            background-color: var(--gray-light) !important; 
+            border-color: #ccc !important; 
+            color: transparent !important; 
+            pointer-events: none; 
         }
-        .insta-speech-bubble strong { display: block; font-family: 'Jua', sans-serif; font-size: 19px; margin-bottom: 8px; color: var(--primary); }
-        .insta-speech-bubble::after {
-            content: ''; position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%);
-            border-width: 14px 14px 0; border-style: solid; border-color: var(--primary) transparent transparent transparent;
+        .stamp-btn.stamped + .stamp-mark { 
+            transform: translate(-50%, -50%) scale(1) rotate(-8deg); 
+            opacity: 1; 
         }
-        .insta-speech-bubble::before {
-            content: ''; position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%);
-            border-width: 10px 10px 0; border-style: solid; border-color: #fff transparent transparent transparent; z-index: 1;
-        }
+
+        /* 인터랙티브 요소: 인스타그램 유도 및 작은 텍스트 */
+        .insta-check-container { display: flex; flex-direction: column; align-items: center; }
         .insta-btn {
             background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             color: white; text-decoration: none; padding: 14px 28px; border-radius: 30px; font-weight: bold;
             font-family: 'Jua', sans-serif; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 12px rgba(220, 39, 67, 0.3);
-            display: inline-block;
+            display: inline-block; width: 100%; text-align: center;
         }
-        .insta-btn:hover { transform: scale(1.05); box-shadow: 0 6px 15px rgba(220, 39, 67, 0.4); }
+        .insta-btn:hover { transform: scale(1.03); box-shadow: 0 6px 15px rgba(220, 39, 67, 0.4); }
+        .insta-small-text {
+            font-size: 12.5px; color: #666; margin-top: 12px; line-height: 1.5; text-align: center;
+            font-weight: 600; word-break: keep-all;
+        }
 
-        /* 인터랙티브 요소: 디지털 서약 도장 */
-        .pledge-container { text-align: center; padding: 15px; background: #f0f7f7; border-radius: 15px; border: 1px dashed var(--primary); margin-top: 25px; position: relative; overflow: hidden; word-break: keep-all; }
-        .pledge-text { font-size: 12px; color: #555; font-weight: bold; margin-bottom: 10px; line-height: 1.4; }
-        .stamp-btn { background: white; border: 2px solid var(--primary); color: var(--primary); padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; position: relative; z-index: 2; font-family: 'Jua', sans-serif; font-size: 16px; word-break: keep-all; }
-        
-        /* 도장 잠금 상태 CSS 추가 (인스타 안 눌렀을 때) */
-        .stamp-btn.locked { background: var(--gray-light) !important; border-color: #ccc !important; color: #999 !important; cursor: not-allowed; }
-        
-        .stamp-btn:hover:not(.locked) { background: var(--primary); color: white; }
-        
-        .stamp-mark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(5); opacity: 0; font-size: 60px; color: rgba(255, 118, 95, 0.4); z-index: 1; pointer-events: none; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .stamp-btn.stamped { background: var(--accent); border-color: var(--accent); color: white; pointer-events: none; }
-        .stamp-btn.stamped + .stamp-mark { transform: translate(-50%, -50%) scale(1) rotate(-15deg); opacity: 1; }
-
-        .submit-btn { margin-top: 20px; width: 100%; padding: 18px; background-color: var(--dark-navy); color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; word-break: keep-all; }
+        .submit-btn { margin-top: 10px; width: 100%; padding: 18px; background-color: var(--dark-navy); color: white; border: none; border-radius: 25px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; word-break: keep-all; position: relative; z-index: 10; }
         .submit-btn:hover:not(:disabled) { background-color: #081B28; box-shadow: 0 4px 12px rgba(11, 37, 54, 0.4); }
         .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
-        /* Right Panel (Webtoon) */
-        .right-panel { display: flex; flex-direction: column; gap: 20px; position: relative; }
-        .webtoon-panel { display: none; animation: fadeIn 0.5s ease forwards; }
-        .webtoon-panel.active { display: block; }
-        .toon-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 3px dashed var(--gray-light); }
-        .toon-avatar { font-size: 40px; background: #e0f2f1; border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1); }
-        .toon-title { font-family: 'Jua', sans-serif; font-size: 28px; color: var(--dark-navy); word-break: keep-all; }
-        .instatoon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 600px) { .instatoon-grid { grid-template-columns: 1fr; } }
-        .toon-cut { background: white; border: 4px solid var(--toon-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; box-shadow: 4px 4px 0px var(--toon-border); }
-        .toon-cut::before { content: attr(data-cut); position: absolute; top: 10px; left: 10px; background: var(--toon-border); color: white; font-family: 'Jua', sans-serif; padding: 2px 8px; border-radius: 8px; font-size: 14px; }
-        .toon-visual { font-size: 60px; margin: 15px 0; padding: 20px; background: var(--bg); border-radius: 50%; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; }
-        .speech-bubble { font-family: 'Jua', sans-serif; font-size: 16px; line-height: 1.5; color: #333; background: #f0f7f7; padding: 15px; border-radius: 15px; border: 2px solid var(--primary); position: relative; width: 100%; margin-top: 5px; word-break: keep-all; }
-        .speech-bubble::after { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); border-width: 0 10px 10px 10px; border-style: solid; border-color: transparent transparent var(--primary) transparent; }
-        .highlight { color: #d35400; font-weight: bold; background: linear-gradient(180deg, rgba(255,255,255,0) 60%, #ffeaa7 40%); }
-
         /* DNA 8자리 완료 미니 팝업 */
-        .dna-mini-popup { position: absolute; top: -50px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--primary); color: white; padding: 10px 20px; border-radius: 20px; font-family: 'Jua', sans-serif; font-size: 16px; box-shadow: 0 5px 15px rgba(0,123,127,0.4); opacity: 0; pointer-events: none; transition: 0.4s; z-index: 100; white-space: nowrap; }
+        .dna-mini-popup { position: absolute; top: -45px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--primary); color: white; padding: 10px 20px; border-radius: 20px; font-family: 'Jua', sans-serif; font-size: 16px; box-shadow: 0 5px 15px rgba(0,123,127,0.4); opacity: 0; pointer-events: none; transition: 0.4s; z-index: 100; white-space: nowrap; }
         .dna-mini-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         .dna-mini-popup::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: var(--primary) transparent transparent transparent; }
 
         /* 최종 완료 카드 */
-        .success-card { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); opacity: 0; transform: translateY(20px); transition: 0.5s; position: absolute; top: 0; left: 0; width: 100%; z-index: 10; pointer-events: none; border: 3px solid var(--primary); display: none; }
-        .success-card.show { opacity: 1; transform: translateY(0); pointer-events: auto; position: relative; display: block; margin-bottom: 20px; animation: fadeIn 0.5s ease forwards; }
-        .success-header { background-color: var(--primary); color: white; text-align: center; padding: 25px; font-size: 20px; font-weight: 700; position: relative; }
+        .success-card { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); opacity: 0; transform: translateY(20px); transition: 0.5s; display: none; border: 3px solid var(--primary); width: 100%; }
+        .success-card.show { opacity: 1; transform: translateY(0); display: block; margin-bottom: 20px; animation: fadeIn 0.5s ease forwards; }
+        .success-header { background-color: var(--primary); color: white; text-align: center; padding: 25px; font-size: 20px; font-weight: 700; }
         .success-body { padding: 40px 20px; text-align: center; word-break: keep-all; }
         .success-body h3 { font-size: 22px; color: var(--text-dark); margin-bottom: 15px; font-family: 'Jua', sans-serif; }
         .popup-code-box { font-size: 22px; font-weight: 800; color: var(--primary); background: #e0f2f1; padding: 12px 25px; border-radius: 15px; display: inline-block; margin-bottom: 25px; border: 2px dashed #bce7e5; letter-spacing: 2px; }
@@ -165,28 +143,51 @@
 
 <div class="container">
     <div class="header-full">
-        <h4>WWF RANGERS 2ND GENERATION</h4>
-        <h1>나의 코드를 활성화하고 첫 흔적을 남겨라</h1>
-        <h2>TRACE 01 — Activate Your Code</h2>
+        <h4>WWF RANGERS 2기 (바다거북 수호대)</h4>
+        <h1>나의 코드를 활성화하고<br>첫 흔적을 남겨라</h1>
+        <!-- 🌟 요청하신 센스있는 한국어 부제목 추가 -->
+        <h2>TRACE 01 — 레인저 DNA 활성화 작전 🧬🐢</h2>
     </div>
 
-    <!-- Left: Mobile UI -->
-    <div class="phone-mockup">
+    <!-- 완료 시 등장할 Success Card -->
+    <div class="success-card" id="successCard">
+        <div class="success-header">First Trace Registered 🐢</div>
+        <div class="success-body">
+            <h3>모든 흔적 등록이 완료되었습니다!</h3>
+            <div class="popup-code-box" id="displayCode"></div>
+            <p>이제 본격적인 레인저 활동을 시작합니다.</p>
+        </div>
+    </div>
+
+    <!-- Mobile UI -->
+    <div class="phone-mockup" id="phoneUI">
         <div class="phone-title">레인저 DNA 등록</div>
         
+        <!-- 1. DNA 입력 -->
         <div class="input-group">
             <div class="dna-mini-popup" id="dnaPopup">삐리빅- DNA 일치! 🧬✨</div>
             <input type="text" id="rangerCode" class="code-input" placeholder="8자리 DNA 코드 (예: ACGTACGT)" maxlength="8">
         </div>
 
+        <!-- 2. 서약 영역 먼저, 인스타 버튼은 그 아래로 -->
         <div class="input-group">
-            <!-- 🌟 수정된 문구 적용: '(클릭!)' 글자가 쪼개지지 않도록 white-space: nowrap 처리 -->
-            <div class="section-subtitle">바다거북의 특별한 여정, 쉽게 알아볼까요? 🌊🐢 <span style="white-space: nowrap;">(클릭!)</span></div>
-            <button type="button" class="radio-btn active" onclick="selectTrace(1, this, '🚨 위기에 처한 바다거북')">🚨 위기에 처한 바다거북</button>
-            <button type="button" class="radio-btn inactive" onclick="selectTrace(2, this, '🧬 비밀 신분증, ShellBank')">🧬 비밀 신분증, ShellBank</button>
-            <button type="button" class="radio-btn inactive" onclick="selectTrace(3, this, '🕵️ 글로벌 추적 네트워크')">🕵️ 글로벌 추적 네트워크</button>
+            <div class="pledge-container">
+                <p class="pledge-text">"나는 레인저로서 바다거북과<br>해양 생태계 보전에 앞장설 것을 서약합니다."</p>
+                <!-- 🌟 DNA 미입력 시 locked 상태 유지 -->
+                <button type="button" class="stamp-btn locked" id="stampBtn" onclick="applyStamp()">여기를 눌러 서약하기 🖋️</button>
+                <!-- 🌟 마법처럼 찍히는 SEALED 텍스트 도장 -->
+                <div class="stamp-mark">SEALED</div>
+            </div>
+
+            <div class="insta-check-container">
+                <a href="https://www.instagram.com/wwfkorea/" target="_blank" class="insta-btn">@wwfkorea 확인하러 가기 🐼</a>
+                <div class="insta-small-text">
+                    WWF 인스타를 팔로우하셨나요?<br>바다거북뿐 아니라 WWF가 진행하는 다양한 보전활동을<br>가장 먼저 확인해보세요! 💙
+                </div>
+            </div>
         </div>
 
+        <!-- 3. Q&A 영역 -->
         <div class="input-group">
             <div class="section-subtitle">🐢 레인저스 2기, 무엇이든 물어보세요!</div>
             <div class="category-selector">
@@ -195,115 +196,10 @@
                 <div class="cat-btn" onclick="selectQCategory(this, '내용/정보')">🐢 내용/정보</div>
                 <div class="cat-btn" onclick="selectQCategory(this, '기타')">🤔 기타</div>
             </div>
-            <textarea id="rangerQuestion" class="question-input" placeholder="TRACE 미션 제출 방법이나 운영 방식에 대한 질문을 적어주세요 ✍️" rows="2"></textarea>
-            
-            <!-- 인스타그램 유도 말풍선 영역 -->
-            <div class="insta-check-container">
-                <!-- 끊김을 방지하기 위해 단락 분리를 명확히(br 태그 위치 변경) -->
-                <div class="insta-speech-bubble">
-                    <strong>WWF 인스타그램을<br>팔로우하셨나요?</strong>
-                    바다거북뿐 아니라 WWF가 진행하는<br>다양한 보전활동을 가장 먼저 확인해보세요!
-                </div>
-                <a href="https://www.instagram.com/wwfkorea/" target="_blank" class="insta-btn" onclick="verifyInsta()">@wwfkorea 확인하러 가기 🐼</a>
-            </div>
-
-            <!-- 디지털 서약 도장 영역 -->
-            <div class="pledge-container">
-                <p class="pledge-text">"나는 레인저로서 바다거북과<br>해양 생태계 보전에 앞장설 것을 서약합니다."</p>
-                <button type="button" class="stamp-btn locked" id="stampBtn" onclick="applyStamp()">여기를 눌러 서약하기 🖋️</button>
-                <div class="stamp-mark">🐢</div>
-            </div>
+            <textarea id="rangerQuestion" class="question-input" placeholder="TRACE 미션 제출 방법이나 운영 방식에 대한 질문을 적어주세요 ✍️" rows="3"></textarea>
         </div>
 
         <button class="submit-btn" id="submitBtn" onclick="submitToGoogle()">모든 흔적 남기기 완료 🚀</button>
-    </div>
-
-    <!-- Right: Instatoon Content & Success Card -->
-    <div class="right-panel">
-        <div class="success-card" id="successCard">
-            <div class="success-header">First Trace Registered 🐢</div>
-            <div class="success-body">
-                <h3>모든 흔적 등록이 완료되었습니다!</h3>
-                <div class="popup-code-box" id="displayCode"></div>
-                <p>이제 본격적인 레인저 활동을 시작합니다.</p>
-            </div>
-        </div>
-
-        <div id="toon1" class="webtoon-panel active">
-            <div class="toon-header">
-                <div class="toon-avatar">🐢</div>
-                <div class="toon-title">거북이들의 바다 생존기!</div>
-            </div>
-            <div class="instatoon-grid">
-                <div class="toon-cut" data-cut="CUT 1">
-                    <div class="toon-visual">🌊</div>
-                    <div class="speech-bubble">안녕! 난 바다거북이야. IUCN 적색목록의 전 지구 평가 기준으로, 전 세계 우리 친구들 7종 중 무려 <span class="highlight">5종이 멸종 위협</span>을 받고 있어! ㅠㅠ</div>
-                </div>
-                <div class="toon-cut" data-cut="CUT 2">
-                    <div class="toon-visual">🕸️</div>
-                    <div class="speech-bubble">1990년부터 2020년까지 <span class="highlight">110만 마리가 넘는 바다거북</span>이 불법적으로 포획·이용된 것으로 추정돼. 어업 중 그물이나 낚싯줄에 우연히 걸리는 <span class="highlight">‘혼획’</span>도 우리를 위협하는 또 다른 큰 문제야.</div>
-                </div>
-                <div class="toon-cut" data-cut="CUT 3">
-                    <div class="toon-visual">🏗️</div>
-                    <div class="speech-bubble">게다가 해안 개발과 기후변화로 우리가 알을 낳는 <span class="highlight">해변이 훼손</span>되고 있어. <span class="highlight">해수면 상승과 해변 침식</span>까지 심해지면서 안전하게 알을 낳을 곳도 줄어들고 있지.</div>
-                </div>
-                <div class="toon-cut" data-cut="CUT 4">
-                    <div class="toon-visual">😥</div>
-                    <div class="speech-bubble">압수된 바다거북이나 거북 제품이 어느 개체군에서 왔는지 알아야, 피해가 큰 곳을 더 집중적으로 보호할 수 있어. 하지만 겉모습만으로 <span class="highlight">출처를 알아내기는 쉽지 않았어.</span></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="toon2" class="webtoon-panel">
-            <div class="toon-header">
-                <div class="toon-avatar">🧬</div>
-                <div class="toon-title">개체군을 알려주는 DNA 단서, 쉘뱅크!</div>
-            </div>
-            <div class="instatoon-grid">
-                <div class="toon-cut" data-cut="CUT 1">
-                    <div class="toon-visual">💡</div>
-                    <div class="speech-bubble">그래서 등장한 것이 바다거북 DNA 글로벌 데이터베이스이자 추적 도구인 <span class="highlight">‘ShellBank(쉘뱅크)’</span>야!</div>
-                </div>
-                <div class="toon-cut" data-cut="CUT 2">
-                    <div class="toon-visual">🔍</div>
-                    <div class="speech-bubble">우리의 DNA에는 우리가 속한 개체군을 알려주는 <span class="highlight">유전적 단서</span>가 담겨 있어. 연구자들은 조직이나 등딱지, 압수된 거북 제품 등에서 DNA를 추출해.</div>
-                </div>
-                <div class="toon-cut" data-cut="CUT 3">
-                    <div class="toon-visual">📊</div>
-                    <div class="speech-bubble">A·C·G·T로 이루어진 DNA 염기서열을 분석한 뒤, ShellBank에 축적된 개체군별 기준 자료와 비교해. 그러면 그 시료가 <span class="highlight">어느 개체군에서 왔을 가능성이 높은지</span> 추정할 수 있어!</div>
-                </div>
-                <div class="toon-cut" data-cut="CUT 4">
-                    <div class="toon-visual">🌍</div>
-                    <div class="speech-bubble">현재 ShellBank에는 59개국 350곳 이상의 지역에서 모인 <span class="highlight">20,000건 이상의 바다거북 mtDNA 염기서열</span>이 축적돼 있어. 정말 거대한 글로벌 네트워크지?</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="toon3" class="webtoon-panel">
-            <div class="toon-header">
-                <div class="toon-avatar">🚨</div>
-                <div class="toon-title">보이지 않는 흔적을 연결하다</div>
-            </div>
-            <div class="instatoon-grid">
-                <div class="toon-cut" data-cut="CUT 1">
-                    <div class="toon-visual">🕵️‍♂️</div>
-                    <div class="speech-bubble">ShellBank를 활용하면 압수된 바다거북 제품의 DNA를 기준 자료와 비교해, 가능성이 높은 유래 개체군을 좁히고 <span class="highlight">야생동물 범죄 수사를 지원</span>할 수 있어!</div>
-                </div>
-                <div class="toon-cut" data-cut="CUT 2">
-                    <div class="toon-visual">🎯</div>
-                    <div class="speech-bubble">DNA 분석 결과를 압수 장소와 거래 정보 등 다른 자료와 함께 살펴보면, 어떤 개체군이 불법 포획과 거래의 영향을 크게 받는지 파악할 수 있어. 이를 바탕으로 <span class="highlight">단속과 보전의 우선순위</span>를 정하는 데 도움을 줄 수 있지.</div>
-                </div>
-                <div class="toon-cut" data-cut="CUT 3">
-                    <div class="toon-visual">🤝</div>
-                    <div class="speech-bubble">WWF가 이끌고 호주박물관, NOAA, TRACE 등 <span class="highlight">글로벌 핵심 파트너들</span>이 함께 데이터를 모으고 분석 기술을 발전시키고 있어. </div>
-                </div>
-                <div class="toon-cut" data-cut="CUT 4">
-                    <div class="toon-visual">✨</div>
-                    <div class="speech-bubble">이제 너만의 레인저 코드를 등록하고, ShellBank의 원리를 따라 바다거북 <span class="highlight">보전 여정을 시작해 봐!</span> 레인저가 된 걸 환영해!</div>
-                </div>
-            </div>
-        </div>
-        
     </div>
 </div>
 
@@ -318,10 +214,17 @@
 
 <script>
     let submitted = false;
-    let selectedInterest = "🚨 위기에 처한 바다거북";
     let selectedQuestionCategory = "운영/미션";
     let dnaPopupShown = false; 
-    let isInstaChecked = false; // 인스타그램 확인 여부 상태 변수
+    let isDnaEntered = false; // 🌟 DNA 입력 완료 여부
+
+    // Q&A 주제별 미리보기(Placeholder) 텍스트 매핑
+    const qnaPlaceholders = {
+        '운영/미션': 'TRACE 미션 제출 방법이나 운영 방식에 대한 질문을 적어주세요 ✍️',
+        '모임/이벤트': '수료식, 오프라인 모임 등 이벤트 일정이나 참여에 대한 질문을 적어주세요 🎉',
+        '내용/정보': '바다거북 생태나 WWF의 해양 보전 활동에 대해 궁금한 점을 적어주세요 🐢',
+        '기타': '그 외 레인저 활동과 관련해 자유롭게 묻고 싶은 점이나 의견을 남겨주세요 🤔'
+    };
 
     const codeInputEl = document.getElementById('rangerCode');
     codeInputEl.addEventListener('input', function(e) {
@@ -332,53 +235,43 @@
             const popup = document.getElementById('dnaPopup');
             popup.classList.add('show');
             dnaPopupShown = true;
+            isDnaEntered = true; // DNA 입력 완료!
+            
+            // 🌟 DNA 코드가 8자리 완성되면 서약 버튼 잠금 해제 (인스타 상관없음)
+            document.getElementById('stampBtn').classList.remove('locked');
             
             setTimeout(() => { popup.classList.remove('show'); }, 3000);
         } else if (this.value.length < 8) {
             this.classList.remove('success');
             dnaPopupShown = false;
+            isDnaEntered = false;
+            
+            // 🌟 코드를 지우면 다시 잠금
+            document.getElementById('stampBtn').classList.add('locked');
         }
     });
 
-    // 인스타그램 클릭 확인 함수
-    function verifyInsta() {
-        isInstaChecked = true;
-        const btn = document.getElementById('stampBtn');
-        btn.classList.remove('locked'); // 도장 버튼 잠금 해제
-    }
-
-    // 도장 쾅 로직
+    // 🌟 도장 쾅 로직 (DNA 조건만 체크)
     function applyStamp() {
-        if (!isInstaChecked) {
-            alert("먼저 위쪽의 @wwfkorea 인스타그램 확인 버튼을 눌러주세요! 🐢");
+        if (!isDnaEntered) {
+            alert("먼저 위쪽의 8자리 DNA 코드를 입력해주세요! 🧬");
             return;
         }
         const btn = document.getElementById('stampBtn');
-        btn.innerHTML = "서약 완료! 🐾";
-        btn.classList.add('stamped');
+        btn.classList.add('stamped'); // CSS 애니메이션 발동
     }
 
-    function selectTrace(panelId, clickedBtn, interestText) {
-        selectedInterest = interestText;
-        
-        document.querySelectorAll('.radio-btn').forEach(btn => { 
-            btn.classList.remove('active'); 
-            btn.classList.add('inactive'); 
-        });
-        clickedBtn.classList.remove('inactive'); 
-        clickedBtn.classList.add('active');
-        
-        document.querySelectorAll('.webtoon-panel').forEach(panel => {
-            panel.classList.remove('active');
-        });
-        
-        document.getElementById('toon' + panelId).classList.add('active'); 
-    }
-
+    // 카테고리 선택 및 미리보기(Placeholder) 동적 변경 함수
     function selectQCategory(clickedBtn, category) {
         selectedQuestionCategory = category;
+        
+        // 버튼 활성화 처리
         document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
         clickedBtn.classList.add('active');
+        
+        // 미리보기 텍스트 교체
+        const textarea = document.getElementById('rangerQuestion');
+        textarea.placeholder = qnaPlaceholders[category];
     }
 
     function submitToGoogle() {
@@ -402,7 +295,7 @@
         const combinedData = `[${selectedQuestionCategory}] ${rawQuestion} (서약상태: ${isStamped})`;
 
         document.getElementById('formRangerCode').value = codeInput;
-        document.getElementById('formSelectedTrace').value = selectedInterest;
+        document.getElementById('formSelectedTrace').value = "N/A (여정섹션제외)"; 
         document.getElementById('formRangerQuestion').value = combinedData; 
 
         submitted = true;
@@ -423,17 +316,17 @@
         }, 250);
 
         document.getElementById('submitBtn').innerText = '모든 흔적 등록 완료 ✅';
-        document.querySelectorAll('.radio-btn, .code-input, .question-input, .cat-btn, .insta-btn').forEach(el => el.style.pointerEvents = 'none');
+        document.querySelectorAll('.code-input, .question-input, .cat-btn, .insta-btn').forEach(el => el.style.pointerEvents = 'none');
         document.getElementById('finalPopup').classList.add('active');
     }
 
     function closePopup() {
         document.getElementById('finalPopup').classList.remove('active');
-        document.querySelectorAll('.webtoon-panel').forEach(panel => panel.style.display = 'none');
+        document.getElementById('phoneUI').style.display = 'none'; // 폰 UI 숨기기
         
         const codeInput = document.getElementById('rangerCode').value.trim();
         document.getElementById('displayCode').innerText = `DNA 코드: ${codeInput}`;
-        document.getElementById('successCard').classList.add('show');
+        document.getElementById('successCard').classList.add('show'); // 완료 카드 띄우기
     }
 </script>
 
