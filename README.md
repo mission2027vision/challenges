@@ -9,10 +9,10 @@
 * [🎲 프리뷰 페이지 (preview.html)](https://mission2027vision.github.io/challenges/preview.html)
 * [🗺️ TRACE 1 (mapquest.html)](https://mission2027vision.github.io/challenges/mapquest.html)
 * [🧬 DNA 매칭 미션 (dna_matching_mission.html)](https://mission2027vision.github.io/challenges/dna_matching_mission.html)
-* 🌟 [TRACE 2](https://mission2027vision.github.io/challenges/gemini-code-1785395293002.html)
+* 🌟 [TRACE 메인페이지 샘플](https://mission2027vision.github.io/challenges/gemini-code-1785395293002.html)
 * 🌟 [최신 통합 미션 테스트 2](https://mission2027vision.github.io/challenges/gemini-code-1785478012208.html)
 * [🗂️ 백업 파일 1 (index (2).html)](https://mission2027vision.github.io/challenges/index%20(2).html)
-* [🗂️ 백업 파일 2 (index(1) (1).html)](https://mission2027vision.github.io/challenges/index(1)%20(1).html)
+* [🗂️ Trace 2 (index(1) (1).html)](https://mission2027vision.github.io/challenges/index(1)%20(1).html)
 * 📸 [TRACE 02 행동 인증 페이지 (wwf_rangers_trace02.html)](https://mission2027vision.github.io/challenges/wwf_rangers_trace02.html)
 * * 💬 [보너스 미션: TRACE TALK Q&A (trace_talk.html)](https://mission2027vision.github.io/challenges/trace_talk.html)
 ---
