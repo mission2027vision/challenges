@@ -1,460 +1,2006 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>WWF Rangers 2 | Follow the Trace</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#002b36">
+  <meta name="description" content="WWF Rangers 2기 바다거북 추적 미션">
+  <title>WWF Rangers 2기 | 바다거북 추적 미션</title>
+
+  <!-- 팡파레 효과를 위한 Confetti 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynHT8z7S0xjMZ3P+ZrAq4nR2eWbA=" crossorigin="">
+
   <style>
+    /* 나눔바른고딕 웹 폰트 일괄 적용 */
+    @font-face {
+      font-family: 'NanumBarunGothic';
+      font-style: normal;
+      font-weight: 400;
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumBarunGothic.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'NanumBarunGothic';
+      font-style: normal;
+      font-weight: 700;
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumBarunGothicBold.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'NanumBarunGothic';
+      font-style: normal;
+      font-weight: 900;
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumBarunGothicBold.woff') format('woff');
+    }
+
     :root {
-      --deep-bg: #9ecbca;
-      --panel-bg: #093740;
-      --card-bg: #0c4a56;
-      --highlight: #30c9c5;
-      --accent: #ffd05a;
-      --text-main: #ffffff;
-      --text-sub: #bce7e5;
-    }
-    * { box-sizing: border-box; }
-    body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: "Gowun Dodum", sans-serif; overflow: hidden; background: var(--deep-bg); }
-    
-    /* Map styling */
-    #map { position: absolute; inset: 0; z-index: 1; background: var(--deep-bg); }
-    .leaflet-container { font-family: inherit; }
-    
-    /* Top Header */
-    .top-hud {
-      position: absolute; top: 20px; left: 20px; right: 20px; z-index: 500;
-      display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none;
-    }
-    .brand {
-      display: flex; align-items: center; gap: 12px; background: var(--panel-bg); color: var(--text-main);
-      padding: 10px 20px 10px 10px; border-radius: 99px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); pointer-events: auto;
-    }
-    .brand-icon {
-      width: 44px; height: 44px; background: linear-gradient(135deg, var(--highlight), var(--accent));
-      border-radius: 50%; display: grid; place-items: center; font-size: 24px;
-    }
-    .brand-text small { display: block; font-size: 10px; letter-spacing: 0.1em; color: var(--text-sub); font-weight: bold; }
-    .brand-text strong { font-family: "Jua", sans-serif; font-size: 20px; font-weight: normal; letter-spacing: 0.05em; }
-    
-    .status-card {
-      display: flex; gap: 15px; pointer-events: auto;
-    }
-    .status-badge {
-      display: flex; align-items: center; gap: 12px; background: #ffffff; padding: 8px 20px 8px 8px;
-      border-radius: 99px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    .progress-circle {
-      width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
-      background: conic-gradient(#ff765f 100%, #ffe4df 0); font-family: "Jua"; font-size: 18px; color: #ff765f;
-      border: 3px solid #ffe4df;
-    }
-    .status-text strong { display: block; font-size: 15px; color: #082a45; font-family: "Jua"; }
-    .status-text small { font-size: 11px; color: #5e7478; }
-    
-    .icon-btn {
-      width: 46px; height: 46px; border-radius: 14px; background: #ffffff; border: none;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-size: 22px; cursor: pointer; transition: transform 0.2s;
-    }
-    .icon-btn:hover { transform: translateY(-3px); }
+      /* WWF Official Brand Colors */
+      --wwf-blue: #00728f;
+      --wwf-aqua: #009191;
+      --wwf-green: #007932;
+      --wwf-med-green: #8cc63f;
+      --wwf-yellow: #f5d200;
+      --wwf-orange: #f07d00;
+      --wwf-red: #da1d52;
 
-    /* Left Dock - Mission Hub */
-    .mission-dock {
-      position: absolute; top: 90px; left: 20px; bottom: 20px; width: 340px;
-      background: var(--panel-bg); border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-      display: flex; flex-direction: column; z-index: 500; overflow: hidden;
-      color: var(--text-main);
-    }
-    .dock-header { padding: 25px 20px 15px; }
-    .dock-header small { font-size: 10px; color: var(--highlight); font-weight: bold; letter-spacing: 0.1em; }
-    .dock-header h2 { font-family: "Jua"; font-size: 24px; margin: 5px 0 8px; font-weight: normal; }
-    .dock-header p { font-size: 12px; color: var(--text-sub); margin: 0; line-height: 1.5; }
-    
-    .journey-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
-    .journey-item {
-      display: flex; align-items: center; gap: 12px; background: var(--card-bg);
-      padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);
-    }
-    .journey-item.done { border-color: var(--highlight); }
-    .journey-item.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(255,208,90,0.2); }
-    .journey-icon {
-      width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
-      background: rgba(255,255,255,0.1); font-family: "Jua"; font-size: 14px;
-    }
-    .done .journey-icon { background: var(--highlight); color: var(--panel-bg); }
-    .journey-text { flex: 1; }
-    .journey-text strong { display: block; font-size: 14px; margin-bottom: 3px; }
-    .journey-text small { font-size: 11px; color: var(--text-sub); }
-    .journey-badge { font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 8px; background: rgba(255,255,255,0.1); }
-    .done .journey-badge { background: var(--highlight); color: var(--panel-bg); }
+      /* Dark Theme (Intro, Vault Hub, Trace 02) - Deep Ocean Vibe */
+      --abyss: #00151c;
+      --deep: #00232e;
+      --panel: #003b4d;
+      --panel-2: #005066;
+      --teal: var(--wwf-aqua);
+      --teal-soft: #4bc6c6; 
+      --lime: var(--wwf-med-green);
+      --sand: var(--wwf-yellow);
+      --coral: var(--wwf-orange);
+      --white: #ffffff;
+      --mist: #d9f0f5;
+      --muted: #82b2bd;
+      --line: rgba(0, 145, 145, 0.25);
+      --danger: var(--wwf-red);
+      --success: var(--wwf-green);
 
-    .case-section { margin-top: auto; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
-    .case-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: var(--highlight); margin-bottom: 15px; }
-    .case-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .case-btn {
-      aspect-ratio: 2/1; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);
-      color: white; font-family: "Jua"; cursor: pointer; transition: 0.2s; display: grid; place-items: center;
-    }
-    .case-btn:hover { background: rgba(255,255,255,0.15); }
-    .case-btn.active { border-color: var(--accent); background: rgba(255,208,90,0.15); color: var(--accent); }
-    .case-btn.solved { background: var(--highlight); border-color: var(--highlight); color: var(--panel-bg); }
+      /* Light Theme (Trace 01 Form) - Light Ocean Vibe */
+      --primary: var(--wwf-blue);
+      --primary-light: #e6f0f2;
+      --dark-navy: #002b36;
+      --bg: #dbebed;
+      --gray-light: #c5dfe6;
+      --text-dark: #111;
+      --text-gray: #444;
+      --accent: var(--wwf-aqua);
+      --sealed-red: var(--wwf-red);
 
-    /* Right Panel - Quiz Details */
-    .side-panel {
-      position: absolute; top: 90px; right: 20px; bottom: 20px; width: 400px;
-      background: #ffffff; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-      z-index: 500; display: flex; flex-direction: column; overflow: hidden;
-      transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      --shadow: 0 24px 80px rgba(0, 114, 143, 0.15);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      
+      /* 모든 폰트를 나눔바른고딕으로 통일 */
+      --font-body: 'NanumBarunGothic', sans-serif;
+      --font-display: 'NanumBarunGothic', sans-serif;
     }
-    .side-panel.open { transform: translateX(0); }
-    
-    .panel-hero { background: var(--panel-bg); color: white; padding: 30px 25px 25px; position: relative; }
-    .close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; }
-    .panel-hero small { font-size: 11px; letter-spacing: 0.1em; color: var(--highlight); font-weight: bold; }
-    .panel-hero h2 { font-family: "Jua"; font-size: 26px; margin: 8px 0; font-weight: normal; }
-    .panel-hero p { font-size: 13px; color: var(--text-sub); margin: 0; }
-    
-    .panel-body { flex: 1; padding: 25px; overflow-y: auto; color: #17343a; }
-    .story-text { font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-    
-    .quiz-section { border-top: 2px dashed #e2f0ee; padding-top: 20px; }
-    .quiz-label { font-size: 11px; font-weight: bold; color: #ff765f; letter-spacing: 0.1em; }
-    .quiz-question { font-size: 16px; font-weight: bold; margin: 10px 0 20px; line-height: 1.4; }
-    
-    .options { display: flex; flex-direction: column; gap: 10px; }
-    .option-btn {
-      padding: 14px; text-align: left; background: #f8fbfb; border: 2px solid #e2f0ee;
-      border-radius: 12px; cursor: pointer; font-size: 14px; transition: 0.2s;
-      display: flex; gap: 10px; align-items: center; color: #17343a;
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
     }
-    .option-btn:hover:not(:disabled) { border-color: var(--highlight); background: #f0fafa; }
-    .option-btn.correct { border-color: #22b99a; background: #e8fff6; font-weight: bold; color: #086c51; }
-    .option-btn.wrong { border-color: #ff765f; background: #fff0ec; color: #9f3526; opacity: 0.7; }
-    .option-btn:disabled { cursor: default; }
 
-    .feedback { margin-top: 15px; padding: 15px; border-radius: 12px; font-size: 13px; line-height: 1.5; display: none; }
-    .feedback.show { display: block; }
-    .feedback.success { background: #e8fff6; color: #086c51; border: 1px solid #22b99a; }
-    .feedback.error { background: #fff0ec; color: #9f3526; border: 1px solid #ff765f; }
-
-    /* Map Markers */
-    .custom-marker {
-      width: 36px; height: 36px; background: var(--card-bg); border: 3px solid white;
-      border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: grid; place-items: center;
-      color: white; font-family: "Jua"; font-size: 16px; cursor: pointer; transition: 0.3s;
+    html {
+      color-scheme: dark;
+      background: var(--abyss);
+      scroll-behavior: smooth;
     }
-    .custom-marker.solved { background: var(--highlight); }
-    .custom-marker.active { transform: scale(1.2); border-color: var(--accent); z-index: 1000 !important; }
 
+    body {
+      min-width: 320px;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--white);
+      background: var(--abyss);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body.is-mission-open { overflow: hidden; }
+    button, input, textarea { color: inherit; font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { border: 0; }
+    a { color: inherit; }
+    img { max-width: 100%; }
+    [hidden] { display: none !important; }
+
+    :focus-visible { outline: 3px solid var(--sand); outline-offset: 4px; }
+
+    .skip-link {
+      position: fixed; top: 12px; left: 12px; z-index: 99999;
+      padding: 12px 18px; border-radius: 999px;
+      color: var(--abyss); background: var(--white);
+      font-weight: 700; transform: translateY(-160%); transition: transform .2s ease;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .sr-only {
+      position: absolute !important; width: 1px !important; height: 1px !important;
+      padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
+    }
+
+    .screen { min-height: 100vh; min-height: 100dvh; }
+
+    .eyebrow {
+      margin: 0 0 10px; color: var(--teal-soft); font-size: .75rem;
+      font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+    }
+
+    .primary-btn, .ghost-btn, .compact-btn {
+      min-height: 48px; border-radius: 999px; cursor: pointer;
+      font-weight: 700; transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .primary-btn {
+      padding: 14px 24px; color: #ffffff;
+      background: linear-gradient(135deg, var(--wwf-blue), var(--wwf-aqua));
+      box-shadow: 0 14px 34px rgba(0, 145, 145, .25);
+    }
+    .primary-btn:hover { transform: translateY(-3px); box-shadow: 0 18px 42px rgba(0, 145, 145, .35); }
+    .primary-btn:disabled { cursor: not-allowed; opacity: .55; transform: none; }
+
+    .ghost-btn {
+      padding: 13px 22px; border: 1px solid rgba(255, 255, 255, .2);
+      color: var(--white); background: rgba(255, 255, 255, .06);
+    }
+    .ghost-btn:hover { background: rgba(255, 255, 255, .12); transform: translateY(-2px); }
+
+    .compact-btn { min-height: 42px; padding: 9px 17px; color: var(--white); background: rgba(255, 255, 255, .08); }
+
+    /* ---------- INTRO ---------- */
+    .intro {
+      position: relative; display: grid; min-height: 100vh; min-height: 100dvh;
+      place-items: center; overflow: hidden; isolation: isolate; background: var(--abyss);
+    }
+
+    .intro-photo {
+      position: absolute; inset: 0; z-index: -4; width: 100%; height: 100%;
+      object-fit: cover; object-position: 62% center;
+      opacity: 0.9; 
+      filter: saturate(1.1) contrast(1.1) brightness(0.9);
+      animation: intro-photo 9s ease-out both;
+    }
+
+    .intro::before {
+      position: absolute; inset: 0; z-index: -3; content: "";
+      background:
+        linear-gradient(90deg, rgba(0, 21, 28, 0.95) 0%, rgba(0, 21, 28, 0.8) 35%, rgba(0, 21, 28, 0) 65%, rgba(0, 21, 28, 0.4) 100%),
+        linear-gradient(0deg, rgba(0, 21, 28, 0.8) 0%, transparent 30%, rgba(0, 21, 28, 0.4) 100%);
+    }
+
+    .intro::after {
+      position: absolute; inset: 0; z-index: -2; content: ""; opacity: .35;
+      background-image:
+        radial-gradient(circle at 20% 90%, rgba(0, 145, 145, .72) 0 2px, transparent 3px),
+        radial-gradient(circle at 78% 22%, rgba(255, 255, 255, .8) 0 1px, transparent 2px);
+      background-size: 110px 150px, 180px 210px;
+      animation: bubbles 16s linear infinite;
+    }
+
+    .intro-inner {
+      width: min(1180px, calc(100% - 40px));
+      padding: max(24px, env(safe-area-inset-top)) 0 max(28px, env(safe-area-inset-bottom));
+    }
+
+    .intro-lockup { width: min(690px, 100%); animation: rise .9s .15s ease both; }
+
+    .intro-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+    .intro-brand-mark {
+      display: grid; width: 54px; height: 54px; border: 1px solid rgba(0, 145, 145, .5);
+      border-radius: 50%; place-items: center; color: var(--teal-soft); background: rgba(0, 0, 0, .42);
+      font-family: var(--font-display); font-size: 1.25rem; font-weight: 700;
+      box-shadow: 0 0 36px rgba(0, 145, 145, .26); backdrop-filter: blur(10px);
+    }
+    .intro-brand strong { color: var(--teal-soft); font-size: clamp(1.15rem, 2.2vw, 1.5rem); font-weight: 700; letter-spacing: .1em; }
+
+    .intro h1 {
+      margin: 0; max-width: 850px; color: #e6f7f9; font-family: var(--font-display);
+      font-size: clamp(3.2rem, 8vw, 6.5rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1;
+      text-shadow: 0 0 30px rgba(0, 145, 145, .46), 0 0 80px rgba(0, 114, 143, .4);
+    }
+
+    .intro-copy {
+      max-width: 580px; margin: 24px 0 30px; color: rgba(255, 255, 255, .85);
+      font-size: clamp(.98rem, 1.7vw, 1.18rem); line-height: 1.8; word-break: keep-all; font-weight: 400;
+    }
+
+    .intro-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+    
+    .intro-start {
+      min-width: 220px; border: 1px solid var(--wwf-aqua); color: #fff; background: rgba(0, 114, 143, .4);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .04), 0 0 35px rgba(0, 145, 145, .25);
+      backdrop-filter: blur(12px); font-size: 1.05rem;
+    }
+    .intro-start:hover { background: var(--wwf-aqua); }
+    
+    .intro-note { color: rgba(255, 255, 255, .64); font-size: .8rem; font-weight: 400; }
+
+    .intro-scroll {
+      position: absolute; right: 28px; bottom: max(24px, env(safe-area-inset-bottom));
+      display: flex; align-items: center; gap: 10px; color: rgba(255, 255, 255, .56);
+      font-size: .7rem; font-weight: 700; letter-spacing: .16em; writing-mode: vertical-rl;
+    }
+    .intro-scroll::after {
+      width: 1px; height: 54px; content: ""; background: linear-gradient(var(--teal-soft), transparent);
+      animation: pulse-line 1.8s ease infinite;
+    }
+
+    /* ---------- VAULT HUB ---------- */
+    .vault-screen {
+      position: relative; overflow: hidden;
+      padding: max(28px, env(safe-area-inset-top)) max(22px, env(safe-area-inset-right)) max(42px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left));
+      background:
+        radial-gradient(circle at 88% 8%, rgba(0, 145, 145, .15), transparent 29rem),
+        radial-gradient(circle at 0% 100%, rgba(140, 198, 63, .08), transparent 26rem),
+        linear-gradient(150deg, var(--abyss) 0%, #00222d 48%, var(--abyss) 100%);
+    }
+
+    .vault-screen::before {
+      position: absolute; inset: 0; pointer-events: none; content: ""; opacity: .24;
+      background-image: linear-gradient(rgba(0, 145, 145, .1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 145, 145, .1) 1px, transparent 1px);
+      background-size: 38px 38px; mask-image: linear-gradient(to bottom, black, transparent 88%);
+    }
+
+    .vault-shell { position: relative; z-index: 1; width: min(1220px, 100%); margin: 0 auto; }
+
+    .vault-topbar, .mission-topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+
+    .mini-brand { display: flex; align-items: center; gap: 12px; }
+    .mini-brand-icon {
+      display: grid; width: 44px; height: 44px; border: 1px solid rgba(0, 145, 145, .4);
+      border-radius: 50%; place-items: center; color: var(--teal-soft); background: rgba(0, 114, 143, .15);
+      font-family: var(--font-display); font-weight: 700;
+    }
+    .mini-brand strong, .mini-brand small { display: block; }
+    .mini-brand strong { font-size: .9rem; letter-spacing: .05em; }
+    .mini-brand small { margin-top: 3px; color: var(--muted); font-size: .65rem; font-weight: 700; letter-spacing: .1em; }
+
+    .progress-chip { min-width: 168px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 255, 255, .04); }
+    .progress-chip-row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 7px; font-size: .7rem; font-weight: 700; }
+    .progress-chip-row span:last-child { color: var(--teal-soft); }
+    .progress-bar { height: 5px; overflow: hidden; border-radius: 999px; background: rgba(255, 255, 255, .1); }
+    .progress-bar > span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--wwf-blue), var(--wwf-aqua)); transition: width .5s ease; }
+
+    .vault-heading {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 30px;
+      margin: clamp(44px, 8vw, 78px) 0 28px;
+    }
+    .vault-heading h2 { margin: 0; font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 4.2rem); font-weight: 700; line-height: 1.2; }
+    .vault-heading p { max-width: 520px; margin: 14px 0 0; color: var(--mist); font-size: clamp(.92rem, 1.6vw, 1.05rem); line-height: 1.75; word-break: keep-all; font-weight: 400;}
+
+    .reset-journey { color: var(--muted); background: transparent; cursor: pointer; font-size: .78rem; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+
+    .vault-grid { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .vault-grid::before {
+      position: absolute; top: 50%; left: 50%; z-index: -1; width: calc(100% - 140px); height: calc(100% - 140px);
+      border: 1px dashed rgba(0, 145, 145, .3); border-radius: 40px; content: ""; transform: translate(-50%, -50%);
+    }
+
+    .vault-card {
+      position: relative; min-height: 330px; overflow: hidden; border: 1px solid rgba(173, 235, 230, .16); border-radius: var(--radius-xl);
+      color: var(--white); background: linear-gradient(145deg, rgba(255, 255, 255, .05), transparent 38%), rgba(0, 50, 65, .8);
+      box-shadow: inset 0 1px rgba(255, 255, 255, .05); transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+    }
+    .vault-card::before { position: absolute; inset: 12px; pointer-events: none; border: 1px solid rgba(173, 235, 230, .1); border-radius: 22px; content: ""; }
+    .vault-card::after {
+      position: absolute; right: -70px; bottom: -90px; width: 220px; height: 220px; pointer-events: none;
+      border: 1px solid rgba(0, 145, 145, .15); border-radius: 50%; box-shadow: 0 0 0 28px rgba(0, 145, 145, .03), 0 0 0 56px rgba(0, 145, 145, .02); content: "";
+    }
+    .vault-card:hover { border-color: rgba(0, 145, 145, .5); transform: translateY(-5px); box-shadow: var(--shadow); }
+    .vault-card.is-locked { filter: saturate(.58); }
+    .vault-card.is-locked:hover { border-color: rgba(255, 143, 125, .36); }
+    .vault-card.is-complete { border-color: rgba(140, 198, 63, .6); background: linear-gradient(145deg, rgba(140, 198, 63, .1), transparent 44%), rgba(0, 50, 65, .9); }
+    .vault-card.is-blog { background: radial-gradient(circle at 88% 18%, rgba(0, 114, 143, .35), transparent 14rem), linear-gradient(145deg, rgba(255, 255, 255, .05), transparent 42%), rgba(0, 43, 56, .85); }
+    .vault-card.is-shaking { animation: shake .42s ease; }
+    .vault-card.is-unlocking { z-index: 3; border-color: var(--teal-soft); animation: unlock-glow 1s ease; }
+
+    .vault-card-button {
+      position: relative; z-index: 1; display: grid; width: 100%; min-height: 330px; padding: 30px;
+      grid-template-columns: 142px minmax(0, 1fr); align-items: center; gap: 28px; color: inherit; text-align: left; background: transparent; cursor: pointer;
+    }
+
+    .safe-lock {
+      position: relative; display: grid; width: 132px; height: 132px; border: 1px solid rgba(255, 255, 255, .12); border-radius: 50%;
+      place-items: center; background: repeating-conic-gradient(from -1deg, rgba(255, 255, 255, .2) 0 1deg, transparent 1deg 15deg), radial-gradient(circle, #005066 0 54%, #003645 55% 67%, #006480 68% 72%, #002b36 73%);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, .45), 0 14px 34px rgba(0, 0, 0, .28); transition: transform .7s cubic-bezier(.17, .67, .18, 1.2);
+    }
+    .safe-lock-center {
+      display: grid; width: 70px; height: 70px; border: 1px solid rgba(255, 255, 255, .16); border-radius: 50%;
+      place-items: center; background: radial-gradient(circle, #00607a, #002b36 72%); font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; box-shadow: inset 0 4px 14px rgba(0, 0, 0, .45);
+    }
+    .lock-state-icon {
+      position: absolute; right: -4px; bottom: 4px; display: grid; width: 42px; height: 42px; border: 4px solid var(--panel);
+      border-radius: 50%; place-items: center; color: #011214; background: var(--sand); font-size: 1.05rem; font-weight: 700; box-shadow: 0 8px 20px rgba(0, 0, 0, .32);
+    }
+
+    .is-locked .safe-lock { color: #90a3a6; filter: grayscale(.45); }
+    .is-locked .lock-state-icon { color: var(--white); background: #617278; }
+    .is-complete .lock-state-icon, .is-visited .lock-state-icon { background: var(--success); }
+    .is-unlocking .safe-lock { transform: rotate(720deg) scale(1.08); }
+
+    .vault-copy { position: relative; z-index: 1; min-width: 0; }
+    .vault-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .trace-label, .state-pill { display: inline-flex; align-items: center; min-height: 26px; padding: 5px 10px; border-radius: 999px; font-size: .66rem; font-weight: 700; letter-spacing: .12em; }
+    .trace-label { color: var(--teal-soft); background: rgba(0, 145, 145, .2); }
+    .state-pill { border: 1px solid rgba(255, 255, 255, .12); color: var(--sand); background: rgba(255, 255, 255, .035); }
+    .is-locked .state-pill { color: #a8b5b7; }
+    .is-complete .state-pill, .is-visited .state-pill { color: var(--success); }
+
+    .vault-copy h3 { margin: 0; font-family: var(--font-display); font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; line-height: 1.3; }
+    .vault-copy p { margin: 12px 0 18px; color: var(--mist); font-size: .9rem; line-height: 1.6; word-break: keep-all; font-weight: 400;}
+    .vault-cta { display: inline-flex; align-items: center; gap: 8px; color: var(--teal-soft); font-size: .8rem; font-weight: 700; }
+    .is-locked .vault-cta { color: #98a7aa; }
+
+    .vault-footer {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; margin-top: 22px;
+      padding: 18px 4px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: .72rem; line-height: 1.6;
+    }
+    .vault-footer a { color: var(--teal-soft); text-underline-offset: 3px; }
+
+    /* ---------- MISSION COMMON ---------- */
+    .mission-screen {
+      position: fixed; inset: 0; z-index: 100; overflow-y: auto;
+      background: radial-gradient(circle at 100% 0, rgba(0, 145, 145, .15), transparent 30rem), #e8f2f5; color: #102f34;
+    }
+    .mission-topbar {
+      position: sticky; top: 0; z-index: 40; min-height: 74px;
+      padding: max(12px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
+      border-bottom: 1px solid rgba(0, 114, 143, .15); color: var(--white); background: rgba(0, 21, 28, .96);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .15); backdrop-filter: blur(18px);
+    }
+    .mission-back {
+      display: inline-flex; min-width: 46px; min-height: 46px; align-items: center; justify-content: center;
+      border: 1px solid rgba(255, 255, 255, .14); border-radius: 14px; color: var(--white); background: rgba(255, 255, 255, .06); cursor: pointer; font-size: 1.2rem;
+    }
+    .mission-heading { flex: 1; }
+    .mission-heading small, .mission-heading strong { display: block; }
+    .mission-heading small { color: var(--teal-soft); font-size: .66rem; font-weight: 700; letter-spacing: .18em; }
+    .mission-heading strong { margin-top: 3px; font-size: .94rem; font-weight: 700;}
+
+    /* ---------- TRACE 01 (블루 오션 색감 적용) ---------- */
+    .trace1-main {
+      width: min(100%, 450px);
+      margin: 0 auto;
+      padding: clamp(32px, 6vw, 72px) 20px 72px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .trace1-header-full { 
+      text-align: center; 
+      margin-bottom: 10px; 
+      border-bottom: 2px solid #c5dfe6; 
+      padding-bottom: 24px; 
+    }
+    .trace1-header-full h4 { color: var(--dark-navy); font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+    .trace1-header-full .trace-badge { font-size: 13px; color: var(--wwf-aqua); font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .trace1-header-full h1 { font-size: 32px; color: var(--wwf-blue); font-weight: 700; line-height: 1.3; word-break: keep-all; margin-bottom: 16px; }
+    .trace1-header-full p.desc { font-size: 14.5px; color: var(--text-gray); line-height: 1.6; word-break: keep-all; font-weight: 400;}
+
+    .phone-mockup { 
+      background: #fff; border: 14px solid var(--wwf-blue); border-radius: 40px; 
+      padding: 35px 25px; box-shadow: var(--shadow); 
+      display: flex; flex-direction: column; position: relative; overflow: hidden; 
+    }
+    .phone-title { text-align: center; font-size: 20px; font-weight: 700; color: var(--wwf-blue); margin-bottom: 24px; }
+    .input-group { margin-bottom: 30px; position: relative; z-index: 10; }
+    
+    .input-hint { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-gray); margin-bottom: 8px; padding: 0 4px; font-weight: 700; }
+    .code-input { 
+      width: 100%; padding: 16px; border: 2px solid var(--gray-light); border-radius: 12px; font-size: 18px; 
+      outline: none; transition: 0.3s; text-align: center; letter-spacing: 3px; font-weight: 700; background: #fff; font-family: 'NanumBarunGothic', sans-serif; color: var(--wwf-blue);
+    }
+    .code-input:focus { border-color: var(--wwf-aqua); background: #f2f9fa; }
+    .code-input.success { border-color: var(--wwf-med-green); background: #f3fbe8; color: var(--wwf-green); }
+
+    .section-subtitle { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--wwf-blue); text-align: center; background: var(--primary-light); padding: 12px; border-radius: 10px; word-break: keep-all; }
+    .section-desc { font-size: 13px; color: var(--text-gray); text-align: center; margin-bottom: 16px; line-height: 1.5; word-break: keep-all; padding: 0 10px; font-weight: 400;}
+    
+    .category-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .cat-btn { background: #f0f6f7; color: var(--muted); font-size: 13.5px; font-weight: 700; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
+    .cat-btn.active { background: var(--primary-light); color: var(--wwf-blue); border-color: var(--wwf-blue); }
+    
+    .question-input { 
+      width: 100%; padding: 16px; border: 2px dashed var(--gray-light); border-radius: 15px; font-size: 14px; 
+      font-family: 'NanumBarunGothic', sans-serif; resize: none; outline: none; transition: 0.3s; background: #fbfdfd; line-height: 1.5; color: var(--text-dark);
+    }
+    .question-input:focus { border-style: solid; border-color: var(--wwf-aqua); background: #fff; }
+
+    .pledge-container { 
+      text-align: center; padding: 24px 20px; background: var(--primary-light); border-radius: 16px; border: 2px dashed var(--wwf-aqua); 
+      position: relative; overflow: hidden; word-break: keep-all; margin-bottom: 24px; 
+    }
+    .pledge-text { font-size: 14px; color: var(--dark-navy); font-weight: 700; margin-bottom: 20px; line-height: 1.6; }
+    .stamp-btn { 
+      background: #fff; border: 2px solid var(--wwf-blue); color: var(--wwf-blue); padding: 14px 30px; 
+      border-radius: 30px; font-weight: 700; cursor: pointer; transition: 0.3s; position: relative; z-index: 2; font-size: 18px; 
+    }
+    .stamp-btn.locked { background: #e1ebed !important; border-color: #b0c9d1 !important; color: #8ba7b0 !important; cursor: not-allowed; }
+    .stamp-btn:hover:not(.locked) { background: var(--wwf-blue); color: white; }
+    
+    .stamp-mark { 
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(3.5) rotate(-20deg); 
+      opacity: 0; font-size: 38px; font-weight: 700; color: var(--wwf-red); z-index: 10; pointer-events: none; 
+      border: 5px solid var(--wwf-red); padding: 5px 20px; border-radius: 10px; letter-spacing: 2px; text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.9); box-shadow: 0 4px 10px rgba(218, 29, 82, 0.2);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out; 
+    }
+    .stamp-btn.stamped { background-color: var(--primary-light) !important; border-color: var(--wwf-blue) !important; color: transparent !important; pointer-events: none; }
+    .stamp-btn.stamped + .stamp-mark { transform: translate(-50%, -50%) scale(1) rotate(-8deg); opacity: 1; }
+
+    .insta-check-container { display: flex; flex-direction: column; align-items: center; }
+    .insta-btn {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      color: white; text-decoration: none; padding: 14px 28px; border-radius: 30px; font-weight: 700;
+      font-size: 16px; transition: 0.3s; box-shadow: 0 4px 12px rgba(220, 39, 67, 0.3); display: inline-block; width: 100%; text-align: center;
+    }
+    .insta-btn:hover { transform: scale(1.03); box-shadow: 0 6px 15px rgba(220, 39, 67, 0.4); }
+    .insta-small-text { font-size: 12.5px; color: var(--text-gray); margin-top: 12px; line-height: 1.5; text-align: center; font-weight: 700; word-break: keep-all; }
+
+    .submit-btn { 
+      margin-top: 10px; width: 100%; padding: 18px; background-color: var(--wwf-blue); color: white; border: none; 
+      border-radius: 16px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; word-break: keep-all; 
+      position: relative; z-index: 10; font-family: 'NanumBarunGothic', sans-serif;
+    }
+    .submit-btn:hover:not(:disabled) { background-color: var(--dark-navy); box-shadow: 0 4px 12px rgba(0, 43, 54, 0.4); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .dna-mini-popup { 
+      position: absolute; top: -50px; left: 50%; transform: translateX(-50%) translateY(20px); 
+      background: var(--wwf-aqua); color: white; padding: 10px 20px; border-radius: 20px; 
+      font-size: 15px; font-weight: 700; box-shadow: 0 5px 15px rgba(0,145,145,0.4); 
+      opacity: 0; pointer-events: none; transition: 0.4s; z-index: 100; white-space: nowrap; 
+    }
+    .dna-mini-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .dna-mini-popup::after { 
+      content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); 
+      border-width: 8px 8px 0; border-style: solid; border-color: var(--wwf-aqua) transparent transparent transparent; 
+    }
+
+
+    /* ---------- TRACE 02 ---------- */
+    .trace2-screen { overflow: hidden; color: var(--white); background: #87b9c4; }
+    .trace2-progress { display: flex; align-items: center; gap: 10px; }
+    .progress-orb {
+      display: grid; width: 48px; height: 48px; border: 3px solid rgba(255, 255, 255, .18); border-radius: 50%;
+      place-items: center; color: var(--wwf-yellow); background: conic-gradient(var(--wwf-orange) 0%, rgba(255, 255, 255, .15) 0);
+      font-family: var(--font-display); font-size: .9rem; font-weight: 700; transition: background .4s ease;
+    }
+    .trace2-layout { display: grid; height: calc(100vh - 74px); height: calc(100dvh - 74px); grid-template-columns: 350px minmax(0, 1fr); background: #99c6cf; }
+    .trace2-dock { position: relative; z-index: 10; display: flex; min-height: 0; flex-direction: column; color: var(--white); background: #003240; box-shadow: 18px 0 45px rgba(0, 0, 0, .18); }
+    .dock-copy { padding: 25px 22px 17px; }
+    .dock-copy h1 { margin: 6px 0 9px; font-family: var(--font-display); font-size: 1.55rem; font-weight: 700; }
+    .dock-copy p { margin: 0; color: #bce7e5; font-size: .74rem; line-height: 1.55; }
+    
+    .mission-list { display: flex; min-height: 0; padding: 0 16px 20px; flex: 1; flex-direction: column; gap: 8px; overflow-y: auto; }
+    .mission-list::-webkit-scrollbar { width: 6px; }
+    .mission-list::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(255, 255, 255, .2); }
+    .mission-item {
+      display: grid; min-height: 64px; padding: 11px 12px; border: 1px solid rgba(255, 255, 255, .07); border-radius: 15px;
+      grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 10px; color: var(--white); text-align: left; background: #004557; cursor: pointer; transition: .2s ease;
+    }
+    .mission-item:hover, .mission-item.is-active { border-color: var(--wwf-yellow); background: #005870; transform: translateY(-2px); }
+    .mission-item.is-solved { border-color: rgba(140, 198, 63, .6); background: rgba(140, 198, 63, .15); }
+    .mission-item-icon { display: grid; width: 38px; height: 38px; border-radius: 50%; place-items: center; background: rgba(255, 255, 255, .09); }
+    .is-solved .mission-item-icon { color: #fff; background: var(--success); }
+    .mission-item strong, .mission-item small { display: block; }
+    .mission-item strong { font-size: .77rem; font-weight: 700;}
+    .mission-item small { margin-top: 3px; color: #a8d2d0; font-size: .63rem; font-weight: 700;}
+    .mission-item-state { color: var(--sand); font-size: .58rem; font-weight: 700; }
+    .is-solved .mission-item-state { color: var(--success); }
+    
+    .dock-actions { display: flex; gap: 8px; padding: 14px 16px max(16px, env(safe-area-inset-bottom)); border-top: 1px solid rgba(255, 255, 255, .09); }
+    .dock-actions button { flex: 1; font-size: .7rem; }
+    .trace2-map-wrap { position: relative; min-width: 0; min-height: 0; }
+    #traceMap { position: absolute; inset: 0; z-index: 1; background: #99c6cf; }
+    .map-hint {
+      position: absolute; top: 18px; left: 50%; z-index: 500; max-width: calc(100% - 36px); padding: 10px 16px;
+      border: 1px solid rgba(255, 255, 255, .62); border-radius: 999px; color: var(--wwf-blue); background: rgba(255, 255, 255, .86);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .12); font-size: .72rem; font-weight: 700; text-align: center; transform: translateX(-50%); backdrop-filter: blur(12px);
+    }
+    
+    .custom-marker-wrap { background: transparent; border: 0; }
+    .map-marker {
+      position: relative; display: grid; width: 46px; height: 46px; border: 3px solid #fff; border-radius: 50% 50% 50% 0;
+      place-items: center; color: #fff; background: var(--wwf-orange); box-shadow: 0 6px 18px rgba(0, 0, 0, .3); font-size: 1.1rem; transform: rotate(-45deg); transition: .25s ease;
+    }
+    .map-marker span { transform: rotate(45deg); }
+    .map-marker.is-solved { color: #fff; background: var(--success); }
+    .map-marker.is-active { filter: drop-shadow(0 0 12px var(--sand)); transform: rotate(-45deg) scale(1.16); }
+
+    .quiz-panel {
+      position: fixed; top: 92px; right: 18px; bottom: 18px; z-index: 800; display: flex; width: min(450px, calc(100% - 36px));
+      overflow: hidden; border-radius: 26px; flex-direction: column; color: #17383e; background: #fff;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .3); transform: translateX(calc(100% + 40px)); visibility: hidden; transition: transform .35s cubic-bezier(.2, .8, .2, 1), visibility 0s .35s;
+    }
+    .quiz-panel.is-open { transform: translateX(0); visibility: visible; transition: transform .35s cubic-bezier(.2, .8, .2, 1), visibility 0s; }
+    .quiz-head { position: relative; padding: 27px 58px 23px 24px; color: #fff; background: radial-gradient(circle at 85% 20%, rgba(0, 145, 145, .3), transparent 12rem), #004557; }
+    .quiz-head h2 { margin: 8px 0 6px; font-family: var(--font-display); font-size: 1.65rem; font-weight: 700; }
+    .quiz-head p { margin: 0; color: #bce7e5; font-size: .75rem; }
+    .quiz-close { position: absolute; top: 15px; right: 15px; display: grid; width: 42px; height: 42px; border-radius: 13px; place-items: center; color: #fff; background: rgba(255, 255, 255, .09); cursor: pointer; font-weight: 700;}
+    .quiz-body { min-height: 0; padding: 22px; flex: 1; overflow-y: auto; }
+    
+    .turtle-chat { display: grid; grid-template-columns: 54px minmax(0, 1fr); align-items: start; gap: 12px; margin-bottom: 20px; }
+    .turtle-avatar { display: grid; width: 54px; height: 54px; border-radius: 50%; place-items: center; background: #dbebed; font-size: 1.75rem; box-shadow: inset 0 -3px rgba(0, 0, 0, .06); }
+    .turtle-bubble { position: relative; margin: 0; padding: 13px 14px; border: 2px solid var(--wwf-aqua); border-radius: 0 15px 15px 15px; color: var(--dark-navy); background: #f2f9fa; font-size: .79rem; line-height: 1.65; word-break: keep-all; font-weight: 400;}
+    .turtle-bubble em { color: var(--wwf-blue); font-style: normal; font-weight: 700; background: linear-gradient(transparent 58%, rgba(245, 210, 0, 0.4) 58%); }
+    
+    .quiz-section { padding-top: 19px; border-top: 2px dashed #deebe9; }
+    .quiz-question { margin: 8px 0 15px; color: var(--wwf-blue); font-size: .98rem; font-weight: 700; line-height: 1.55; word-break: keep-all; }
+    .quiz-options { display: grid; gap: 9px; }
+    .quiz-option {
+      display: grid; min-height: 50px; padding: 11px 13px; border: 2px solid var(--mist); border-radius: 13px;
+      grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 8px; color: var(--dark-navy); text-align: left; background: #fff; cursor: pointer; font-size: .77rem; line-height: 1.48; transition: .18s ease; font-weight: 700;
+    }
+    .quiz-option:hover:not(:disabled) { border-color: var(--wwf-aqua); background: #eaf4f7; transform: translateY(-2px); }
+    .quiz-option.is-correct { border-color: var(--wwf-med-green); color: var(--wwf-green); background: #f0f9e8; }
+    .quiz-option.is-wrong { border-color: var(--wwf-orange); color: #b33900; background: #fff1e6; }
+    .option-number { font-family: var(--font-display); font-size: 1rem; font-weight: 700;}
+    
+    .quiz-feedback { margin-top: 14px; padding: 14px; border: 1px solid var(--wwf-med-green); border-radius: 13px; color: #1e4d0d; background: #f0f9e8; font-size: .76rem; line-height: 1.58; animation: feedback-in .25s ease both; font-weight: 400;}
+    .quiz-feedback strong { display: block; margin-bottom: 5px; color: var(--wwf-green); font-weight: 700;}
+    
+    .source-note { margin-top: 17px; color: #71888c; font-size: .66rem; line-height: 1.5; font-weight: 400;}
+    .source-note a { color: var(--wwf-blue); text-underline-offset: 3px; font-weight: 700;}
+
+    /* ---------- DIALOGS / TOAST / PARTICLES ---------- */
+    dialog { max-width: none; padding: 0; border: 0; color: inherit; background: transparent; }
+    dialog::backdrop { background: rgba(0, 10, 12, .82); backdrop-filter: blur(12px); }
+
+    .unlock-dialog-card, .certificate-card {
+      position: relative; width: min(520px, calc(100vw - 34px)); overflow: hidden; border: 1px solid rgba(0, 145, 145, .34);
+      border-radius: 30px; color: var(--white); background: radial-gradient(circle at 50% -20%, rgba(0, 145, 145, .25), transparent 18rem), #061b20; box-shadow: 0 34px 110px rgba(0, 0, 0, .56); text-align: center;
+    }
+    .unlock-dialog-card { padding: 38px 28px 28px; }
+    .unlock-icon {
+      display: grid; width: 96px; height: 96px; margin: 0 auto 18px; border: 1px solid rgba(0, 145, 145, .36);
+      border-radius: 50%; place-items: center; color: #fff; background: linear-gradient(135deg, var(--wwf-blue), var(--wwf-aqua));
+      box-shadow: 0 0 50px rgba(0, 145, 145, .26); font-size: 2.7rem; animation: lock-pop .65s cubic-bezier(.2, .8, .2, 1.3);
+    }
+    .unlock-dialog-card h2 { margin: 8px 0 12px; font-family: var(--font-display); font-size: clamp(2rem, 8vw, 3.1rem); font-weight: 700; }
+    .unlock-dialog-card p { margin: 0 auto 22px; max-width: 400px; color: var(--mist); font-size: .9rem; line-height: 1.7; word-break: keep-all; font-weight: 400;}
+    .dialog-actions { display: flex; justify-content: center; gap: 10px; }
+
+    .certificate-card { width: min(760px, calc(100vw - 34px)); max-height: 90vh; max-height: 90dvh; padding: 24px; overflow-y: auto; color: #17383e; background: #fff5d8; }
+    .certificate-paper {
+      position: relative; padding: clamp(34px, 7vw, 62px) 24px; border: 7px double #00728f; border-radius: 20px;
+      background: radial-gradient(circle at 10% 10%, rgba(0, 145, 145, .1), transparent 18rem), #fff; text-align: center;
+    }
+    .certificate-paper::before, .certificate-paper::after { position: absolute; font-size: 2.3rem; content: "🐢"; }
+    .certificate-paper::before { top: 18px; left: 18px; transform: rotate(-16deg); }
+    .certificate-paper::after { right: 18px; bottom: 18px; transform: rotate(16deg); }
+    .certificate-paper h2 { margin: 12px 0; color: #093740; font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 700; }
+    .certificate-code {
+      display: inline-block; margin: 10px 0 18px; padding: 8px 20px; border-bottom: 3px solid #00728f; color: #00728f;
+      font-family: ui-monospace, Consolas, monospace; font-size: clamp(1.2rem, 4vw, 1.7rem); font-weight: 700; letter-spacing: .12em;
+    }
+    .certificate-paper p { max-width: 520px; margin: 0 auto; font-size: .86rem; line-height: 1.8; word-break: keep-all; font-weight: 400;}
+    .certificate-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
+    .certificate-stats span { padding: 8px 13px; border-radius: 999px; color: #00728f; background: #e8f7f5; font-size: .75rem; font-weight: 700; }
+    .certificate-actions { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
+
+    .dialog-close-x {
+      position: absolute; top: 14px; right: 14px; z-index: 3; display: grid; width: 42px; height: 42px; border-radius: 13px;
+      place-items: center; color: inherit; background: rgba(255, 255, 255, .1); cursor: pointer; font-size: 1.1rem; font-weight: 700;
+    }
+
+    .toast {
+      position: fixed; bottom: max(24px, env(safe-area-inset-bottom)); left: 50%; z-index: 9999; max-width: calc(100% - 32px);
+      padding: 12px 19px; border: 1px solid rgba(0, 145, 145, .26); border-radius: 999px; color: var(--white);
+      background: rgba(0, 33, 43, .94); box-shadow: 0 14px 38px rgba(0, 0, 0, .4); font-size: .78rem; font-weight: 700;
+      text-align: center; opacity: 0; pointer-events: none; transform: translate(-50%, 30px); transition: .28s ease; backdrop-filter: blur(12px);
+    }
+    .toast.is-showing { opacity: 1; transform: translate(-50%, 0); }
+
+    .particle {
+      position: fixed; z-index: 9998; width: 9px; height: 9px; border-radius: 50%; pointer-events: none;
+      animation: particle-burst .95s ease-out forwards;
+    }
+
+    /* ---------- ANIMATION ---------- */
+    @keyframes intro-photo { from { transform: scale(1.08); opacity: .25; } to { transform: scale(1); opacity: 0.9; } }
+    @keyframes bubbles { from { background-position: 0 0, 0 0; } to { background-position: 20px -220px, -20px -300px; } }
+    @keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse-line { 0%, 100% { opacity: .3; transform: scaleY(.7); } 50% { opacity: 1; transform: scaleY(1); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-9px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-5px); } }
+    @keyframes unlock-glow { 0% { box-shadow: 0 0 0 rgba(0, 145, 145, 0); } 45% { box-shadow: 0 0 70px rgba(0, 145, 145, .42); } 100% { box-shadow: 0 0 0 rgba(0, 145, 145, 0); } }
+    @keyframes feedback-in { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
+    @keyframes lock-pop { from { opacity: 0; transform: scale(.35) rotate(-25deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+    @keyframes particle-burst {
+      from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      to { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(.2) rotate(240deg); }
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 900px) {
+      .vault-heading { grid-template-columns: 1fr; }
+      .vault-heading .reset-journey { justify-self: start; }
+      .vault-card-button { grid-template-columns: 112px minmax(0, 1fr); padding: 24px; }
+      .safe-lock { width: 108px; height: 108px; }
+      .trace2-layout { grid-template-columns: 1fr; grid-template-rows: 40dvh minmax(0, 1fr); }
+      .trace2-map-wrap { grid-row: 1; }
+      .trace2-dock { grid-row: 2; }
+      .dock-copy { padding: 15px 18px 10px; }
+      .dock-copy h1 { margin: 3px 0 5px; font-size: 1.25rem; }
+      .mission-list { display: grid; padding: 0 14px 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; }
+      .mission-item { min-height: 58px; }
+      .quiz-panel { top: 82px; right: 10px; bottom: 10px; width: calc(100% - 20px); }
+    }
+
+    @media (max-width: 720px) {
+      .intro { align-items: end; }
+      .intro-inner { width: min(100% - 32px, 1180px); padding-bottom: max(56px, env(safe-area-inset-bottom)); }
+      .intro-photo { object-position: 62% center; }
+      .intro::before { background: linear-gradient(0deg, rgba(0, 21, 28, 0.98) 0%, rgba(0, 21, 28, 0.68) 48%, rgba(0, 21, 28, 0.2) 78%, rgba(0, 21, 28, 0.4) 100%); }
+      .intro-brand { margin-bottom: 22px; }
+      .intro-actions { align-items: stretch; flex-direction: column; }
+      .intro-start { width: 100%; }
+      .intro-note { text-align: center; }
+      .intro-scroll { display: none; }
+      .vault-screen { padding-right: 16px; padding-left: 16px; }
+      .vault-topbar { align-items: flex-start; }
+      .progress-chip { min-width: 126px; }
+      .vault-heading { margin-top: 42px; }
+      .vault-grid { grid-template-columns: 1fr; }
+      .vault-grid::before { display: none; }
+      .vault-card { min-height: 0; }
+      .vault-card-button { min-height: 260px; padding: 23px; grid-template-columns: 96px minmax(0, 1fr); gap: 18px; }
+      .safe-lock { width: 92px; height: 92px; }
+      .safe-lock-center { width: 52px; height: 52px; font-size: 1.35rem; }
+      .lock-state-icon { width: 36px; height: 36px; font-size: .9rem; }
+      .vault-copy p { margin: 9px 0 13px; font-size: .79rem; }
+      .mission-topbar { min-height: 70px; }
+      .mission-heading strong { font-size: .78rem; }
+      
+      .trace1-main { padding-top: 32px; }
+      
+      .trace2-progress > div:last-child { display: none; }
+      .trace2-layout { height: calc(100dvh - 70px); grid-template-rows: 35dvh minmax(0, 1fr); }
+      .mission-list { grid-template-columns: 1fr; }
+      .mission-item { grid-template-columns: 38px minmax(0, 1fr) auto; }
+      .dock-actions { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+      .dialog-actions, .certificate-actions { flex-direction: column; }
+      .dialog-actions button, .certificate-actions button { width: 100%; }
+    }
+
+    @media (max-width: 440px) {
+      .mini-brand small { display: none; }
+      .progress-chip { min-width: 114px; padding: 9px 11px; }
+      .vault-card-button { min-height: 250px; padding: 21px 18px; grid-template-columns: 82px minmax(0, 1fr); gap: 14px; }
+      .safe-lock { width: 80px; height: 80px; }
+      .safe-lock-center { width: 45px; height: 45px; font-size: 1.16rem; }
+      .vault-meta { gap: 5px; }
+      .trace-label, .state-pill { font-size: .57rem; }
+      .vault-copy h3 { font-size: 1.42rem; }
+      .vault-copy p { font-size: .73rem; line-height: 1.55; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .particle { display: none; }
+    }
+
+    @media print {
+      body * { visibility: hidden !important; }
+      #certificateDialog, #certificateDialog * { visibility: visible !important; }
+      #certificateDialog { position: absolute; inset: 0; display: block; background: #fff; }
+      #certificateDialog::backdrop, .certificate-actions, .dialog-close-x { display: none !important; }
+      .certificate-card { width: 100%; max-height: none; padding: 10mm; box-shadow: none; background: #fff; }
+    }
   </style>
 </head>
+
 <body>
+  <a class="skip-link" href="#mainContent">본문으로 바로가기</a>
+  <div class="sr-only" id="liveRegion" aria-live="polite"></div>
 
-  <!-- Map Container -->
-  <div id="map"></div>
-
-  <!-- Top HUD -->
-  <header class="top-hud">
-    <div class="brand">
-      <div class="brand-icon">🐢</div>
-      <div class="brand-text">
-        <small>WWF RANGERS 2 × SHELLBANK</small>
-        <strong>FOLLOW THE TRACE</strong>
-      </div>
-    </div>
-    
-    <div class="status-card">
-      <div class="status-badge">
-        <div class="progress-circle" id="total-progress">0/8</div>
-        <div class="status-text">
-          <strong>ShellBank Ranger</strong>
-          <small>세 번째 미션을 해결하세요</small>
+  <!-- INTRO -->
+  <section class="screen intro" id="introScreen" data-screen="intro" aria-labelledby="introTitle">
+    <img
+      class="intro-photo"
+      src="data:image/webp;base64,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"
+      alt="맑은 바닷속을 헤엄치는 바다거북">
+    <div class="intro-inner">
+      <div class="intro-lockup">
+        <div class="intro-brand">
+          <div class="intro-brand-mark" aria-hidden="true">W</div>
+          <div>
+            <strong>WWF RANGERS 2기</strong>
+          </div>
         </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Left Dock -->
-  <aside class="mission-dock">
-    <div class="dock-header">
-      <small>ONE LINK · THREE DROPS</small>
-      <h2>Rangers Mission Hub</h2>
-      <p>1년 동안 세 번 도착하는 미션을 한곳에서 확인하세요.</p>
-    </div>
-    
-    <div class="journey-list">
-      <div class="journey-item done">
-        <div class="journey-icon">✓</div>
-        <div class="journey-text"><strong>TRACE 나의 흔적 찾기</strong><small>Ranger ID와 220개의 거북이 흔적</small></div>
-        <div class="journey-badge">DONE</div>
-      </div>
-      <div class="journey-item done">
-        <div class="journey-icon">✓</div>
-        <div class="journey-text"><strong>ACT Ocean Action</strong><small>행동 하나를 선택하고 스탬프 획득</small></div>
-        <div class="journey-badge">DONE</div>
-      </div>
-      <div class="journey-item active">
-        <div class="journey-icon">3</div>
-        <div class="journey-text"><strong>INVESTIGATE DNA 사건 수사</strong><small>ShellBank 세계지도 퀴즈 8개</small></div>
-        <div class="journey-badge" style="color:var(--accent); background:transparent;">IN PROGRESS</div>
-      </div>
-    </div>
-
-    <div class="case-section">
-      <div class="case-header"><span>MISSION 03 · CASE FILES</span> <span id="case-count">0/8</span></div>
-      <div class="case-grid" id="case-grid">
-        <!-- Buttons injected by JS -->
-      </div>
-    </div>
-  </aside>
-
-  <!-- Right Panel (Quiz) -->
-  <section class="side-panel" id="quiz-panel">
-    <div class="panel-hero">
-      <button class="close-btn" onclick="closePanel()">✕</button>
-      <small id="q-number">MISSION 03 · CASE 01</small>
-      <h2 id="q-title">DNA 추적 실험실</h2>
-      <p id="q-location">호주 · 글로벌 과학 네트워크</p>
-    </div>
-    <div class="panel-body">
-      <div class="story-text" id="q-story">스토리 텍스트...</div>
-      
-      <div class="quiz-section">
-        <div class="quiz-label">DATA CHECK</div>
-        <div class="quiz-question" id="q-question">질문 텍스트...</div>
-        <div class="options" id="q-options">
-          <!-- Options injected by JS -->
+        <h1 id="introTitle">바다거북의 흔적을<br>추적하라</h1>
+        <p class="intro-copy">
+          바다거북이 남긴 단서를 따라, 보이지 않는 바다의 여정을 추적해보세요.<br>
+          레인저님의 1년 미션이 지금 시작됩니다.
+        </p>
+        <div class="intro-actions">
+          <button class="primary-btn intro-start" id="startJourney" type="button">
+            추적 미션 시작하기 &nbsp; →
+          </button>
+          <span class="intro-note">완료한 미션에 따라 다음 단계가 열립니다.</span>
         </div>
-        <div class="feedback" id="q-feedback"></div>
       </div>
     </div>
   </section>
 
-  <!-- Leaflet & App Logic -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- VAULT HUB -->
+  <main class="screen vault-screen" id="mainContent" data-screen="vault" hidden>
+    <div class="vault-shell">
+      <header class="vault-topbar">
+        <div class="mini-brand">
+          <div class="mini-brand-icon" aria-hidden="true">W</div>
+          <div>
+            <strong>WWF RANGERS</strong>
+            <small>TRACE THE TURTLE</small>
+          </div>
+        </div>
+        <div class="progress-chip" aria-label="전체 여정 진행도">
+          <div class="progress-chip-row">
+            <span>VAULT PROGRESS</span>
+            <span id="vaultProgressText">0 / 4</span>
+          </div>
+          <div class="progress-bar" aria-hidden="true">
+            <span id="vaultProgressBar"></span>
+          </div>
+        </div>
+      </header>
+
+      <section class="vault-heading" aria-labelledby="vaultTitle">
+        <div>
+          <p class="eyebrow">WWF RANGERS 2기 미션 보드</p>
+          <h2 id="vaultTitle">바다거북 추적 미션</h2>
+          <p>
+            레인저님의 고유 코드를 등록하고, 바다거북이 남긴 단서를 하나씩 해독해보세요.<br>
+            미션을 완료할 때마다 새로운 미션이 열리고, 바다거북 보전을 위한 다음 행동으로 이어집니다.
+          </p>
+        </div>
+        <button class="reset-journey" id="resetJourney" type="button">진행 기록 초기화</button>
+      </section>
+
+      <section class="vault-grid" aria-label="TRACE 미션 금고">
+        <article class="vault-card" id="traceCard1" data-trace-card="1">
+          <button class="vault-card-button" type="button" data-open-trace="1">
+            <span class="safe-lock" aria-hidden="true">
+              <span class="safe-lock-center">01</span>
+              <span class="lock-state-icon" data-lock-icon="1">↗</span>
+            </span>
+            <span class="vault-copy">
+              <span class="vault-meta">
+                <span class="trace-label">TRACE 01</span>
+                <span class="state-pill" data-state-pill="1">OPEN</span>
+              </span>
+              <h3>Trace 01. 나의 코드 등록하기</h3>
+              <p>나만의 코드로 여정을 시작합니다.</p>
+              <span class="vault-cta" data-card-cta="1">첫 번째 봉인 열기 →</span>
+            </span>
+          </button>
+        </article>
+
+        <article class="vault-card is-locked" id="traceCard2" data-trace-card="2">
+          <button class="vault-card-button" type="button" data-open-trace="2">
+            <span class="safe-lock" aria-hidden="true">
+              <span class="safe-lock-center">02</span>
+              <span class="lock-state-icon" data-lock-icon="2">🔒</span>
+            </span>
+            <span class="vault-copy">
+              <span class="vault-meta">
+                <span class="trace-label">TRACE 02</span>
+                <span class="state-pill" data-state-pill="2">LOCKED</span>
+              </span>
+              <h3>Trace 02. 위협 단서 찾기</h3>
+              <p>바다거북의 위협 단서를 추적합니다.</p>
+              <span class="vault-cta" data-card-cta="2">TRACE 01 완료 후 해제</span>
+            </span>
+          </button>
+        </article>
+
+        <article class="vault-card is-blog is-locked" id="traceCard3" data-trace-card="3">
+          <button class="vault-card-button" type="button" data-open-trace="3">
+            <span class="safe-lock" aria-hidden="true">
+              <span class="safe-lock-center">03</span>
+              <span class="lock-state-icon" data-lock-icon="3">🔒</span>
+            </span>
+            <span class="vault-copy">
+              <span class="vault-meta">
+                <span class="trace-label">BLOG TRACE</span>
+                <span class="state-pill" data-state-pill="3">LOCKED</span>
+              </span>
+              <h3>Trace 03. 나의 바다 조각 완성하기</h3>
+              <p>작은 바다 조각을 완성해 인증합니다.</p>
+              <span class="vault-cta" data-card-cta="3">TRACE 02 8/8 후 해제</span>
+            </span>
+          </button>
+        </article>
+
+        <article class="vault-card is-blog is-locked" id="traceCard4" data-trace-card="4">
+          <button class="vault-card-button" type="button" data-open-trace="4">
+            <span class="safe-lock" aria-hidden="true">
+              <span class="safe-lock-center">04</span>
+              <span class="lock-state-icon" data-lock-icon="4">🔒</span>
+            </span>
+            <span class="vault-copy">
+              <span class="vault-meta">
+                <span class="trace-label">FIELD TRACE</span>
+                <span class="state-pill" data-state-pill="4">LOCKED</span>
+              </span>
+              <h3>Trace 04. 현장 미션 신청하기</h3>
+              <p>제주 바다로 향하는 신청서가 열립니다.</p>
+              <span class="vault-cta" data-card-cta="4">TRACE 03 열람 후 해제</span>
+            </span>
+          </button>
+        </article>
+      </section>
+
+      <footer class="vault-footer">
+        <span>※ 블로그 관문은 ‘열람함’만 기록하며, 실제 미션 완료·출석 인증을 대신하지 않습니다.</span>
+        <span>
+          콘텐츠 참고:
+          <a href="https://www.worldwildlife.org/species/sea-turtle/" target="_blank" rel="noopener noreferrer">WWF Sea Turtle ↗</a> ·
+          <a href="https://shellbankproject.org/the-science/" target="_blank" rel="noopener noreferrer">ShellBank ↗</a>
+        </span>
+      </footer>
+    </div>
+  </main>
+
+  <!-- TRACE 01 -->
+  <section class="screen mission-screen" id="trace1Screen" data-screen="trace1" hidden aria-labelledby="trace1Title">
+    <header class="mission-topbar">
+      <button class="mission-back" type="button" data-back-vault aria-label="미션 금고로 돌아가기">←</button>
+      <div class="mission-heading">
+        <small>TRACE 01 · IDENTITY</small>
+        <strong>레인저 고유 코드 등록</strong>
+      </div>
+      <span class="state-pill" id="trace1HeaderState">OPEN</span>
+    </header>
+
+    <div class="trace1-main">
+      <div class="trace1-header-full">
+        <h4>WWF RANGERS 2기 (바다거북 수호대)</h4>
+        <div class="trace-badge">TRACE01 · IDENTITY</div>
+        <h1>나의 코드로 여정을<br>시작하세요</h1>
+        <p class="desc">A·C·G·T로 이루어진 8자리 고유 코드를 등록하고,<br>바다거북 수호대로서의 첫 다짐을 남겨보세요.</p>
+      </div>
+
+      <div class="phone-mockup" id="phoneUI">
+        <div class="phone-title">레인저 고유 코드 등록</div>
+        
+        <!-- 1. 고유 코드 입력 -->
+        <div class="input-group">
+          <div class="input-hint">
+            <span>8자리 고유 코드</span>
+            <span>A·C·G·T로 입력</span>
+          </div>
+          <div class="dna-mini-popup" id="dnaPopup">삐빅 - 고유 코드 확인 완료!</div>
+          <!-- 💡 수정 완료: 오직 A,C,G,T만 입력 가능하게 강제 -->
+          <input type="text" id="rangerCode" class="code-input" placeholder="8자리 고유 코드" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false">
+        </div>
+
+        <!-- 2. 서약 영역 -->
+        <div class="input-group">
+          <div class="pledge-container" id="pledgeBox">
+            <p class="pledge-text">"나는 WWF 레인저로서 바다거북의 흔적을 추적하고,<br>바다거북 보전 여정에 함께할 것을 다짐합니다."</p>
+            <button type="button" class="stamp-btn locked" id="stampButton">다짐 완료</button>
+            <div class="stamp-mark" id="stampMark" aria-hidden="true">SEALED</div>
+          </div>
+
+          <div class="insta-check-container">
+            <a href="https://www.instagram.com/wwfkorea/" target="_blank" class="insta-btn">@wwfkorea 확인하러 가기 🐼</a>
+            <div class="insta-small-text">
+              WWF 인스타를 팔로우하셨나요?<br>바다거북뿐 아니라 WWF가 진행하는 다양한 보전활동을<br>가장 먼저 확인해보세요! 💙
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 관심사 탭 영역 -->
+        <div class="input-group">
+          <div class="section-subtitle">🐢 레인저님의 관심사를 들려주세요</div>
+          <p class="section-desc">궁금한 점, 보고싶은 콘텐츠, 참여하고 싶은 미션 아이디어를 자유롭게 남겨주세요.</p>
+          
+          <div class="category-selector">
+            <button class="cat-btn active" type="button" data-category="바다거북 보전">🌊 바다거북 보전</button>
+            <button class="cat-btn" type="button" data-category="WWF 활동">🐼 WWF 활동</button>
+            <button class="cat-btn" type="button" data-category="레인저스 미션">📝 레인저스 미션</button>
+            <button class="cat-btn" type="button" data-category="기타">🤔 기타</button>
+          </div>
+          <textarea id="rangerQuestion" class="question-input" placeholder="바다거북 생태나 보전 활동에 대해 궁금한 점을 적어주세요 ✍️" rows="3"></textarea>
+        </div>
+
+        <button class="submit-btn" id="trace1Submit" type="button">Trace 01 완료하기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRACE 02 -->
+  <section class="screen mission-screen trace2-screen" id="trace2Screen" data-screen="trace2" hidden aria-labelledby="trace2Title">
+    <header class="mission-topbar">
+      <button class="mission-back" type="button" data-back-vault aria-label="미션 금고로 돌아가기">←</button>
+      <div class="mission-heading">
+        <small>TRACE 02 · TRACK THE THREAT</small>
+        <strong>바다거북 위협 단서 찾기</strong>
+      </div>
+      <div class="trace2-progress" aria-label="TRACE 02 진행도">
+        <div class="progress-orb" id="trace2ProgressOrb">0/8</div>
+        <div>
+          <strong style="display:block;font-size:.76rem">THREAT INVESTIGATION</strong>
+          <small id="trace2ProgressText" style="color:var(--wwf-blue);font-size:.64rem">8개의 단서를 찾아보세요</small>
+        </div>
+      </div>
+    </header>
+
+    <div class="trace2-layout">
+      <aside class="trace2-dock">
+        <div class="dock-copy">
+          <p class="eyebrow" style="margin-bottom:0">4 ZONES · 8 CLUES</p>
+          <h1 id="trace2Title">바다거북 여정의 위협</h1>
+          <p>지도 마커 또는 아래 목록을 눌러 단서를 해독하세요.</p>
+        </div>
+        <div class="mission-list" id="missionList"></div>
+        <div class="dock-actions">
+          <button class="compact-btn" id="trace2Reset" type="button">TRACE 02 초기화</button>
+          <button class="compact-btn" id="showCertificate" type="button" disabled>인증서 보기</button>
+        </div>
+      </aside>
+
+      <div class="trace2-map-wrap">
+        <div id="traceMap" aria-label="바다거북 위협 단서 세계지도"></div>
+        <div class="map-hint">🐢 마커를 눌러 위협 단서를 해독하세요</div>
+      </div>
+    </div>
+
+    <aside class="quiz-panel" id="quizPanel" aria-labelledby="quizTitle" aria-hidden="true">
+      <div class="quiz-head">
+        <button class="quiz-close" id="quizClose" type="button" aria-label="단서 패널 닫기">✕</button>
+        <small class="eyebrow" id="quizKicker">THREAT CLUE</small>
+        <h2 id="quizTitle">단서 제목</h2>
+        <p id="quizLocation">단서 위치</p>
+      </div>
+      <div class="quiz-body" id="quizBody"></div>
+    </aside>
+  </section>
+
+  <!-- Apps Script 제출용 숨김 폼 (C/D열 분리 적용) -->
+  <iframe name="trace1Sink" id="trace1Sink" title="TRACE 01 제출 처리" hidden></iframe>
+  <form id="remoteTrace1Form" method="post" target="trace1Sink" hidden>
+    <input type="hidden" name="formType" value="Trace01">
+    <input type="hidden" name="rangerCode" id="remoteRangerCode">
+    <input type="hidden" name="selectedTrace" id="remoteSelectedTrace">
+    <input type="hidden" name="rangerQuestion" id="remoteRangerQuestion">
+  </form>
+
+  <!-- 잠금 해제 모달 -->
+  <dialog id="unlockDialog" aria-labelledby="unlockDialogTitle">
+    <div class="unlock-dialog-card">
+      <button class="dialog-close-x" id="unlockDialogClose" type="button" aria-label="잠금 해제 알림 닫기">✕</button>
+      <div class="unlock-icon" id="unlockDialogIcon" aria-hidden="true">🔓</div>
+      <p class="eyebrow" id="unlockDialogEyebrow">IDENTITY VERIFIED</p>
+      <h2 id="unlockDialogTitle">첫 번째 봉인 해제</h2>
+      <p id="unlockDialogCopy">철컥—TRACE 02 금고가 열렸습니다.</p>
+      <div class="dialog-actions">
+        <button class="ghost-btn" id="unlockDialogVault" type="button">금고 전체 보기</button>
+        <button class="primary-btn" id="unlockDialogNext" type="button">다음 TRACE로 이동</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 인증서 -->
+  <dialog id="certificateDialog" aria-labelledby="certificateTitle">
+    <div class="certificate-card">
+      <button class="dialog-close-x" id="certificateClose" type="button" aria-label="인증서 닫기">✕</button>
+      <div class="certificate-paper">
+        <small style="color:var(--wwf-blue);font-weight:900;letter-spacing:.16em">TRACE 02 · TRACK THE THREAT</small>
+        <h2 id="certificateTitle">바다거북 위협 해독 인증서</h2>
+        <div class="certificate-code" id="certificateCode">OCEAN RANGER</div>
+        <p>
+          위 레인저는 플라스틱 오염, 혼획, 기후변화·산란지 훼손,
+          불법 포획·거래에 관한 8개의 단서를 모두 해독했음을 인증합니다.
+        </p>
+        <div class="certificate-stats">
+          <span>단서 해독 8 / 8</span>
+          <span>TRACE SECURED ✓</span>
+        </div>
+      </div>
+      <div class="certificate-actions">
+        <button class="ghost-btn" id="certificateBack" type="button" style="color:var(--dark-navy);border-color:var(--mist)">미션으로 돌아가기</button>
+        <button class="primary-btn" id="certificatePrint" type="button">인쇄 · PDF 저장</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
   <script>
-    // 1. Data based on ShellBank Report
-    const cases = [
-      {
-        id: 1, lat: 46.8, lng: 8.2, // Switzerland HQ representation
-        title: "글로벌 DNA 추적의 시작", location: "세계 최초 바다거북 글로벌 데이터베이스",
-        story: "ShellBank는 바다거북의 불법 거래와 혼획 등을 파악하기 위해 구축된 DNA 추적 툴킷입니다. 1990년 이후 엄청난 수의 바다거북이 불법적으로 착취당해 개체수가 급감하고 있습니다.",
-        question: "1990년 이후 전 세계적으로 불법 착취된 바다거북은 최소 몇 마리 이상으로 추정될까요?",
-        options: ["11만 마리", "110만 마리", "1,100만 마리"], answer: 1,
-        exp: "정답입니다! 1990년 이후 최소 110만 마리 이상이 불법 착취된 것으로 추정되며, 이를 막기 위해 정확한 기원 추적이 필요합니다."
-      },
-      {
-        id: 2, lat: 25.0, lng: -70.0, // Atlantic mapping
-        title: "온라인 데이터베이스 출범", location: "글로벌 오픈 액세스",
-        story: "연구자들만의 전유물이 아닙니다. 누구나 해양, 산란, 거래 유전 데이터를 확인할 수 있도록 ShellBank 온라인 데이터베이스가 공식적으로 대중에게 오픈되었습니다.",
-        question: "ShellBank 온라인 데이터베이스가 전 세계 누구나 접근할 수 있도록 공개된 연도는 언제일까요?",
-        options: ["2022년", "2023년", "2024년"], answer: 2,
-        exp: "정답입니다! 2024년 6월 16일 '세계 바다거북의 날'을 맞아 성공적으로 런칭되었습니다."
-      },
-      {
-        id: 3, lat: -4.5, lng: 110.0, // Java Sea
-        title: "자바해 유전 보물찾기", location: "인도네시아 · 자바해",
-        story: "인도네시아 자바해 주변에서 진행된 대모거북 유전 연구를 통해 새로운 산란 해변 9곳이 발견되었고, 이전에는 몰랐던 새로운 유전 집단(Genetic stocks)이 식별되어 데이터의 큰 공백을 메웠습니다.",
-        question: "이 연구를 통해 새롭게 발견되어 구별된 대모거북의 새로운 유전 집단은 몇 개일까요?",
-        options: ["5개", "9개", "14개"], answer: 0,
-        exp: "정답입니다! 9개의 산란 해변에서 5개의 완전히 새로운 유전 집단이 식별되었습니다."
-      },
-      {
-        id: 4, lat: 15.0, lng: -75.0, // Caribbean Sea / Colombia origin
-        title: "영국 국경 압수품 수사", location: "영국 ➔ 카리브해 (콜롬비아)",
-        story: "영국 국경에서 대모거북 등딱지 58점이 압수되었습니다. 그 중 48점에서 DNA를 추출해 분석한 결과, 주 기원지가 중남미 지역의 해안으로 밝혀졌습니다.",
-        question: "영국의 대모거북 압수품 DNA 수사 결과, 가장 유력한 기원지로 밝혀진 지역은 어디일까요?",
-        options: ["호주 동부 해안", "인도네시아 자바해", "콜롬비아 카리브해 연안"], answer: 2,
-        exp: "정답입니다! 혼합 개체군 분석 결과 주요 기원지가 카리브해 콜롬비아와 토바고 주변으로 확인되었습니다."
-      },
-      {
-        id: 5, lat: -9.0, lng: 147.0, // Papua New Guinea
-        title: "파푸아뉴기니 이동 추적", location: "파푸아뉴기니 · Conflict Group",
-        story: "파푸아뉴기니의 두 산란지에서 75마리의 암컷 유전자를 분석했습니다. 이와 동시에 일부 개체에는 첨단 기기를 부착하여 호주 동부까지 이어지는 국경 간 이동 경로를 직접 확인했습니다.",
-        question: "유전자 분석과 병행하여 거북의 실제 이동 경로를 지도에 그리기 위해 위성 추적 장치를 부착한 거북은 몇 마리일까요?",
-        options: ["15마리", "48마리", "75마리"], answer: 0,
-        exp: "정답입니다! 75마리의 DNA를 분석하고, 15마리의 거북에게 위성 추적 장치를 달아 서식지 연결성을 명확히 입증했습니다."
-      },
-      {
-        id: 6, lat: 22.3, lng: 114.1, // Hong Kong
-        title: "홍콩 30년 거래망 추적", location: "홍콩 · 글로벌 무역항",
-        story: "홍콩대학교 연구진은 과거 수십 년간 항구에서 압수되어 보관 중이던 과거의 대모거북 제품 샘플들을 꺼내 불법 야생동물 거래 네트워크의 근원지를 추적하고 있습니다.",
-        question: "이 연구를 위해 지난 30여 년간 수집되어 분석 대상이 된 대모거북 압수품 샘플의 수는 약 몇 점일까요?",
-        options: ["58점", "120점", "200점"], answer: 2,
-        exp: "정답입니다! 약 200점의 샘플 분석을 통해 아시아 전역의 불법 거래망 기원을 파악할 예정입니다."
-      },
-      {
-        id: 7, lat: -15.0, lng: 175.0, // Western Pacific (Fiji, Tonga, Solomon)
-        title: "서태평양 500+ 대규모 연구", location: "솔로몬제도, PNG, 피지, 통가",
-        story: "서태평양 4개국에서 포획된 거북들이 어느 산란지 출신인지 확인하는 대규모 연구가 진행 중입니다. 이를 통해 지역 주민들의 수확이 해양 생태계에 미치는 영향을 평가합니다.",
-        question: "500마리 이상의 대규모 포획 거북 유전자 분석 연구가 진행 중인 서태평양 대상 국가가 아닌 곳은?",
-        options: ["파푸아뉴기니 (PNG)", "자바해 (인도네시아)", "피지 및 통가"], answer: 1,
-        exp: "정답입니다! 해당 대규모 연구는 서태평양의 솔로몬제도, 파푸아뉴기니, 피지, 통가를 대상으로 합니다. 자바해는 별개의 지역입니다."
-      },
-      {
-        id: 8, lat: 0.0, lng: 15.0, // Global Center
-        title: "글로벌 데이터베이스의 규모", location: "ShellBank 전체 데이터",
-        story: "현재 ShellBank에는 28개국 293개 지역에서 수집된 15,000건 이상의 개체 DNA 데이터가 모여 있습니다. 대표적으로 푸른바다거북과 대모거북의 유전 집단 데이터가 축적되어 있습니다.",
-        question: "현재 ShellBank에 등록된 푸른바다거북(56개)과 대모거북(47개)의 유전 집단(Genetic Stocks) 수를 합치면 모두 몇 개일까요?",
-        options: ["85개", "103개", "293개"], answer: 1,
-        exp: "정답입니다! 56 + 47 = 103개의 유전 집단이 세밀하게 식별되어 개체군 관리에 활용되고 있습니다."
-      }
-    ];
+    (() => {
+      "use strict";
 
-    let solvedCases = new Set();
-    let activeCaseId = null;
-    let markers = {};
-
-    // 2. Leaflet Map Setup
-    // 지도가 무한 반복(갈라짐)되지 않도록 경계(bounds)와 noWrap 설정 적용
-    const bounds = [[-85, -180], [85, 180]];
-    const map = L.map('map', {
-      maxBounds: bounds,
-      maxBoundsViscosity: 1.0,
-      worldCopyJump: false,
-      minZoom: 2,
-      maxZoom: 7,
-      zoomControl: false // UI 가림 방지를 위해 줌 컨트롤 제거
-    }).setView([20, 100], 2.5);
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      noWrap: true,
-      bounds: bounds
-    }).addTo(map);
-
-    // 3. Render UI
-    function initUI() {
-      const grid = document.getElementById('case-grid');
-      cases.forEach((c) => {
-        // Create left dock buttons
-        const btn = document.createElement('div');
-        btn.className = 'case-btn';
-        btn.id = `btn-${c.id}`;
-        btn.innerText = c.id;
-        btn.onclick = () => openCase(c.id);
-        grid.appendChild(btn);
-
-        // Create map markers
-        const icon = L.divIcon({
-          className: 'custom-icon',
-          html: `<div class="custom-marker" id="marker-${c.id}">${c.id}</div>`,
-          iconSize: [36, 36],
-          iconAnchor: [18, 18]
-        });
-        const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(map);
-        marker.on('click', () => openCase(c.id));
-        markers[c.id] = marker;
+      /*
+       * 운영 전에 아래 세 주소만 확인하면 됩니다.
+       */
+      const CONFIG = Object.freeze({
+        trace1Endpoint: "https://script.google.com/macros/s/AKfycbz0pgzYyOjpn61eMgddyqhG_FS04SA7yt1reD_5-gpIMbDc8SRog4lYT7ekd-7T6gta/exec",
+        trace3Url: "https://blog.naver.com/wwf-korea",
+        trace4Url: "https://blog.naver.com/wwf-korea",
+        submissionFallbackMs: 6500
       });
-      updateProgress();
-    }
 
-    function openCase(id) {
-      activeCaseId = id;
-      const c = cases.find(x => x.id === id);
-      
-      // Update UI Highlights
-      document.querySelectorAll('.case-btn').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.custom-marker').forEach(el => el.classList.remove('active'));
-      document.getElementById(`btn-${id}`).classList.add('active');
-      document.getElementById(`marker-${id}`).classList.add('active');
-      
-      // Fly to map point
-      map.flyTo([c.lat, c.lng], 4, { duration: 1.5 });
+      const STORAGE_KEY = "wwfRangersV2Vault";
+      const LEGACY_TRACE2_KEY = "shellbank_threats_quiz_v2";
 
-      // Populate Right Panel
-      document.getElementById('q-number').innerText = `MISSION 03 · CASE 0${id}`;
-      document.getElementById('q-title').innerText = c.title;
-      document.getElementById('q-location').innerText = c.location;
-      document.getElementById('q-story').innerText = c.story;
-      document.getElementById('q-question').innerText = c.question;
-      
-      const optContainer = document.getElementById('q-options');
-      optContainer.innerHTML = '';
-      
-      const isSolved = solvedCases.has(id);
-      
-      c.options.forEach((opt, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.innerHTML = `<span>${String.fromCharCode(65+index)}.</span> ${opt}`;
-        
-        if(isSolved) {
-          btn.disabled = true;
-          if(index === c.answer) btn.classList.add('correct');
-        } else {
-          btn.onclick = () => checkAnswer(id, index, btn);
+      const defaultState = Object.freeze({
+        version: 1,
+        introSeen: false,
+        trace1Complete: false,
+        rangerCode: "",
+        trace2Solved: [],
+        trace3Visited: false,
+        trace4Visited: false
+      });
+
+      // Trace 01 변수
+      const qnaPlaceholders = {
+        '바다거북 보전': '바다거북 생태나 보전 활동에 대해 궁금한 점을 적어주세요 ✍️',
+        'WWF 활동': 'WWF의 다양한 환경 보전 활동에 대해 궁금한 점을 적어주세요 🐼',
+        '레인저스 미션': '앞으로 진행될 레인저스 미션에 대한 기대나 아이디어를 남겨주세요 🐢',
+        '기타': '그 외 자유롭게 남기고 싶은 의견을 적어주세요 🤔'
+      };
+
+      const missions = [
+        {
+          id: 1,
+          lat: 25,
+          lng: -140,
+          zone: "위협 01 · 플라스틱",
+          icon: "🥤",
+          title: "플라스틱 오염 ①",
+          location: "태평양 해양 쓰레기 지대",
+          story: "바다거북은 떠다니는 비닐을 먹이로 착각할 수 있어요. 삼킨 플라스틱은 소화기관을 막거나 포만감을 일으켜 생존을 위협합니다.",
+          question: "바다거북이 비닐을 먹이로 착각해 삼켰을 때 생길 수 있는 문제는 무엇일까요?",
+          options: [
+            "소화기관이 막히거나 영양 섭취가 어려워진다",
+            "헤엄치는 속도가 갑자기 빨라진다",
+            "등딱지가 투명하게 변한다",
+            "물 밖에서 더 오래 숨을 쉴 수 있다"
+          ],
+          answer: 0,
+          explanation: "플라스틱을 삼키면 장이 막히거나 실제 먹이를 충분히 먹지 못해 쇠약해질 수 있습니다."
+        },
+        {
+          id: 2,
+          lat: 35,
+          lng: 129,
+          zone: "위협 01 · 플라스틱",
+          icon: "♻️",
+          title: "플라스틱 오염 ②",
+          location: "도시와 연결된 해안",
+          story: "육지에서 버려진 플라스틱도 강과 빗물 배수로를 따라 바다로 이동합니다. 일상에서 발생 자체를 줄이는 행동이 중요해요.",
+          question: "플라스틱의 해양 유입을 줄이는 행동으로 가장 적절한 것은 무엇일까요?",
+          options: [
+            "일회용 컵을 여러 겹 겹쳐 사용한다",
+            "텀블러와 장바구니를 쓰고 주변 쓰레기를 줍는다",
+            "해변의 쓰레기를 모래 속에 묻는다",
+            "비가 오면 자연히 사라질 것이라고 생각한다"
+          ],
+          answer: 1,
+          explanation: "재사용 제품을 선택하고 올바르게 배출하며, 유출되기 전 쓰레기를 수거하는 행동이 도움이 됩니다."
+        },
+        {
+          id: 3,
+          lat: 10,
+          lng: 110,
+          zone: "위협 02 · 혼획",
+          icon: "🕸️",
+          title: "혼획 ①",
+          location: "남중국해 어업 해역",
+          story: "바다거북은 아가미가 없어 수면으로 올라와 숨을 쉬어야 합니다. 어업 장비에 우연히 걸리면 수면에 도달하지 못할 수 있어요.",
+          question: "‘혼획’은 무엇을 의미할까요?",
+          options: [
+            "바다거북이 무리를 지어 이동하는 행동",
+            "목표 어종이 아닌 바다거북 등이 어구에 우연히 잡히는 현상",
+            "바다거북 전용 보호구역의 이름",
+            "구조된 거북이를 바다로 돌려보내는 활동"
+          ],
+          answer: 1,
+          explanation: "혼획은 어업 과정에서 목표로 하지 않은 해양생물이 의도치 않게 함께 잡히는 현상입니다."
+        },
+        {
+          id: 4,
+          lat: -10,
+          lng: 140,
+          zone: "위협 02 · 혼획",
+          icon: "⚓",
+          title: "혼획 ②",
+          location: "호주 연안 어업구역",
+          story: "어업 방식과 장비를 개선하면 혼획을 줄일 수 있습니다. 그물에 탈출구를 두거나 종과 어업에 맞는 저감 장치를 활용하는 방식이 연구되고 있어요.",
+          question: "바다거북 혼획을 줄이기 위한 노력으로 알맞은 것은 무엇일까요?",
+          options: [
+            "그물을 더 촘촘하게 만든다",
+            "바다거북 탈출장치 등 혼획 저감 장비를 사용한다",
+            "그물 주변에 더 밝은 조명을 켠다",
+            "조업 시간을 무조건 늘린다"
+          ],
+          answer: 1,
+          explanation: "바다거북 탈출장치(TED)와 같은 혼획 저감 장비는 거북이가 그물에서 빠져나올 가능성을 높입니다."
+        },
+        {
+          id: 5,
+          lat: -4.5,
+          lng: 120,
+          zone: "위협 03 · 기후변화",
+          icon: "🌡️",
+          title: "기후변화 ①",
+          location: "인도네시아 산란 해변",
+          story: "바다거북 알의 부화 환경은 모래 온도의 영향을 받습니다. 기후변화로 모래가 지나치게 따뜻해지면 새끼의 성비가 크게 달라질 수 있어요.",
+          question: "모래 온도가 지나치게 높아질 때 바다거북 새끼의 성비에는 어떤 변화가 나타날 수 있을까요?",
+          options: [
+            "수컷 비율만 크게 높아진다",
+            "성비에는 아무 영향이 없다",
+            "암컷 비율이 지나치게 높아질 수 있다",
+            "모든 알이 쌍둥이로 부화한다"
+          ],
+          answer: 2,
+          explanation: "많은 바다거북은 부화 온도가 성 결정에 영향을 주며, 높은 온도는 암컷 비율을 높일 수 있습니다."
+        },
+        {
+          id: 6,
+          lat: 25,
+          lng: -80,
+          zone: "위협 03 · 산란지",
+          icon: "🏝️",
+          title: "산란지 훼손 ②",
+          location: "플로리다 산란 해변",
+          story: "해안 개발, 해수면 상승, 강한 폭풍은 산란 해변과 둥지를 훼손합니다. 밤의 인공조명은 새끼 거북이 바다 반대편으로 향하게 만들 수 있어요.",
+          question: "해안의 인공조명과 개발이 바다거북에게 미치는 영향은 무엇일까요?",
+          options: [
+            "새끼가 방향을 잃고 산란 가능한 해변이 줄어든다",
+            "먹이가 해변으로 더 많이 모인다",
+            "등딱지가 더 단단해진다",
+            "부화 기간이 항상 절반으로 줄어든다"
+          ],
+          answer: 0,
+          explanation: "빛 공해는 새끼 거북의 방향 감각을 흐리고, 개발과 해수면 상승은 안전한 산란 공간을 줄입니다."
+        },
+        {
+          id: 7,
+          lat: 18,
+          lng: 105,
+          zone: "위협 04 · 불법거래",
+          icon: "⚠️",
+          title: "불법 포획·거래 ①",
+          location: "동남아시아 거래 경로",
+          story: "일부 바다거북은 고기·알·가죽·등딱지 제품을 위해 불법적으로 포획됩니다. 특히 대모거북의 등딱지로 만든 장신구는 멸종위기종을 해치는 실제 제품일 수 있어요.",
+          question: "불법 거래 대상이 될 수 있는 바다거북 관련 제품은 무엇일까요?",
+          options: [
+            "바다거북이 그려진 종이 엽서",
+            "대모거북 등딱지로 만든 장신구와 공예품",
+            "재활용 천으로 만든 거북이 인형",
+            "바다거북 보호구역 안내 지도"
+          ],
+          answer: 1,
+          explanation: "대모거북 등딱지로 만든 장신구와 공예품은 실제 바다거북을 희생해 만들어질 수 있습니다."
+        },
+        {
+          id: 8,
+          lat: 51.5,
+          lng: -0.1,
+          zone: "위협 04 · ShellBank",
+          icon: "🧬",
+          title: "불법거래 × ShellBank ②",
+          location: "글로벌 DNA 추적망",
+          story: "ShellBank는 압수된 바다거북이나 제품에서 얻은 DNA를 기준 데이터와 비교해, 영향을 받은 개체군과 가능한 기원을 추적하는 데 도움을 줍니다.",
+          question: "ShellBank의 DNA 정보가 불법 거래 수사에 제공할 수 있는 핵심 단서는 무엇일까요?",
+          options: [
+            "거래자의 정확한 이름과 비밀번호",
+            "제품의 판매 가격",
+            "압수품이 유래했을 가능성이 높은 산란 개체군과 지역",
+            "거북이가 이동한 모든 날짜와 시간"
+          ],
+          answer: 2,
+          explanation: "DNA 비교를 통해 압수품이 어느 산란 개체군과 연결되는지 추정하고, 보호와 단속이 필요한 지역을 찾을 수 있습니다."
         }
-        optContainer.appendChild(btn);
-      });
+      ];
 
-      const feedback = document.getElementById('q-feedback');
-      if(isSolved) {
-        feedback.innerText = `✅ ${c.exp}`;
-        feedback.className = 'feedback show success';
-      } else {
-        feedback.className = 'feedback';
+      let state = loadState();
+      let currentScreen = "intro";
+      let selectedCategory = "바다거북 보전";
+      let pledgeStamped = false;
+      let activeMissionId = null;
+      let map = null;
+      let mapReady = false;
+      let markers = new Map();
+      let trace1Pending = false;
+      let trace1Finalized = false;
+      let trace1FallbackTimer = null;
+      let unlockTarget = "vault";
+      let toastTimer = null;
+      let lastFocusedElement = null;
+      let dnaPopupShown = false;
+
+      const screens = [...document.querySelectorAll("[data-screen]")];
+      const liveRegion = document.getElementById("liveRegion");
+      const toast = document.getElementById("toast");
+      const quizPanel = document.getElementById("quizPanel");
+      const quizBody = document.getElementById("quizBody");
+      const unlockDialog = document.getElementById("unlockDialog");
+      const certificateDialog = document.getElementById("certificateDialog");
+      const rangerCodeInput = document.getElementById("rangerCode");
+      const trace1Submit = document.getElementById("trace1Submit");
+      const stampButton = document.getElementById("stampButton");
+
+      function loadState() {
+        const safe = { ...defaultState, trace2Solved: [] };
+
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+          safe.introSeen = Boolean(parsed.introSeen);
+          safe.trace1Complete = Boolean(parsed.trace1Complete);
+          safe.rangerCode = /^[ACGT]{8}$/.test(parsed.rangerCode || "") ? parsed.rangerCode : "";
+          safe.trace2Solved = normalizeSolved(parsed.trace2Solved);
+          safe.trace3Visited = Boolean(parsed.trace3Visited);
+          safe.trace4Visited = Boolean(parsed.trace4Visited);
+        } catch (error) {
+          console.warn("WWF Rangers state could not be read.", error);
+        }
+
+        if (safe.trace2Solved.length === 0) {
+          try {
+            const legacy = JSON.parse(localStorage.getItem(LEGACY_TRACE2_KEY) || "{}");
+            safe.trace2Solved = normalizeSolved(legacy.solvedCases);
+          } catch (error) {
+            console.warn("Legacy TRACE 02 progress could not be migrated.", error);
+          }
+        }
+
+        return safe;
       }
 
-      // Open Panel
-      document.getElementById('quiz-panel').classList.add('open');
-    }
-
-    function closePanel() {
-      document.getElementById('quiz-panel').classList.remove('open');
-      document.querySelectorAll('.case-btn').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.custom-marker').forEach(el => el.classList.remove('active'));
-      activeCaseId = null;
-      map.setView([20, 100], 2.5, { duration: 1.5 });
-    }
-
-    function checkAnswer(caseId, selectedIndex, btnEl) {
-      const c = cases.find(x => x.id === caseId);
-      const feedback = document.getElementById('q-feedback');
-      const allBtns = document.getElementById('q-options').querySelectorAll('.option-btn');
-      
-      if(selectedIndex === c.answer) {
-        btnEl.classList.add('correct');
-        solvedCases.add(caseId);
-        
-        feedback.innerText = `✅ ${c.exp}`;
-        feedback.className = 'feedback show success';
-        
-        // Update dock and marker
-        document.getElementById(`btn-${caseId}`).classList.add('solved');
-        document.getElementById(`marker-${caseId}`).classList.add('solved');
-        document.getElementById(`marker-${caseId}`).innerHTML = '✓';
-        
-        allBtns.forEach(b => b.disabled = true);
-        updateProgress();
-      } else {
-        btnEl.classList.add('wrong');
-        feedback.innerText = '❌ 데이터 수치를 다시 한번 신중하게 확인해 보세요.';
-        feedback.className = 'feedback show error';
+      function normalizeSolved(value) {
+        if (!Array.isArray(value)) return [];
+        return [...new Set(value)]
+          .map(Number)
+          .filter((id) => Number.isInteger(id) && id >= 1 && id <= 8)
+          .sort((a, b) => a - b);
       }
-    }
 
-    function updateProgress() {
-      const count = solvedCases.size;
-      document.getElementById('case-count').innerText = `${count}/8`;
-      document.getElementById('total-progress').innerText = `${count}/8`;
-      
-      const conicProgress = (count / 8) * 100;
-      document.querySelector('.progress-circle').style.background = `conic-gradient(#ff765f ${conicProgress}%, #ffe4df 0)`;
-      
-      if(count === 8) {
-        setTimeout(() => {
-          alert('축하합니다! 8개의 DNA 사건 파일 수사를 모두 완료하여 최종 인증 요건을 달성했습니다.');
-        }, 500);
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(
+          LEGACY_TRACE2_KEY,
+          JSON.stringify({ solvedCases: [...state.trace2Solved] })
+        );
+        renderVault();
+        renderTrace2Progress();
       }
-    }
 
-    // Run Initialization
-    window.onload = initUI;
+      function showScreen(name) {
+        const target = screens.find((screen) => screen.dataset.screen === name);
+        if (!target) return;
+
+        closeQuiz();
+        screens.forEach((screen) => {
+          screen.hidden = screen !== target;
+        });
+        currentScreen = name;
+        document.body.classList.toggle("is-mission-open", name === "trace1" || name === "trace2");
+        window.scrollTo({ top: 0, behavior: "auto" });
+
+        if (name === "vault") {
+          renderVault();
+          target.querySelector("[data-open-trace]")?.focus({ preventScroll: true });
+        }
+
+        if (name === "trace1") {
+          hydrateTrace1();
+          rangerCodeInput.focus({ preventScroll: true });
+        }
+
+        if (name === "trace2") {
+          initTrace2();
+          window.requestAnimationFrame(() => {
+            map?.invalidateSize();
+          });
+        }
+      }
+
+      function announce(message) {
+        liveRegion.textContent = "";
+        window.setTimeout(() => {
+          liveRegion.textContent = message;
+        }, 20);
+      }
+
+      function showToast(message) {
+        window.clearTimeout(toastTimer);
+        toast.textContent = message;
+        toast.classList.add("is-showing");
+        announce(message);
+        toastTimer = window.setTimeout(() => toast.classList.remove("is-showing"), 3200);
+      }
+
+      function progressCount() {
+        let count = 0;
+        if (state.trace1Complete) count += 1;
+        if (state.trace2Solved.length === 8) count += 1;
+        if (state.trace3Visited) count += 1;
+        if (state.trace4Visited) count += 1;
+        return count;
+      }
+
+      function renderVault() {
+        const trace2Unlocked = state.trace1Complete;
+        const trace2Complete = state.trace2Solved.length === 8;
+        const trace3Unlocked = state.trace1Complete && trace2Complete;
+        const trace4Unlocked = state.trace3Visited;
+        const completed = progressCount();
+
+        document.getElementById("vaultProgressText").textContent = `${completed} / 4`;
+        document.getElementById("vaultProgressBar").style.width = `${completed * 25}%`;
+
+        setCardState(1, {
+          locked: false,
+          complete: state.trace1Complete,
+          visited: false,
+          pill: state.trace1Complete ? "SECURED" : "OPEN",
+          icon: state.trace1Complete ? "✓" : "↗",
+          cta: state.trace1Complete ? "등록 내용 다시 보기 →" : "첫 번째 봉인 열기 →"
+        });
+
+        setCardState(2, {
+          locked: !trace2Unlocked,
+          complete: trace2Complete,
+          visited: false,
+          pill: !trace2Unlocked ? "LOCKED" : trace2Complete ? "SECURED" : "OPEN",
+          icon: !trace2Unlocked ? "🔒" : trace2Complete ? "✓" : "↗",
+          cta: !trace2Unlocked
+            ? "TRACE 01 완료 후 해제"
+            : trace2Complete
+              ? "8개 단서 다시 보기 →"
+              : `${state.trace2Solved.length}/8 단서 추적하기 →`
+        });
+
+        setCardState(3, {
+          locked: !trace3Unlocked,
+          complete: false,
+          visited: state.trace3Visited,
+          pill: !trace3Unlocked ? "LOCKED" : state.trace3Visited ? "VISITED" : "BLOG OPEN",
+          icon: !trace3Unlocked ? "🔒" : state.trace3Visited ? "✓" : "↗",
+          cta: !trace3Unlocked
+            ? "TRACE 02 8/8 후 해제"
+            : state.trace3Visited
+              ? "연구 기록 다시 열기 ↗"
+              : "연구 기록 열기 ↗"
+        });
+
+        setCardState(4, {
+          locked: !trace4Unlocked,
+          complete: false,
+          visited: state.trace4Visited,
+          pill: !trace4Unlocked ? "LOCKED" : state.trace4Visited ? "VISITED" : "BLOG OPEN",
+          icon: !trace4Unlocked ? "🔒" : state.trace4Visited ? "✓" : "↗",
+          cta: !trace4Unlocked
+            ? "TRACE 03 열람 후 해제"
+            : state.trace4Visited
+              ? "활동 안내 다시 열기 ↗"
+              : "활동 안내 보기 ↗"
+        });
+      }
+
+      function setCardState(trace, cardState) {
+        const card = document.querySelector(`[data-trace-card="${trace}"]`);
+        card.classList.toggle("is-locked", cardState.locked);
+        card.classList.toggle("is-complete", cardState.complete);
+        card.classList.toggle("is-visited", cardState.visited);
+        document.querySelector(`[data-state-pill="${trace}"]`).textContent = cardState.pill;
+        document.querySelector(`[data-lock-icon="${trace}"]`).textContent = cardState.icon;
+        document.querySelector(`[data-card-cta="${trace}"]`).textContent = cardState.cta;
+      }
+
+      function handleTraceOpen(trace) {
+        lastFocusedElement = document.activeElement;
+
+        if (trace === 1) {
+          showScreen("trace1");
+          return;
+        }
+
+        if (trace === 2) {
+          if (!state.trace1Complete) {
+            rejectLockedCard(2, "아직 첫 번째 봉인이 잠겨 있어요. TRACE 01에서 코드를 활성화해 주세요.");
+            return;
+          }
+          showScreen("trace2");
+          return;
+        }
+
+        if (trace === 3) {
+          if (!state.trace1Complete || state.trace2Solved.length !== 8) {
+            rejectLockedCard(3, "TRACE 02의 8개 위협 단서를 모두 해독하면 연구 기록이 열립니다.");
+            return;
+          }
+          openBlogTrace(3);
+          return;
+        }
+
+        if (trace === 4) {
+          if (!state.trace3Visited) {
+            rejectLockedCard(4, "TRACE 03 연구 기록을 먼저 열람하면 마지막 관문이 열립니다.");
+            return;
+          }
+          openBlogTrace(4);
+        }
+      }
+
+      function rejectLockedCard(trace, message) {
+        const card = document.querySelector(`[data-trace-card="${trace}"]`);
+        card.classList.remove("is-shaking");
+        void card.offsetWidth;
+        card.classList.add("is-shaking");
+        navigator.vibrate?.([28, 40, 28]);
+        showToast(`🔒 ${message}`);
+      }
+
+      function openBlogTrace(trace) {
+        const url = trace === 3 ? CONFIG.trace3Url : CONFIG.trace4Url;
+        if (!url) {
+          showToast("블로그 링크 준비 중입니다. CONFIG의 URL을 입력해 주세요.");
+          return;
+        }
+
+        const card = document.querySelector(`[data-trace-card="${trace}"]`);
+        const newWindow = window.open("about:blank", "_blank");
+        if (newWindow) newWindow.opener = null;
+
+        card.classList.add("is-unlocking");
+        burstParticles(card);
+        navigator.vibrate?.([30, 35, 30]);
+
+        if (trace === 3) state.trace3Visited = true;
+        if (trace === 4) state.trace4Visited = true;
+        saveState();
+
+        window.setTimeout(() => {
+          card.classList.remove("is-unlocking");
+          if (newWindow) {
+            newWindow.location.href = url;
+          } else {
+            window.location.href = url;
+          }
+        }, 520);
+
+        showToast(trace === 3
+          ? "철컥—ShellBank 연구 기록을 새 창에서 엽니다."
+          : "철컥—현장 활동 안내를 새 창에서 엽니다.");
+      }
+
+      function burstParticles(target) {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const rect = target.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const colors = ["#4bc6c6", "#8cc63f", "#f5d200", "#ffffff", "#009191"];
+
+        for (let i = 0; i < 28; i += 1) {
+          const particle = document.createElement("i");
+          const angle = (Math.PI * 2 * i) / 28;
+          const distance = 70 + Math.random() * 120;
+          particle.className = "particle";
+          particle.style.left = `${x}px`;
+          particle.style.top = `${y}px`;
+          particle.style.background = colors[i % colors.length];
+          particle.style.setProperty("--x", `${Math.cos(angle) * distance}px`);
+          particle.style.setProperty("--y", `${Math.sin(angle) * distance}px`);
+          document.body.appendChild(particle);
+          window.setTimeout(() => particle.remove(), 1100);
+        }
+      }
+
+      function hydrateTrace1() {
+        if (state.rangerCode) {
+          rangerCodeInput.value = state.rangerCode;
+          updateDnaSignal();
+        }
+        if (state.trace1Complete) {
+          pledgeStamped = true;
+          stampButton.classList.add("stamped");
+          stampButton.classList.remove("locked");
+          trace1Submit.textContent = "등록 내용 업데이트하기";
+        } else {
+          document.getElementById("trace1HeaderState").textContent = "OPEN";
+          trace1Submit.textContent = "Trace 01 완료하기";
+        }
+      }
+
+      function updateDnaSignal() {
+        const value = rangerCodeInput.value;
+        const valid = /^[ACGT]{8}$/.test(value);
+        rangerCodeInput.classList.toggle("success", valid);
+        
+        const popup = document.getElementById('dnaPopup');
+        if (valid) {
+            stampButton.classList.remove('locked');
+            if (!dnaPopupShown) {
+                popup.classList.add('show');
+                dnaPopupShown = true;
+                setTimeout(() => { popup.classList.remove('show'); }, 3000);
+            }
+        } else {
+            dnaPopupShown = false;
+            stampButton.classList.add('locked');
+            stampButton.classList.remove('stamped');
+            pledgeStamped = false;
+        }
+      }
+
+      function submitTrace1() {
+        const code = rangerCodeInput.value.trim();
+
+        if (!/^[ACGT]{8}$/.test(code)) {
+          rangerCodeInput.focus();
+          showToast("🧬 A·C·G·T로 이루어진 8자리 코드를 입력해 주세요.");
+          return;
+        }
+
+        if (!pledgeStamped) {
+          stampButton.focus();
+          showToast("🐾 레인저 다짐 완료 버튼을 먼저 눌러 주세요.");
+          return;
+        }
+
+        if (trace1Pending) return;
+
+        trace1Pending = true;
+        trace1Finalized = false;
+        trace1Submit.disabled = true;
+        trace1Submit.textContent = "나의 코드 등록 중 …";
+
+        const question = document.getElementById("rangerQuestion").value.trim() || "질문 없음";
+        const combinedData = `[${selectedCategory}] ${question} (서약상태: 서약완료)`;
+
+        document.getElementById("remoteRangerCode").value = code;
+        document.getElementById("remoteSelectedTrace").value = combinedData; // C열에 질문 데이터 전송
+        document.getElementById("remoteRangerQuestion").value = "";          // D열 빈칸
+
+        const remoteForm = document.getElementById("remoteTrace1Form");
+        remoteForm.action = CONFIG.trace1Endpoint;
+
+        if (CONFIG.trace1Endpoint) {
+          remoteForm.submit();
+          trace1FallbackTimer = window.setTimeout(() => finalizeTrace1("fallback"), CONFIG.submissionFallbackMs);
+        } else {
+          finalizeTrace1("local");
+        }
+      }
+
+      function finalizeTrace1(source) {
+        if (!trace1Pending || trace1Finalized) return;
+        trace1Finalized = true;
+        trace1Pending = false;
+        window.clearTimeout(trace1FallbackTimer);
+
+        const wasAlreadyComplete = state.trace1Complete;
+        state.trace1Complete = true;
+        state.rangerCode = rangerCodeInput.value.trim();
+        saveState();
+
+        trace1Submit.disabled = false;
+        trace1Submit.textContent = "Trace 01 완료됨 ✅";
+        document.getElementById("trace1HeaderState").textContent = "SECURED";
+
+        const target = document.getElementById("phoneUI");
+        burstParticles(target);
+        navigator.vibrate?.([35, 45, 35]);
+
+        if (!wasAlreadyComplete) {
+          showUnlockDialog({
+            eyebrow: "IDENTITY VERIFIED",
+            title: "첫 번째 봉인 해제",
+            copy: "철컥—레인저 고유 코드와 서약이 등록되어 TRACE 02 위협 단서 금고가 열렸습니다.",
+            icon: "🔓",
+            nextTarget: "trace2",
+            nextLabel: "TRACE 02 시작하기"
+          });
+        } else {
+          showToast("TRACE 01 등록 내용을 업데이트했습니다. ✅");
+        }
+      }
+
+      function showUnlockDialog({ eyebrow, title, copy, icon, nextTarget, nextLabel }) {
+        unlockTarget = nextTarget;
+        document.getElementById("unlockDialogEyebrow").textContent = eyebrow;
+        document.getElementById("unlockDialogTitle").textContent = title;
+        document.getElementById("unlockDialogCopy").textContent = copy;
+        document.getElementById("unlockDialogIcon").textContent = icon;
+        document.getElementById("unlockDialogNext").textContent = nextLabel;
+        if (!unlockDialog.open) unlockDialog.showModal();
+      }
+
+      function closeUnlockDialog(destination = "vault") {
+        if (unlockDialog.open) unlockDialog.close();
+        showScreen(destination);
+      }
+
+      function initTrace2() {
+        renderMissionList();
+        renderTrace2Progress();
+
+        if (!mapReady) {
+          if (!window.L) {
+            showToast("지도를 불러오지 못했습니다. 미션 목록에서는 계속 참여할 수 있어요.");
+            return;
+          }
+
+          map = L.map("traceMap", {
+            center: [15, 120],
+            zoom: 2,
+            minZoom: 2,
+            maxZoom: 7,
+            zoomControl: true,
+            worldCopyJump: false
+          });
+
+          L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+            attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+            noWrap: true,
+            bounds: [[-85, -180], [85, 180]]
+          }).addTo(map);
+
+          missions.forEach((mission) => {
+            const markerIcon = L.divIcon({
+              className: "custom-marker-wrap",
+              html: `<div class="map-marker ${state.trace2Solved.includes(mission.id) ? "is-solved" : ""}" data-map-marker="${mission.id}"><span>${state.trace2Solved.includes(mission.id) ? "✓" : mission.icon}</span></div>`,
+              iconSize: [46, 46],
+              iconAnchor: [23, 46]
+            });
+            const marker = L.marker([mission.lat, mission.lng], { icon: markerIcon }).addTo(map);
+            marker.on("click", () => openMission(mission.id));
+            markers.set(mission.id, marker);
+          });
+
+          mapReady = true;
+          window.setTimeout(() => map.invalidateSize(), 120);
+        } else {
+          updateMarkers();
+          window.setTimeout(() => map.invalidateSize(), 80);
+        }
+      }
+
+      function renderMissionList() {
+        const list = document.getElementById("missionList");
+        list.innerHTML = "";
+
+        missions.forEach((mission) => {
+          const solved = state.trace2Solved.includes(mission.id);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `mission-item ${solved ? "is-solved" : ""} ${activeMissionId === mission.id ? "is-active" : ""}`;
+          button.dataset.missionId = String(mission.id);
+          button.innerHTML = `
+            <span class="mission-item-icon" aria-hidden="true">${solved ? "✓" : mission.icon}</span>
+            <span>
+              <strong>${mission.title}</strong>
+              <small>${mission.location}</small>
+            </span>
+            <span class="mission-item-state">${solved ? "DONE" : "OPEN"}</span>
+          `;
+          button.addEventListener("click", () => openMission(mission.id));
+          list.appendChild(button);
+        });
+      }
+
+      function renderTrace2Progress() {
+        const count = state.trace2Solved.length;
+        const percent = (count / 8) * 100;
+        const orb = document.getElementById("trace2ProgressOrb");
+        orb.textContent = `${count}/8`;
+        orb.style.background = `conic-gradient(var(--wwf-orange) ${percent}%, rgba(255,255,255,.15) 0)`;
+        document.getElementById("trace2ProgressText").textContent = count === 8
+          ? "모든 위협 단서 해독 완료"
+          : count === 0
+            ? "8개의 단서를 찾아보세요"
+            : `${8 - count}개의 단서가 남았습니다`;
+        document.getElementById("showCertificate").disabled = count !== 8;
+
+        if (currentScreen === "trace2") {
+          renderMissionList();
+          updateMarkers();
+        }
+      }
+
+      function updateMarkers() {
+        if (!mapReady) return;
+        missions.forEach((mission) => {
+          const solved = state.trace2Solved.includes(mission.id);
+          const element = document.querySelector(`[data-map-marker="${mission.id}"]`);
+          if (!element) return;
+          element.classList.toggle("is-solved", solved);
+          element.classList.toggle("is-active", mission.id === activeMissionId);
+          element.querySelector("span").textContent = solved ? "✓" : mission.icon;
+        });
+      }
+
+      function openMission(id) {
+        const mission = missions.find((item) => item.id === id);
+        if (!mission) return;
+        activeMissionId = id;
+        const solved = state.trace2Solved.includes(id);
+
+        document.getElementById("quizKicker").textContent = `${mission.zone} · ${solved ? "해독 완료" : "단서 해독"}`;
+        document.getElementById("quizTitle").textContent = `${mission.icon} ${mission.title}`;
+        document.getElementById("quizLocation").textContent = mission.location;
+        quizBody.scrollTop = 0;
+        renderQuiz(mission, solved);
+
+        quizPanel.classList.add("is-open");
+        quizPanel.setAttribute("aria-hidden", "false");
+        document.getElementById("quizClose").focus({ preventScroll: true });
+        renderMissionList();
+        updateMarkers();
+
+        if (mapReady) {
+          map.flyTo([mission.lat, mission.lng], 4, { duration: .8 });
+        }
+      }
+
+      function renderQuiz(mission, solved) {
+        quizBody.innerHTML = "";
+
+        const chat = document.createElement("div");
+        chat.className = "turtle-chat";
+        chat.innerHTML = `
+          <div class="turtle-avatar" aria-hidden="true">🐢</div>
+          <p class="turtle-bubble">${highlightStory(mission.story)}</p>
+        `;
+
+        const section = document.createElement("section");
+        section.className = "quiz-section";
+
+        const kicker = document.createElement("div");
+        kicker.className = "eyebrow";
+        kicker.style.color = "var(--wwf-orange)";
+        kicker.textContent = "MISSION QUESTION";
+
+        const question = document.createElement("div");
+        question.className = "quiz-question";
+        question.textContent = mission.question;
+
+        const options = document.createElement("div");
+        options.className = "quiz-options";
+
+        mission.options.forEach((option, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "quiz-option";
+          if (solved && index === mission.answer) button.classList.add("is-correct");
+          button.disabled = solved;
+          button.innerHTML = `<span class="option-number">${index + 1}</span><span></span>`;
+          button.lastElementChild.textContent = option;
+          button.addEventListener("click", () => checkAnswer(mission, index, button));
+          options.appendChild(button);
+        });
+
+        section.append(kicker, question, options);
+
+        if (solved) {
+          section.appendChild(makeFeedback(mission.explanation));
+        }
+
+        const source = document.createElement("p");
+        source.className = "source-note";
+        source.innerHTML = `
+          보전정보 참고:
+          <a href="https://www.worldwildlife.org/species/sea-turtle/" target="_blank" rel="noopener noreferrer">WWF Sea Turtle</a>
+          ·
+          <a href="https://shellbankproject.org/the-science/" target="_blank" rel="noopener noreferrer">ShellBank Science</a>
+        `;
+
+        quizBody.append(chat, section, source);
+      }
+
+      function highlightStory(story) {
+        const keywords = [
+          "DNA 흔적", "유전 단서", "플라스틱", "혼획", "기원", "수면", "인공조명", "ShellBank"
+        ];
+        let output = escapeHtml(story);
+        keywords.forEach((keyword) => {
+          output = output.replace(keyword, `<em>${keyword}</em>`);
+        });
+        return output;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function makeFeedback(explanation) {
+        const feedback = document.createElement("div");
+        feedback.className = "quiz-feedback";
+        feedback.innerHTML = "<strong>✅ 전문가의 해설</strong>";
+        const paragraph = document.createElement("span");
+        paragraph.textContent = explanation;
+        feedback.appendChild(paragraph);
+        return feedback;
+      }
+
+      function checkAnswer(mission, selectedIndex, selectedButton) {
+        if (state.trace2Solved.includes(mission.id)) return;
+
+        if (selectedIndex !== mission.answer) {
+          selectedButton.classList.add("is-wrong");
+          selectedButton.disabled = true;
+          navigator.vibrate?.(35);
+          showToast("❌ 앗! 다른 단서를 다시 살펴보세요.");
+          return;
+        }
+
+        const wasComplete = state.trace2Solved.length === 8;
+        state.trace2Solved = normalizeSolved([...state.trace2Solved, mission.id]);
+        saveState();
+
+        selectedButton.classList.add("is-correct");
+        const optionButtons = selectedButton.parentElement.querySelectorAll(".quiz-option");
+        optionButtons.forEach((button) => {
+          button.disabled = true;
+        });
+        selectedButton.closest(".quiz-section").appendChild(makeFeedback(mission.explanation));
+
+        burstParticles(selectedButton);
+        showToast(`단서 ${mission.id} 해독 완료! ${state.trace2Solved.length}/8`);
+
+        if (!wasComplete && state.trace2Solved.length === 8) {
+          window.setTimeout(() => {
+            showUnlockDialog({
+              eyebrow: "THREAT FILES SECURED",
+              title: "두 번째 봉인 해제",
+              copy: "8개의 위협 단서를 모두 기록했습니다. TRACE 03 ShellBank 연구 기록이 열렸습니다.",
+              icon: "🧬",
+              nextTarget: "vault",
+              nextLabel: "TRACE 03 금고 보기"
+            });
+          }, 700);
+        }
+      }
+
+      function closeQuiz() {
+        quizPanel.classList.remove("is-open");
+        quizPanel.setAttribute("aria-hidden", "true");
+        activeMissionId = null;
+        if (currentScreen === "trace2") {
+          renderMissionList();
+          updateMarkers();
+        }
+      }
+
+      function showCertificateDialog() {
+        document.getElementById("certificateCode").textContent = state.rangerCode || "OCEAN RANGER";
+        if (!certificateDialog.open) certificateDialog.showModal();
+      }
+
+      function closeCertificate() {
+        if (certificateDialog.open) certificateDialog.close();
+      }
+
+      function resetTrace2() {
+        if (!window.confirm("TRACE 02의 8개 단서 진행 기록만 초기화할까요?")) return;
+        state.trace2Solved = [];
+        state.trace3Visited = false;
+        state.trace4Visited = false;
+        saveState();
+        closeQuiz();
+        renderMissionList();
+        updateMarkers();
+        showToast("TRACE 02 진행 기록을 초기화했습니다.");
+      }
+
+      function resetJourney() {
+        if (!window.confirm("TRACE 01~04의 이 기기 진행 기록을 모두 초기화할까요?")) return;
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(LEGACY_TRACE2_KEY);
+        state = { ...defaultState, trace2Solved: [] };
+        
+        pledgeStamped = false;
+        rangerCodeInput.value = "";
+        stampButton.classList.add("locked");
+        stampButton.classList.remove("stamped");
+        updateDnaSignal();
+        
+        renderVault();
+        renderTrace2Progress();
+        updateMarkers();
+        showToast("모든 진행 기록을 초기화했습니다.");
+      }
+
+      function bindEvents() {
+        document.getElementById("startJourney").addEventListener("click", () => {
+          state.introSeen = true;
+          saveState();
+          showScreen("vault");
+        });
+
+        document.querySelectorAll("[data-open-trace]").forEach((button) => {
+          button.addEventListener("click", () => handleTraceOpen(Number(button.dataset.openTrace)));
+        });
+
+        document.querySelectorAll("[data-back-vault]").forEach((button) => {
+          button.addEventListener("click", () => showScreen("vault"));
+        });
+
+        document.getElementById("resetJourney").addEventListener("click", resetJourney);
+
+        // Trace 01 코드 입력 강제 처리 - 오직 A,C,G,T만 허용되도록 수정!
+        rangerCodeInput.addEventListener("input", () => {
+          rangerCodeInput.value = rangerCodeInput.value.toUpperCase().replace(/[^ACGT]/g, "").slice(0, 8);
+          updateDnaSignal();
+        });
+
+        document.querySelectorAll(".cat-btn").forEach((button) => {
+          button.addEventListener("click", () => {
+            selectedCategory = button.dataset.category;
+            document.querySelectorAll(".cat-btn").forEach((item) => {
+              item.classList.toggle("active", item === button);
+            });
+            document.getElementById("rangerQuestion").placeholder = qnaPlaceholders[selectedCategory];
+          });
+        });
+
+        // 💡 다짐 완료 버튼의 로직 완벽 연동
+        stampButton.addEventListener("click", () => {
+          if (stampButton.classList.contains("locked")) {
+            alert("먼저 위쪽의 8자리 고유 코드를 정확히 입력해주세요! 🧬\n(A, C, G, T 8자리)");
+            return;
+          }
+          pledgeStamped = true;
+          stampButton.classList.add("stamped");
+          navigator.vibrate?.(45);
+        });
+
+        trace1Submit.addEventListener("click", submitTrace1);
+
+        document.getElementById("trace1Sink").addEventListener("load", () => {
+          if (trace1Pending) finalizeTrace1("remote");
+        });
+
+        document.getElementById("quizClose").addEventListener("click", closeQuiz);
+        document.getElementById("trace2Reset").addEventListener("click", resetTrace2);
+        document.getElementById("showCertificate").addEventListener("click", showCertificateDialog);
+
+        document.getElementById("unlockDialogClose").addEventListener("click", () => closeUnlockDialog("vault"));
+        document.getElementById("unlockDialogVault").addEventListener("click", () => closeUnlockDialog("vault"));
+        document.getElementById("unlockDialogNext").addEventListener("click", () => closeUnlockDialog(unlockTarget));
+
+        document.getElementById("certificateClose").addEventListener("click", closeCertificate);
+        document.getElementById("certificateBack").addEventListener("click", closeCertificate);
+        document.getElementById("certificatePrint").addEventListener("click", () => window.print());
+
+        unlockDialog.addEventListener("close", () => {
+          lastFocusedElement?.focus?.({ preventScroll: true });
+        });
+
+        certificateDialog.addEventListener("close", () => {
+          document.getElementById("showCertificate")?.focus?.({ preventScroll: true });
+        });
+
+        window.addEventListener("resize", () => map?.invalidateSize());
+      }
+
+      bindEvents();
+      renderVault();
+      renderTrace2Progress();
+      updateDnaSignal();
+      showScreen("intro");
+    })();
   </script>
 </body>
 </html>
