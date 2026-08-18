@@ -258,7 +258,7 @@
     .feedback p { margin: 0; font-size: 13px; color: var(--treasure-dark); line-height: 1.5; word-break: keep-all; }
 
     /* ==================================================
-       보물지도 스타일의 인증서 모달
+       보물지도 스타일 인증서 모달 (상장/임명장 느낌 강화)
        ================================================== */
     .modal-backdrop { position: fixed; inset: 0; z-index: 2000; display: none; place-items: center; padding: 18px; background: rgba(0, 114, 143, 0.8); backdrop-filter: blur(5px); }
     .modal-backdrop.open { display: grid; animation: fadeIn 0.4s ease; }
@@ -275,13 +275,13 @@
       background: var(--treasure-paper); 
       box-shadow: inset 0 0 50px rgba(154,104,28,0.15);
     }
+    
     .certificate::before, .certificate::after { 
-      content: "🏴‍☠️"; 
-      position: absolute; font-size: 46px; 
-      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.2)); 
+      position: absolute; font-size: 40px; 
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); 
     }
-    .certificate::before { left: 20px; top: 20px; transform: rotate(-15deg); }
-    .certificate::after { right: 20px; bottom: 20px; transform: rotate(15deg); }
+    .certificate::before { content: "⭐"; left: 20px; top: 20px; transform: rotate(-10deg); }
+    .certificate::after { content: "🐢"; right: 20px; bottom: 20px; transform: rotate(10deg); }
     
     .certificate small { color: var(--treasure-brown); font-weight: 800; letter-spacing: 0.15em; font-size: 13px; }
     .certificate h2 { margin: 15px 0 10px; font-family: "Jua", sans-serif; font-size: 38px; font-weight: 400; color: var(--treasure-dark); }
@@ -310,6 +310,7 @@
     
     .confetti { position: fixed; z-index: 2100; top: -10vh; pointer-events: none; opacity: 1; animation: confetti-fall 3.5s ease-in forwards; }
     @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes lock-pop { from { opacity: 0; transform: scale(.35) rotate(-25deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
     @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
@@ -367,9 +368,9 @@
     <aside class="mission-dock">
       <div class="dock-header">
         <div>
-          <small>WWF RANGERS MISSION</small>
-          <h2>바다거북 여정의 위협</h2>
-          <p>지도 곳곳에 숨겨진 8개의 위협 단서를 해독하세요.</p>
+          <small>4 ZONES · 8 CLUES</small>
+          <h2>TRACE 02 · 위협 추적 미션</h2>
+          <p>바다거북의 이동과 생존을 위협하는 단서를 따라가며,<br>각 위협이 어떻게 보전 활동과 연결되는지 확인해 보세요.</p>
         </div>
         <button class="reset-btn" onclick="resetAll()" title="모든 데이터 초기화">↻</button>
       </div>
@@ -381,6 +382,7 @@
     <section class="side-panel" id="mission-panel">
       <div class="panel-hero">
         <button class="close-btn" onclick="closePanel()">✕</button>
+        <!-- 💡 단서 해독 필요 / 해독 완료 상태 삭제 -->
         <small id="p-kicker">THREAT CLUE</small>
         <h2 id="p-title">제목</h2>
         <p id="p-location">위치</p>
@@ -388,24 +390,23 @@
       <div class="panel-body" id="p-body"></div>
     </section>
 
-    <!-- 완료 인증서 모달 -->
+    <!-- 완료 인증서 모달 (8개 해독 시 즉시 등장) -->
     <div class="modal-backdrop" id="certificate-backdrop" role="dialog" aria-modal="true" aria-labelledby="certificate-title">
       <div class="modal certificate-modal">
         <button class="modal-close" onclick="closeCertificate()" type="button" aria-label="수료증 닫기">✕</button>
         <div class="certificate-wrap">
           <div class="certificate" id="cert-box">
-            <small>TRACE 02 — TRACK THE THREAT</small>
-            <h2 id="certificate-title">위협 해독 항해 증서</h2>
-            <input class="certificate-name" id="ranger-name" type="text" maxlength="24" value="Ocean Ranger" aria-label="인증서 이름">
-            <p>위 레인저는 바다거북이 직면한 4대 주요 위협(플라스틱 오염, 혼획, 기후변화, 불법거래)을 학습하고, 거대한 바다에 숨겨진 모든 단서를 성공적으로 해독하였음을 인증합니다.</p>
+            <small>TRACE 02 - 위협 단서 찾기</small>
+            <h2 id="certificate-title">위협 해독 인증서</h2>
+            <input class="certificate-name" id="ranger-name" type="text" maxlength="24" value="WWF 바다거북 레인저" aria-label="인증서 이름">
+            <p>위 레인저는 바다거북이 마주한 4가지 주요 위협 (플라스틱 오염, 혼획, 기후변화, 불법 포획·거래)을 학습하고, 8개의 위협 단서를 모두 확인했음을 인증합니다.</p>
             <div class="certificate-stats">
-              <span>단서 해독 <b>8/8 CLEAR</b></span>
-              <span>획득 <b>800 XP</b></span>
+              <span>TRACE 02 완료 <b>8/8 CLEAR</b></span>
             </div>
           </div>
           <div class="certificate-actions">
-            <button class="btn-action btn-secondary" onclick="closeCertificate()" type="button">지도로 돌아가기</button>
-            <button class="btn-action btn-primary-cert" onclick="window.print()" type="button">인증서 인쇄·PDF 저장</button>
+            <button class="btn-action btn-secondary" onclick="closeCertificate()" type="button">미션 보드로 돌아가기</button>
+            <button class="btn-action btn-primary-cert" onclick="window.print()" type="button">인증서 PDF 저장</button>
           </div>
         </div>
       </div>
@@ -417,6 +418,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     let state = JSON.parse(localStorage.getItem('wwf_rangers_unified_state')) || { solvedCases: [] };
+    let hasShownUnlockModal = false;
 
     function saveState() {
       localStorage.setItem('wwf_rangers_unified_state', JSON.stringify(state));
@@ -431,7 +433,7 @@
 
     const mapMissions = [
       { 
-        id: 1, lat: 25.0, lng: -140.0, theme: "위험 01 플라스틱 오염", icon: '☠️', title: "플라스틱 섭취 피해", location: "북태평양 쓰레기 집적 해역", 
+        id: 1, lat: 25.0, lng: -140.0, theme: "Clue 01 · 플라스틱 오염", icon: '☠️', title: "먹이로 착각한 플라스틱", location: "북태평양 쓰레기 집적 해역", 
         turtleMsg: "안녕! 난 말 한 마리만큼 무거워질 수 있는 커다란 장수거북(Leatherback)이야! 나는 내가 태어난 인도네시아의 외딴섬 해변에 알을 낳으러 캘리포니아 바다에서부터 태평양을 가로질러 무려 <span class='highlight-text'>10,000km가 넘는 엄청난 여행</span>을 해! 🌊 그런데 바다에 둥둥 떠다니는 비닐봉지를 내가 좋아하는 해파리로 착각해 실수로 먹을 뻔했지 뭐야. 😱 우리가 플라스틱 오염 때문에 음식을 착각해서 큰 피해를 보고 있어.", 
         q: "Q1. 바다거북이 비닐을 먹이로 착각하면 어떤 문제가 생길까? 🐢🗑️", 
         opts: [
@@ -444,7 +446,7 @@
         modelAnswer: "장수거북은 비닐을 해파리 같은 먹이로 착각해 삼킬 수 있습니다. 삼킨 플라스틱은 <span class='highlight-text'>소화관을 막거나 내부에 상처를 내고</span>, 거짓 포만감과 영양실조를 일으켜 생명을 위협할 수 있습니다. 🩺" 
       },
       { 
-        id: 2, lat: 35.0, lng: 129.0, theme: "위험 01 플라스틱 오염", icon: '⚓', title: "해양 유입 예방 행동", location: "도심 하천과 해안가", 
+        id: 2, lat: 35.0, lng: 129.0, theme: "Clue 02 · 플라스틱 오염", icon: '⚓', title: "바다로 흘러간 쓰레기", location: "도시와 연결된 해안", 
         turtleMsg: "바다 멀리 육지에 사는 친구들도 우릴 도와줄 수 있어! 도로와 하천 주변에 버려진 쓰레기 일부는 빗물과 물길을 따라 바다까지 흘러올 수 있거든. 🌧️ 바다거북이 건강하게 자라려면 깨끗한 바다가 꼭 필요해. 그래서 동네나 학교, 공원에서 쓰레기를 줍고 플라스틱을 덜 쓰는 멋진 습관이 필요해. 플라스틱 사용을 줄이고, <span class='highlight-text'>다시 사용할 수 있는 물병과 장바구니를 이용하며</span>, 쓰레기는 올바르게 분리배출해 줄래? ♻️", 
         q: "Q2. 플라스틱의 해양 유입을 줄이는 행동은 무엇일까? 🌍", 
         opts: [
@@ -457,7 +459,7 @@
         modelAnswer: "일상 속에서 일회용품 대신 다회용품을 사용하고, <span class='highlight-text'>올바르게 분리배출하며 쓰레기 줍기 활동</span>을 하는 것이 바다를 지키는 큰 힘이 됩니다. 🦸‍♂️" 
       },
       { 
-        id: 3, lat: 10.0, lng: 110.0, theme: "위험 02 어업 활동과 혼획", icon: '🏴‍☠️', title: "혼획의 의미", location: "남중국해 어장", 
+        id: 3, lat: 10.0, lng: 110.0, theme: "Clue 03 · 혼획", icon: '🏴‍☠️', title: "어망에 걸린 바다거북", location: "남중국해 어장", 
         turtleMsg: "휴, 10,000km를 헤엄치는 건 정말 쉽지 않은 일이야! 이 길고 험난한 여행 중에 어업에서는 물고기를 잡기 위해 그물과 낚싯줄 같은 여러 어구를 사용해. 🎣 우리는 물고기처럼 아가미로 숨 쉬는 동물이 아니야. <span class='highlight-text'>폐로 호흡하기 때문에 반드시 수면 위로 올라와야 하는데</span>, 그물이나 낚싯줄에 걸리면 수면으로 올라오지 못해 익사할 수 있어 😭", 
         q: "Q3. '혼획'은 무엇을 의미할까? 🕸️", 
         opts: [
@@ -470,7 +472,7 @@
         modelAnswer: "<span class='highlight-text'>혼획은 어업 활동 중 원래 잡으려던 목적 어종이 아닌</span>, 바다거북이나 돌고래 같은 해양 생물이 의도치 않게 어구에 낚이거나 얽히는 현상을 말해요. 😢" 
       },
       { 
-        id: 4, lat: -10.0, lng: 140.0, theme: "위험 02 어업 활동과 혼획", icon: '🧭', title: "혼획 저감 어구", location: "호주 북부 새우 트롤 어업 구역", 
+        id: 4, lat: -10.0, lng: 140.0, theme: "Clue 04 · 혼획", icon: '🧭', title: "바다거북을 위한 안전한 어업", location: "호주 북부 새우 트롤 어업 구역", 
         turtleMsg: "대부분의 어업인들은 바다거북을 잡으려는 것이 아니라 물고기나 새우를 잡는 과정에서 의도치 않게 우리를 혼획하게 돼. 그래서 해양 과학자들과 어민들은 트롤망에 들어온 바다거북이 빠져나갈 수 있도록 특별한 비상구(탈출 장치)인 <span class='highlight-text'>바다거북 탈출장치(Turtle Excluder Device, TED)</span>를 개발했어 🛠️ 트롤망을 사용하는 어선들이 이 장치를 올바르게 설치하면 바다거북의 혼획과 익사 위험을 크게 줄일 수 있다!", 
         q: "Q4. 바다거북 혼획을 줄이려면 어떤 노력이 필요할까? 💡", 
         opts: [
@@ -483,7 +485,7 @@
         modelAnswer: "트롤어업에서는 <span class='highlight-text'>바다거북 탈출장치(TED)</span>를 설치해 거북이가 그물 밖으로 빠져나가도록 할 수 있습니다. 일부 연승어업에서는 큰 원형바늘과 특정 미끼를 사용하면 혼획을 줄이는 데 도움이 됩니다. 👏" 
       },
       { 
-        id: 5, lat: 5.0, lng: -85.0, theme: "위험 03 기후변화와 산란지 훼손", icon: '💣', title: "모래 온도와 성비", location: "중미 코스타리카 산란지", 
+        id: 5, lat: 5.0, lng: -85.0, theme: "Clue 05 · 기후변화", icon: '💣', title: "뜨거워지는 산란지", location: "중미 코스타리카 산란지", 
         turtleMsg: "영차! 이번에는 코스타리카 산란지에 사는 내 장수거북 친구의 이야기를 들려줄게! 엄마 장수거북은 튼튼한 앞지느러미로 무거운 몸을 끌고 모래사장에 올라온 뒤, 뒷지느러미로 알을 낳을 깊은 둥지를 파. 🏖️ 그리고 <span class='highlight-text'>당구공만 한 노른자가 든 알을 보통 약 80개 낳고</span>, 둥지 자국을 감춰. 그런데 요즘 지구가 뜨거워지면서 둥지의 모래 온도도 높아지고 있어 🔥", 
         q: "Q5. 기후변화로 산란지의 모래 온도가 높아지면 새끼 바다거북의 성비에 어떤 변화가 생길 수 있을까? 🌡️", 
         opts: [
@@ -496,7 +498,7 @@
         modelAnswer: "바다거북은 <span class='highlight-text'>알이 자라는 모래 온도에 따라 성별이 결정</span>됩니다. 모래가 따뜻할수록 암컷 비율이 높아지며, 장기적으로 번식 위험이 커질 수 있습니다. 🚨" 
       },
       { 
-        id: 6, lat: 25.0, lng: -80.0, theme: "위험 03 기후변화와 산란지 훼손", icon: '🌋', title: "광공해·개발·해수면 상승", location: "미국 플로리다 해안", 
+        id: 6, lat: 25.0, lng: -80.0, theme: "Clue 06 · 산란지 훼손", icon: '🌋', title: "사라지는 산란 해변", location: "미국 플로리다 해안", 
         turtleMsg: "미국 플로리다 해안에서는 새끼 거북들이 부화해 바다를 향해 달려가! 🐢💨 그런데 밤새 켜진 건물과 시설의 인공 불빛은 새끼들이 바다 대신 육지 쪽으로 잘못 이동하게 만들 수 있어. 해안 개발은 모래사장을 줄이고, 해수면 상승은 둥지를 물에 잠기게 할 수도 있지. 해변에 놀러 갔다면 밤에는 해변 쪽 불빛을 줄여 줘. 놀이가 끝나면 <span class='highlight-text'>모래성을 무너뜨리고, 파놓은 구덩이를 꼭 다시 메워줘!</span> ⛺", 
         q: "Q6. 해안개발·광공해·해수면 상승은 산란지에 어떤 영향을 줄까? 🌊", 
         opts: [
@@ -509,7 +511,7 @@
         modelAnswer: "<span class='highlight-text'>인공 불빛은 새끼 거북이 방향을 잃게</span> 만들고, 산란을 방해합니다. 해안개발과 해수면 상승은 안전한 산란 공간을 빼앗습니다. 🌑" 
       },
       { 
-        id: 7, lat: 20.0, lng: 110.0, theme: "위험 04 불법 포획과 거래", icon: '🗺️', title: "불법 거래 대상 제품", location: "동남아시아 암시장", 
+        id: 7, lat: 20.0, lng: 110.0, theme: "Clue 07 · 불법 포획·거래", icon: '🗺️', title: "거래되는 바다거북", location: "동남아시아 암시장", 
         turtleMsg: "아주 오래전부터 우리는 이 해변에 알을 낳고 부화해왔어. 오랫동안 이어진 <span class='highlight-text'>'밀렵(Poaching)'과 불법 거래</span> 때문에 살아남는 거북이가 점점 줄어들고 있어서 너무 슬퍼. 😢 사람들이 우리의 알을 몰래 훔쳐가거나, 예쁜 무늬를 가진 친구들의 등딱지를 탐내고 있거든. 🪓", 
         q: "Q7. 불법 거래 대상이 되는 바다거북 관련 제품은 무엇일까? 🕵️‍♂️", 
         opts: [
@@ -522,7 +524,7 @@
         modelAnswer: "주로 <span class='highlight-text'>대모거북의 아름다운 등딱지는 안경테, 빗, 장신구 등으로 가공</span>되어 불법 거래됩니다. 고기와 알, 박제된 개체 등도 밀렵의 대상이 됩니다. 🚫" 
       },
       { 
-        id: 8, lat: 51.5, lng: -0.1, theme: "위험 04 불법 포획과 거래", icon: '🪙', title: "ShellBank DNA 기반 산란 개체군 추적", location: "ShellBank 글로벌 DNA 추적 도구·데이터베이스", 
+        id: 8, lat: 51.5, lng: -0.1, theme: "Clue 08 · DNA 추적", icon: '🪙', title: "ShellBank가 찾는 단서", location: "ShellBank 글로벌 DNA 추적 도구·데이터베이스", 
         turtleMsg: "하지만 희망적인 소식도 있어! 압수된 바다거북이나 등딱지 제품에서 DNA를 추출해 불법 거래의 영향을 받는 개체군을 추적하는 <span class='highlight-text'>'ShellBank(쉘뱅크)'</span>가 활약하고 있대! 🧬 ShellBank는 압수품의 DNA를 세계 여러 지역에서 수집한 참조 자료와 비교해, 어느 산란 개체군이나 원산 지역에서 유래했는지 분석해. 이를 통해 보호가 시급한 바다거북 개체군과 우선 조사 지역을 파악하고, 수사를 더욱 효과적으로 진행할 수 있어. ✨", 
         q: "Q8. ShellBank는 압수된 바다거북 제품의 DNA를 분석해 무엇을 추적할까? 🔎", 
         opts: [
@@ -564,7 +566,7 @@
           html: `
             <div class="island-marker ${solved ? 'solved' : ''}" id="marker-${m.id}" style="animation-delay: ${randomDelay}s">
                 <span>${solved ? '🏴‍☠️' : m.icon}</span>
-                <div class="island-label">${m.theme.split(' ')[0]} ${m.theme.split(' ')[1]}</div>
+                <div class="island-label">${m.theme}</div>
             </div>
           `,
           iconSize: [66, 66], iconAnchor: [33, 33]
@@ -594,7 +596,7 @@
       document.querySelector('.progress-circle').style.background = `conic-gradient(#F37043 ${pct}%, #F5F5EB 0)`;
       
       if(count === 8) {
-        document.getElementById('status-desc').innerHTML = `<span style="color:#00728F; font-weight:bold; cursor:pointer;" onclick="showCertificate()">🏆 항해 증서 발급 (클릭)</span>`;
+        document.getElementById('status-desc').innerHTML = `<span style="color:#00728F; font-weight:bold; cursor:pointer;" onclick="showCertificateDialog()">🏆 항해 증서 발급 (클릭)</span>`;
       } else {
         document.getElementById('status-desc').innerText = count === 0 ? "바다에서 위협의 섬을 찾아주세요" : "단서 해독 진행 중...";
       }
@@ -612,7 +614,8 @@
       updateMapUI(); 
       map.flyTo([m.lat, m.lng], 4, { duration: 1.2 });
 
-      document.getElementById('p-kicker').innerText = `${m.theme} · ${isDone ? '해독 완료' : '단서 해독 필요'}`;
+      // 💡 수정 반영: 꼬리표 텍스트 통일
+      document.getElementById('p-kicker').innerText = m.theme;
       document.getElementById('p-title').innerHTML = `${m.icon} ${m.title}`;
       document.getElementById('p-location').innerText = m.location.replace("AFRIKA", "AFRICA");
       
@@ -662,8 +665,9 @@
         allBtns.forEach(b => b.disabled = true);
         showToast("단서를 정확히 찾았습니다! +100 XP");
 
+        // 💡 8개 모두 달성 시 중간 팝업 없이 바로 최종 인증서 호출
         if(isNewlySolved && state.solvedCases.length === 8) {
-          setTimeout(() => showCertificate(), 800);
+          setTimeout(() => showCertificateDialog(), 800);
         }
       } else {
         btnEl.classList.add('wrong');
@@ -679,7 +683,7 @@
       map.flyTo([15, 120], 2.5, { duration: 1.0 });
     }
 
-    function showCertificate() {
+    function showCertificateDialog() {
       document.getElementById('certificate-backdrop').classList.add('open');
 
       const confettiColors = ["#00728F", "#00ACCD", "#F5D200", "#F37043", "#FFFFFF"];
