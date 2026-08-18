@@ -15,8 +15,7 @@
 * [🗂️ Trace 2 (index(1) (1).html)](https://mission2027vision.github.io/challenges/index(1)%20(1).html)
 * 📸 [TRACE 02 행동 인증 페이지 (wwf_rangers_trace02.html)](https://mission2027vision.github.io/challenges/wwf_rangers_trace02.html)
 * * 💬 [보너스 미션: TRACE TALK Q&A (trace_talk.html)](https://mission2027vision.github.io/challenges/trace_talk.html)
-* 🧭 [Trace 2 지도 8가지 퀴즈 (Trace 2 지도 8가지 퀴즈.html)](Trace%202%20지도%208가지%20퀴즈.html)
-
+* 🧭 [Trace 2 지도 8가지 퀴즈 바로가기](https://mission2027vision.github.io/challenges/Trace%202%20지도%208가지%20퀴즈.html)
 
 ## 미션 구조
 
