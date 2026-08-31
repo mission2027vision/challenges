@@ -7,7 +7,7 @@
 * [🐢 메인 페이지 (index.html)](https://mission2027vision.github.io/challenges/)
 * [🏝️ TRACE 금고 (mission2.html)](https://mission2027vision.github.io/challenges/mission2.html)
 * [🎲 프리뷰 페이지 (preview.html)](https://mission2027vision.github.io/challenges/preview.html)
-* [🗺️ TRACE 1 (mapquest.html)](https://mission2027vision.github.io/challenges/mapquest.html)
+* [🗺️ TRACE 1 (mapquest.html)](https://mission2027vision.github.io/challenges/trace1.html)
 * [🧬 DNA 매칭 미션 (dna_matching_mission.html)](https://mission2027vision.github.io/challenges/dna_matching_mission.html)
 * 🌟 [TRACE 메인페이지 샘플](https://mission2027vision.github.io/challenges/gemini-code-1785395293002.html)
 * 🌟 [최신 통합 미션 테스트 2](https://mission2027vision.github.io/challenges/gemini-code-1785478012208.html)
