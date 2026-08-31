@@ -10,7 +10,7 @@
 * [🗺️ TRACE 1 (mapquest.html)](https://mission2027vision.github.io/challenges/trace1.html)
 * * 🧭 [Trace 2 지도 8가지 퀴즈 바로가기](https://mission2027vision.github.io/challenges/trace2.html)
   * * 📸 [TRACE 3 (wwf_rangers_trace02.html)](https://mission2027vision.github.io/challenges/trace3.html)
-* [🐢 바다거북 추적 미션 (gemini-code-1787041979080.html)](https://mission2027vision.github.io/challenges/wwfrangers2.html)
+* [🐢 바다거북 추적 미션 (wwfrangers2.html)](https://mission2027vision.github.io/challenges/wwfrangers2.html)
 * [🧬 DNA 매칭 미션 (dna_matching_mission.html)](https://mission2027vision.github.io/challenges/dna_matching_mission.html)
 * 🌟 [TRACE 메인페이지 샘플](https://mission2027vision.github.io/challenges/gemini-code-1785395293002.html)
 * 🌟 [최신 통합 미션 테스트 2](https://mission2027vision.github.io/challenges/gemini-code-1785478012208.html)
