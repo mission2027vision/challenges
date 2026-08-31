@@ -7,12 +7,11 @@
   <meta name="description" content="WWF Rangers 2기 바다거북 추적 미션">
   <title>WWF Rangers 2기 | 바다거북 추적 미션</title>
 
-  <!-- 팡파레 효과 라이브러리 -->
+  <!-- 외부 라이브러리 (Confetti & Leaflet) -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
   <style>
-    /* 나눔바른고딕 웹 폰트 적용 */
     @font-face {
       font-family: 'NanumBarunGothic';
       font-style: normal;
@@ -25,15 +24,9 @@
       font-weight: 700;
       src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumBarunGothicBold.woff') format('woff');
     }
-    @font-face {
-      font-family: 'NanumBarunGothic';
-      font-style: normal;
-      font-weight: 900;
-      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumBarunGothicBold.woff') format('woff');
-    }
 
     :root {
-      /* WWF Official Colors */
+      /* WWF Brand & Marine Colors */
       --wwf-blue: #00728f;
       --wwf-aqua: #009191;
       --wwf-green: #007932;
@@ -43,11 +36,14 @@
       --wwf-red: #da1d52;
       --wwf-base: #c4bc8e;
 
-      /* Cyber / Deep Sea Theme */
+      /* Deep Sea UI Palette */
       --neon-mint: #00ffb2;
+      --neon-mint-glow: rgba(0, 255, 178, 0.35);
       --abyss: #040d0e;
-      --panel-bg: rgba(6, 21, 22, 0.85);
+      --abyss-deep: #020708;
+      --panel-bg: rgba(6, 21, 22, 0.88);
       --panel-border: rgba(0, 145, 145, 0.4);
+      --panel-border-bright: rgba(0, 255, 178, 0.6);
       
       --white: #ffffff;
       --mist: #b1dfdc;
@@ -55,12 +51,11 @@
       --danger: var(--wwf-red);
       --success: var(--wwf-med-green);
 
-      --shadow: 0 12px 40px rgba(0, 255, 178, 0.15);
-      --radius-xl: 16px;
+      --radius-xl: 18px;
       --radius-lg: 12px;
+      --radius-sm: 8px;
       
-      --font-body: 'NanumBarunGothic', sans-serif;
-      --font-display: 'NanumBarunGothic', sans-serif;
+      --font-body: 'NanumBarunGothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -83,14 +78,17 @@
       position: relative;
     }
 
+    /* 사이버 해저 그리드 배경 */
     body::before {
       content: "";
       position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
       background-image:
-        linear-gradient(rgba(0, 145, 145, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 145, 145, 0.1) 1px, transparent 1px);
-      background-size: 40px 40px;
+        linear-gradient(rgba(0, 145, 145, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 145, 145, 0.08) 1px, transparent 1px);
+      background-size: 36px 36px;
       z-index: -10;
       pointer-events: none;
     }
@@ -100,7 +98,7 @@
     button, a { -webkit-tap-highlight-color: transparent; }
     button { border: 0; }
     a { color: inherit; }
-    img { max-width: 100%; }
+    img { max-width: 100%; height: auto; }
     [hidden] { display: none !important; }
 
     :focus-visible { outline: 3px solid var(--neon-mint); outline-offset: 4px; }
@@ -129,69 +127,67 @@
     .primary-btn, .ghost-btn, .compact-btn {
       min-height: 48px; border-radius: 999px; cursor: pointer;
       font-weight: 700; transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+      display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
     }
 
     .primary-btn {
-      padding: 14px 24px; color: var(--abyss);
+      padding: 14px 28px; color: var(--abyss);
       background: var(--neon-mint);
       box-shadow: 0 0 20px rgba(0, 255, 178, 0.4);
     }
-    .primary-btn:hover { background: #00b3b3; transform: translateY(-3px); box-shadow: 0 0 30px rgba(0, 255, 178, 0.6); }
+    .primary-btn:hover { background: #00cca0; transform: translateY(-2px); box-shadow: 0 0 30px rgba(0, 255, 178, 0.6); }
+    .primary-btn:active { transform: translateY(0); }
     .primary-btn:disabled { cursor: not-allowed; opacity: .55; transform: none; box-shadow: none; }
 
     .ghost-btn {
-      padding: 13px 22px; border: 1px solid var(--neon-mint);
+      padding: 13px 24px; border: 1px solid var(--neon-mint);
       color: var(--neon-mint); background: rgba(0, 255, 178, 0.05);
     }
     .ghost-btn:hover { background: rgba(0, 255, 178, 0.15); transform: translateY(-2px); box-shadow: 0 0 15px rgba(0, 255, 178, 0.2); }
 
-    .compact-btn { min-height: 42px; padding: 9px 17px; border: 1px solid var(--panel-border); color: var(--mist); background: rgba(0, 0, 0, 0.3); }
-    .compact-btn:hover { border-color: var(--neon-mint); color: var(--neon-mint); }
+    .compact-btn { min-height: 40px; padding: 8px 16px; border: 1px solid var(--panel-border); color: var(--mist); background: rgba(0, 0, 0, 0.4); border-radius: var(--radius-lg); }
+    .compact-btn:hover { border-color: var(--neon-mint); color: var(--neon-mint); background: rgba(0, 255, 178, 0.08); }
 
     /* ---------- INTRO ---------- */
     .intro {
-      position: relative; display: grid; min-height: 100vh; min-height: 100dvh;
-      place-items: center; overflow: hidden; isolation: isolate; background: transparent;
+      display: grid; min-height: 100vh; min-height: 100dvh;
+      place-items: center; overflow: hidden; isolation: isolate;
     }
 
     .intro-inner {
       width: min(1180px, calc(100% - 40px));
       padding: max(24px, env(safe-area-inset-top)) 0 max(28px, env(safe-area-inset-bottom));
       text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: flex; flex-direction: column; align-items: center;
     }
 
     .intro-lockup { width: min(850px, 100%); animation: rise .9s .15s ease both; display: flex; flex-direction: column; align-items: center; }
 
     .intro-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
     .intro-brand-mark {
-      display: grid; width: 44px; height: 44px; border-radius: 10px;
+      display: grid; width: 48px; height: 48px; border-radius: 12px;
       place-items: center; background: var(--neon-mint);
-      font-size: 1.5rem; box-shadow: 0 0 20px rgba(0, 255, 178, 0.4);
+      font-size: 1.6rem; box-shadow: 0 0 22px rgba(0, 255, 178, 0.5);
     }
-    .intro-brand strong { color: var(--white); font-size: clamp(1.15rem, 2.2vw, 1.3rem); font-weight: 700; letter-spacing: .1em; white-space: nowrap; }
+    .intro-brand strong { color: var(--white); font-size: clamp(1.15rem, 2.2vw, 1.3rem); font-weight: 700; letter-spacing: .08em; }
 
     .intro h1 {
-      margin: 0; max-width: 850px; color: var(--white); font-family: var(--font-display);
-      font-size: clamp(3.2rem, 8vw, 6.5rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.2;
-      text-shadow: 0 0 30px rgba(0, 255, 178, 0.3);
-      word-break: keep-all;
+      margin: 0; max-width: 850px; color: var(--white);
+      font-size: clamp(3rem, 7.5vw, 6rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.22;
+      text-shadow: 0 0 35px rgba(0, 255, 178, 0.35); word-break: keep-all;
     }
 
     .intro-copy {
-      max-width: 580px; margin: 30px 0 40px; color: var(--mist);
-      font-size: clamp(.98rem, 1.7vw, 1.18rem); line-height: 1.8; word-break: keep-all; font-weight: 400;
+      max-width: 600px; margin: 28px 0 36px; color: var(--mist);
+      font-size: clamp(1rem, 1.7vw, 1.18rem); line-height: 1.8; word-break: keep-all; font-weight: 400;
     }
 
-    .intro-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px; width: 100%; }
-    .intro-start { min-width: 260px; font-size: 1.1rem; padding: 18px 30px; }
-    .intro-note { color: var(--muted); font-size: .85rem; font-weight: 400; width: 100%; margin-top: 10px; }
+    .intro-actions { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+    .intro-start { min-width: 280px; font-size: 1.15rem; padding: 18px 32px; }
+    .intro-note { color: var(--muted); font-size: .85rem; }
 
-    /* ---------- VAULT HUB (미션 보드) ---------- */
+    /* ---------- VAULT HUB ---------- */
     .vault-screen {
-      position: relative; overflow: hidden; background: transparent;
       padding: max(28px, env(safe-area-inset-top)) max(22px, env(safe-area-inset-right)) max(42px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left));
     }
 
@@ -202,93 +198,84 @@
     .mini-brand-icon {
       display: grid; width: 44px; height: 44px; border-radius: 10px;
       place-items: center; background: var(--neon-mint);
-      font-size: 1.2rem; box-shadow: 0 0 15px rgba(0, 255, 178, 0.4); flex-shrink: 0;
+      font-size: 1.25rem; box-shadow: 0 0 15px rgba(0, 255, 178, 0.4); flex-shrink: 0;
     }
-    .mini-brand strong, .mini-brand small { display: block; white-space: nowrap; }
-    .mini-brand strong { font-size: 0.95rem; letter-spacing: .02em; color: var(--white); font-weight: 700; }
-    .mini-brand small { margin-top: 3px; color: var(--neon-mint); font-size: .75rem; font-weight: 700; letter-spacing: .02em; }
+    .mini-brand strong { font-size: 0.95rem; letter-spacing: .02em; color: var(--white); font-weight: 700; display: block; }
+    .mini-brand small { margin-top: 3px; color: var(--neon-mint); font-size: .75rem; font-weight: 700; letter-spacing: .02em; display: block; }
 
-    .progress-chip { min-width: 168px; padding: 10px 14px; border: 1px solid var(--neon-mint); border-radius: 999px; background: rgba(0, 255, 178, 0.05); }
-    .progress-chip-row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 7px; font-size: .7rem; font-weight: 700; color: var(--mist); }
+    .progress-chip { min-width: 170px; padding: 10px 16px; border: 1px solid var(--neon-mint); border-radius: 999px; background: rgba(0, 255, 178, 0.05); }
+    .progress-chip-row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 7px; font-size: .72rem; font-weight: 700; color: var(--mist); }
     .progress-chip-row span:last-child { color: var(--neon-mint); }
-    .progress-bar { height: 5px; overflow: hidden; border-radius: 999px; background: rgba(0, 0, 0, 0.5); }
-    .progress-bar > span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--neon-mint); transition: width .5s ease; box-shadow: 0 0 10px var(--neon-mint); }
+    .progress-bar { height: 6px; overflow: hidden; border-radius: 999px; background: rgba(0, 0, 0, 0.5); }
+    .progress-bar > span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--neon-mint); transition: width .5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--neon-mint); }
 
     .vault-heading {
-      display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 30px;
-      margin: clamp(44px, 8vw, 78px) 0 40px;
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 24px;
+      margin: clamp(40px, 6vw, 68px) 0 36px;
     }
-    .vault-heading h2 { margin: 0; font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 4.2rem); font-weight: 700; line-height: 1.2; color: var(--white); text-shadow: 0 0 20px rgba(0,255,178,0.2); }
-    
+    .vault-heading h2 { margin: 0; font-size: clamp(2.2rem, 4.5vw, 3.8rem); font-weight: 700; line-height: 1.2; color: var(--white); text-shadow: 0 0 20px rgba(0,255,178,0.2); }
     .vault-heading-desc {
-      max-width: 680px; margin: 14px 0 0; color: var(--mist);
-      font-size: clamp(.92rem, 1.6vw, 1.05rem); line-height: 1.75;
-      word-break: keep-all; font-weight: 400;
+      max-width: 720px; margin: 14px 0 0; color: var(--mist);
+      font-size: clamp(.92rem, 1.5vw, 1.05rem); line-height: 1.75; word-break: keep-all; font-weight: 400;
     }
 
-    .reset-journey { color: var(--muted); background: transparent; cursor: pointer; font-size: .78rem; font-weight: 700; }
-    .reset-journey:hover { color: var(--neon-mint); }
+    .reset-journey { color: var(--muted); background: transparent; cursor: pointer; font-size: .8rem; font-weight: 700; padding: 8px 12px; border-radius: 6px; transition: color .2s; }
+    .reset-journey:hover { color: var(--wwf-red); }
 
-    .vault-grid { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    .vault-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 
     .vault-card {
-      position: relative; min-height: 280px; overflow: hidden; 
+      position: relative; min-height: 270px; overflow: hidden; 
       border: 1px solid var(--panel-border); border-radius: var(--radius-xl);
       color: var(--white); background: var(--panel-bg);
+      backdrop-filter: blur(14px);
       transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
     }
-    .vault-card:hover { border-color: var(--neon-mint); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 255, 178, 0.15); }
-    .vault-card.is-locked { opacity: 0.6; }
-    .vault-card.is-locked:hover { border-color: rgba(255, 255, 255, 0.2); box-shadow: none; }
-    .vault-card.is-complete { border-color: var(--neon-mint); background: rgba(0, 255, 178, 0.03); }
-    .vault-card.is-shaking { animation: shake .42s ease; }
+    .vault-card:hover { border-color: var(--neon-mint); transform: translateY(-4px); box-shadow: 0 12px 35px rgba(0, 255, 178, 0.15); }
+    .vault-card.is-locked { opacity: 0.6; cursor: not-allowed; }
+    .vault-card.is-locked:hover { border-color: rgba(255, 255, 255, 0.2); box-shadow: none; transform: none; }
+    .vault-card.is-complete { border-color: var(--neon-mint); background: rgba(0, 255, 178, 0.04); }
+    .vault-card.is-shaking { animation: shake .45s ease; }
     .vault-card.is-unlocking { z-index: 3; border-color: var(--neon-mint); animation: unlock-glow 1s ease; }
 
     .vault-card-button {
-      position: relative; z-index: 1; display: grid; width: 100%; height: 100%; padding: 36px 28px;
-      grid-template-columns: 100px minmax(0, 1fr); align-items: center; gap: 24px; color: inherit; text-align: left; background: transparent; cursor: pointer;
+      display: grid; width: 100%; height: 100%; padding: 34px 28px;
+      grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 24px; color: inherit; text-align: left; background: transparent; cursor: pointer;
     }
 
     .safe-lock {
-      position: relative; display: grid; width: 96px; height: 96px; 
+      position: relative; display: grid; width: 92px; height: 92px; 
       border: 2px dashed var(--neon-mint); border-radius: 50%;
       place-items: center; background: rgba(0, 255, 178, 0.05);
       box-shadow: 0 0 20px rgba(0, 255, 178, 0.2) inset; transition: transform .7s cubic-bezier(.17, .67, .18, 1.2);
     }
-    .safe-lock-center {
-      display: grid; width: 100%; height: 100%; border: none; background: transparent;
-      place-items: center; font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--neon-mint);
-    }
+    .safe-lock-center { font-size: 2rem; font-weight: 700; color: var(--neon-mint); }
     .lock-state-icon {
-      position: absolute; right: -4px; bottom: -4px; display: grid; width: 34px; height: 34px; 
+      position: absolute; right: -4px; bottom: -4px; display: grid; width: 32px; height: 32px; 
       border: 3px solid var(--panel-bg); border-radius: 50%; place-items: center; 
-      color: var(--abyss); background: var(--neon-mint); font-size: 1rem; font-weight: 700; box-shadow: 0 0 10px rgba(0,255,178,0.5);
+      color: var(--abyss); background: var(--neon-mint); font-size: 0.95rem; font-weight: 700; box-shadow: 0 0 10px rgba(0,255,178,0.5);
     }
 
     .is-locked .safe-lock { border-color: rgba(255, 255, 255, 0.2); box-shadow: none; background: transparent; }
     .is-locked .safe-lock-center { color: rgba(255, 255, 255, 0.4); }
     .is-locked .lock-state-icon { background: #333; color: #888; box-shadow: none; }
     .is-complete .safe-lock { border-style: solid; }
-    .is-complete .lock-state-icon, .is-visited .lock-state-icon { background: var(--neon-mint); }
     .is-unlocking .safe-lock { transform: rotate(720deg) scale(1.08); }
 
-    .vault-copy { position: relative; z-index: 1; min-width: 0; }
-    .vault-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .trace-label, .state-pill { display: inline-flex; align-items: center; min-height: 26px; padding: 5px 12px; border-radius: 6px; font-size: .7rem; font-weight: 700; letter-spacing: .12em; }
+    .vault-copy { min-width: 0; }
+    .vault-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .trace-label, .state-pill { display: inline-flex; align-items: center; min-height: 26px; padding: 4px 12px; border-radius: 6px; font-size: .7rem; font-weight: 700; letter-spacing: .12em; }
     .trace-label { color: var(--abyss); background: var(--neon-mint); box-shadow: 0 0 10px rgba(0,255,178,0.3); }
     .state-pill { border: 1px solid var(--neon-mint); color: var(--neon-mint); background: transparent; }
-    .is-locked .trace-label { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); box-shadow: none; }
+    .is-locked .trace-label { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); box-shadow: none; }
     .is-locked .state-pill { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); }
-    .is-complete .state-pill, .is-visited .state-pill { border-color: var(--neon-mint); color: var(--neon-mint); }
 
     .vault-copy h3 {
-      margin: 0; font-family: var(--font-display);
-      font-size: clamp(1.25rem, 1.8vw, 1.55rem);
-      font-weight: 700; line-height: 1.35; color: var(--white);
-      letter-spacing: -0.02em; word-break: keep-all;
+      margin: 0; font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+      font-weight: 700; line-height: 1.35; color: var(--white); word-break: keep-all;
     }
-    .vault-copy p { margin: 10px 0 16px; color: var(--mist); font-size: .92rem; line-height: 1.55; word-break: keep-all; font-weight: 400;}
-    .vault-cta { display: inline-flex; align-items: center; gap: 8px; color: var(--neon-mint); font-size: .85rem; font-weight: 700; }
+    .vault-copy p { margin: 8px 0 14px; color: var(--mist); font-size: .92rem; line-height: 1.55; word-break: keep-all; font-weight: 400; }
+    .vault-cta { display: inline-flex; align-items: center; gap: 6px; color: var(--neon-mint); font-size: .85rem; font-weight: 700; }
     .is-locked .vault-cta { color: var(--muted); }
 
     .vault-footer {
@@ -298,9 +285,7 @@
     .vault-footer a { color: var(--neon-mint); text-decoration: none; font-weight: 700; }
     .vault-footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
-    /* =========================================================
-       WWF 네이버 블로그 귀여운 바다거북 플로팅 위젯
-       ========================================================= */
+    /* ---------- FLOATING BLOG WIDGET ---------- */
     .blog-floating-widget {
       position: fixed;
       bottom: max(24px, env(safe-area-inset-bottom));
@@ -324,28 +309,16 @@
       transform: translateY(-4px) scale(1.03);
       box-shadow: 0 12px 35px rgba(0, 255, 178, 0.55);
       border-color: #ffffff;
-      color: var(--white);
     }
     .widget-turtle {
       font-size: 1.9rem;
       display: inline-block;
-      animation: wiggleTurtle 2s ease-in-out infinite;
+      animation: wiggleTurtle 2.2s ease-in-out infinite;
       filter: drop-shadow(0 0 6px rgba(0, 255, 178, 0.6));
     }
-    .widget-text { text-align: left; }
-    .widget-text strong {
-      display: block;
-      font-size: 0.82rem;
-      color: var(--neon-mint);
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
-    .widget-text small {
-      display: block;
-      font-size: 0.68rem;
-      color: var(--mist);
-      font-weight: 400;
-    }
+    .widget-text strong { display: block; font-size: 0.82rem; color: var(--neon-mint); font-weight: 700; }
+    .widget-text small { display: block; font-size: 0.68rem; color: var(--mist); font-weight: 400; }
+
     @keyframes floatTurtleWidget {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-7px); }
@@ -355,347 +328,278 @@
       25% { transform: rotate(-10deg) scale(1.05); }
       75% { transform: rotate(10deg) scale(1.05); }
     }
-    @media (max-width: 600px) {
-      .blog-floating-widget {
-        right: 16px;
-        bottom: max(16px, env(safe-area-inset-bottom));
-        padding: 8px 14px 8px 10px;
-        gap: 10px;
-      }
-      .widget-turtle { font-size: 1.55rem; }
-      .widget-text strong { font-size: 0.74rem; }
-      .widget-text small { font-size: 0.62rem; }
-    }
 
-    /* ---------- MISSION COMMON ---------- */
+    /* ---------- MISSION COMMON SCREEN ---------- */
     .mission-screen {
       position: fixed; inset: 0; z-index: 100;
       overflow-y: auto !important;
       -webkit-overflow-scrolling: touch !important;
       background: var(--abyss); color: var(--white);
     }
-    
-    .mission-screen::before {
-      content: "";
-      position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(0, 145, 145, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 145, 145, 0.1) 1px, transparent 1px);
-      background-size: 40px 40px;
-      z-index: -10;
-      pointer-events: none;
-    }
-
     .mission-topbar {
-      position: sticky; top: 0; z-index: 40; min-height: 74px;
+      position: sticky; top: 0; z-index: 40; min-height: 72px;
       padding: max(12px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
       border-bottom: 1px solid var(--panel-border); color: var(--white); background: rgba(6, 21, 22, 0.95);
       backdrop-filter: blur(18px);
     }
     .mission-back {
-      display: inline-flex; min-width: 46px; min-height: 46px; align-items: center; justify-content: center;
+      display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center;
       border: 1px solid var(--panel-border); border-radius: 12px; color: var(--white); background: rgba(255, 255, 255, 0.05); cursor: pointer; font-size: 1.2rem;
     }
-    .mission-back:hover { background: rgba(0, 255, 178, 0.1); border-color: var(--neon-mint); color: var(--neon-mint); }
+    .mission-back:hover { background: rgba(0, 255, 178, 0.15); border-color: var(--neon-mint); color: var(--neon-mint); }
     .mission-heading { flex: 1; }
-    .mission-heading small, .mission-heading strong { display: block; }
-    .mission-heading small { color: var(--neon-mint); font-size: .66rem; font-weight: 700; letter-spacing: .18em; }
-    .mission-heading strong { margin-top: 3px; font-size: .94rem; font-weight: 700;}
+    .mission-heading small { color: var(--neon-mint); font-size: .66rem; font-weight: 700; letter-spacing: .18em; display: block; }
+    .mission-heading strong { margin-top: 3px; font-size: .95rem; font-weight: 700; display: block; }
 
-    /* ---------- TRACE 01 (스크롤 수정 적용) ---------- */
+    /* ---------- TRACE 01 ---------- */
     #trace1Screen {
       background-color: var(--wwf-blue);
-      background-image: linear-gradient(rgba(0, 114, 143, 0.78), rgba(0, 40, 50, 0.93)), url('https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-      /* background-attachment: fixed 제거로 모바일 스크롤 락 해결 */
+      background-image: linear-gradient(rgba(0, 114, 143, 0.82), rgba(0, 40, 50, 0.95)), url('https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover; background-position: center;
       color: var(--white);
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-      touch-action: pan-y;
     }
-    #trace1Screen::before { display: none; }
     #trace1Screen .mission-topbar {
       position: absolute; top: 0; left: 0; width: 100%;
       background: transparent; border: none; backdrop-filter: none; z-index: 50;
     }
     #trace1Screen .mission-heading, #trace1Screen .state-pill { display: none; }
     #trace1Screen .mission-back { border-color: rgba(255,255,255,0.3); color: var(--white); background: rgba(255,255,255,0.1); }
-    #trace1Screen .mission-back:hover { background: rgba(255,255,255,0.2); border-color: var(--white); color: var(--white); }
+    #trace1Screen .mission-back:hover { background: rgba(255,255,255,0.2); }
 
     .trace1-container {
-      max-width: 480px; width: 100%; display: flex; flex-direction: column; gap: 25px;
-      margin: 0 auto; padding: clamp(60px, 8vw, 80px) 20px 100px;
-      position: relative; z-index: 10;
+      max-width: 500px; width: 100%; display: flex; flex-direction: column; gap: 24px;
+      margin: 0 auto; padding: clamp(64px, 8vw, 84px) 20px 100px;
     }
-    #trace1Screen .header-full { text-align: center; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.3); padding-bottom: 24px; }
-    #trace1Screen .header-full h4 { color: var(--wwf-base); font-size: 14px; font-weight: 700; margin-bottom: 16px; letter-spacing: 1px; }
-    #trace1Screen .header-full .trace-badge { display: inline-block; background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px; font-size: 13px; color: var(--wwf-yellow); font-weight: 700; letter-spacing: 1.5px; margin-bottom: 15px; }
-    #trace1Screen .header-full h1 { font-size: 34px; color: #ffffff; font-weight: 700; line-height: 1.35; word-break: keep-all; margin-bottom: 16px; text-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+    #trace1Screen .header-full { text-align: center; margin-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.3); padding-bottom: 24px; }
+    #trace1Screen .header-full h4 { color: var(--wwf-base); font-size: 14px; font-weight: 700; margin-bottom: 14px; letter-spacing: 1px; }
+    #trace1Screen .header-full .trace-badge { display: inline-block; background: rgba(0,0,0,0.45); padding: 6px 16px; border-radius: 20px; font-size: 13px; color: var(--wwf-yellow); font-weight: 700; letter-spacing: 1.5px; margin-bottom: 15px; }
+    #trace1Screen .header-full h1 { font-size: clamp(28px, 5vw, 34px); color: #ffffff; font-weight: 700; line-height: 1.35; word-break: keep-all; margin-bottom: 14px; text-shadow: 0 4px 15px rgba(0,0,0,0.4); }
     #trace1Screen .header-full p.desc { font-size: 15px; color: #d8eef2; line-height: 1.6; word-break: keep-all; font-weight: 400; margin: 0; }
 
     #trace1Screen .phone-mockup { 
-      background: rgba(255, 255, 255, 0.95); 
-      border: 8px solid rgba(255, 255, 255, 0.3); 
-      border-radius: 30px; 
-      padding: 35px 25px; 
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
-      display: flex; 
-      flex-direction: column; 
-      position: relative; 
-      backdrop-filter: blur(10px); 
+      background: rgba(255, 255, 255, 0.96); 
+      border: 6px solid rgba(255, 255, 255, 0.35); 
+      border-radius: 28px; 
+      padding: 34px 24px; 
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45); 
+      display: flex; flex-direction: column; 
       color: #112226; 
     }
-    #trace1Screen .phone-title { text-align: center; font-size: 22px; font-weight: 700; color: var(--wwf-blue); margin-bottom: 25px; }
-    #trace1Screen .input-group { margin-bottom: 30px; position: relative; z-index: 10; }
+    #trace1Screen .phone-title { text-align: center; font-size: 22px; font-weight: 700; color: var(--wwf-blue); margin-bottom: 24px; }
+    #trace1Screen .input-group { margin-bottom: 26px; position: relative; }
     #trace1Screen .input-hint { display: flex; justify-content: space-between; font-size: 13px; color: #4b6266; margin-bottom: 8px; padding: 0 4px; font-weight: 700; }
     #trace1Screen .input-hint span:last-child { color: var(--wwf-aqua); }
+    
     #trace1Screen .code-input { 
-      width: 100%; padding: 18px; border: 2px solid #e0e9eb; border-radius: 12px; font-size: 20px; 
-      outline: none; transition: 0.3s; text-align: center; letter-spacing: 4px; font-weight: 700; background: #fff; font-family: 'NanumBarunGothic', sans-serif; color: var(--wwf-blue);
+      width: 100%; padding: 16px; border: 2px solid #d3e2e5; border-radius: 12px; font-size: 22px; 
+      outline: none; transition: 0.3s; text-align: center; letter-spacing: 4px; font-weight: 700; background: #fff; color: var(--wwf-blue);
     }
-    #trace1Screen .code-input:focus { border-color: var(--wwf-aqua); box-shadow: 0 0 10px rgba(0, 145, 145, 0.2); background: #f2f9fa; }
-    #trace1Screen .code-input.success { border-color: var(--wwf-med-green); background: #f2f9eb; color: var(--wwf-green); box-shadow: none; }
-    #trace1Screen .section-subtitle { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #fff; text-align: center; background: var(--wwf-aqua); padding: 12px; border-radius: 8px; word-break: keep-all; }
-    #trace1Screen .section-desc { font-size: 13px; color: #4b6266; text-align: center; margin-bottom: 16px; line-height: 1.5; word-break: keep-all; padding: 0 10px; font-weight: 400; }
-    #trace1Screen .category-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-    #trace1Screen .cat-btn { background: #e0e9eb; color: #4b6266; font-size: 13.5px; font-weight: 700; padding: 12px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
-    #trace1Screen .cat-btn.active { background: var(--wwf-aqua); color: #fff; border-color: var(--wwf-aqua); box-shadow: 0 4px 10px rgba(0, 145, 145, 0.3); }
-    #trace1Screen .question-input { 
-      width: 100%; padding: 16px; border: 2px dashed #b1dfdc; border-radius: 12px; font-size: 14px; 
-      font-family: 'NanumBarunGothic', sans-serif; resize: none; outline: none; transition: 0.3s; background: #f0f7f9; line-height: 1.6; color: #112226;
+    #trace1Screen .code-input:focus { border-color: var(--wwf-aqua); box-shadow: 0 0 12px rgba(0, 145, 145, 0.25); background: #f4fafb; }
+    #trace1Screen .code-input.success { border-color: var(--wwf-med-green); background: #f2f9eb; color: var(--wwf-green); }
+    
+    #trace1Screen .dna-mini-popup { 
+      position: absolute; top: -46px; left: 50%; transform: translateX(-50%) translateY(16px); 
+      background: var(--wwf-aqua); color: white; padding: 9px 18px; border-radius: 8px; 
+      font-size: 13px; font-weight: 700; box-shadow: 0 5px 15px rgba(0, 145, 145, 0.4); 
+      opacity: 0; pointer-events: none; transition: 0.35s ease; z-index: 100; white-space: nowrap; 
     }
-    #trace1Screen .question-input:focus { border-style: solid; border-color: var(--wwf-aqua); background: #fff; }
+    #trace1Screen .dna-mini-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
     #trace1Screen .pledge-container { 
-      text-align: center; padding: 28px 20px; background: #f0f7f9; border-radius: 12px; border: 2px dashed var(--wwf-aqua); 
-      position: relative; overflow: hidden; word-break: keep-all; margin-bottom: 24px; 
+      text-align: center; padding: 26px 18px; background: #f0f7f9; border-radius: 14px; border: 2px dashed var(--wwf-aqua); 
+      position: relative; overflow: hidden; word-break: keep-all; margin-bottom: 22px; 
     }
-    #trace1Screen .pledge-text { font-size: 14px; color: #112226; font-weight: 700; margin-bottom: 20px; line-height: 1.6; }
+    #trace1Screen .pledge-text { font-size: 14px; color: #112226; font-weight: 700; margin-bottom: 18px; line-height: 1.65; word-break: keep-all; }
+    
     #trace1Screen .stamp-btn { 
-      background: white; border: 2px solid var(--wwf-blue); color: var(--wwf-blue); padding: 14px 35px; 
-      border-radius: 30px; font-weight: 700; cursor: pointer; transition: 0.3s; position: relative; z-index: 2; font-size: 16px; letter-spacing: 1px; 
+      background: white; border: 2px solid var(--wwf-blue); color: var(--wwf-blue); padding: 13px 32px; 
+      border-radius: 30px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 15px; 
     }
     #trace1Screen .stamp-btn.locked { background: #e0e9eb !important; border-color: #ccc !important; color: #999 !important; cursor: not-allowed; }
     #trace1Screen .stamp-btn.stamped { background-color: #e0e9eb !important; border-color: transparent !important; color: transparent !important; pointer-events: none; }
     #trace1Screen .stamp-mark { 
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(3.5) rotate(-20deg); 
-      opacity: 0; font-size: 38px; font-weight: 700; color: var(--wwf-red); z-index: 10; pointer-events: none; 
-      border: 4px solid var(--wwf-red); padding: 5px 20px; border-radius: 8px; letter-spacing: 2px; text-transform: uppercase;
-      background: rgba(255, 255, 255, 0.9); box-shadow: 0 4px 15px rgba(218, 29, 82, 0.3);
+      opacity: 0; font-size: 36px; font-weight: 700; color: var(--wwf-red); z-index: 10; pointer-events: none; 
+      border: 4px solid var(--wwf-red); padding: 4px 18px; border-radius: 8px; letter-spacing: 2px;
+      background: rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(218, 29, 82, 0.3);
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out; 
     }
     #trace1Screen .stamp-btn.stamped + .stamp-mark { transform: translate(-50%, -50%) scale(1) rotate(-8deg); opacity: 1; }
-    #trace1Screen .insta-check-container { display: flex; flex-direction: column; align-items: center; }
+
     #trace1Screen .insta-btn {
       background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-      color: white; text-decoration: none; padding: 14px 28px; border-radius: 30px; font-weight: 700;
-      font-size: 15px; transition: 0.3s; box-shadow: 0 4px 12px rgba(220, 39, 67, 0.3); display: inline-block; width: 100%; text-align: center;
+      color: white; text-decoration: none; padding: 13px 24px; border-radius: 30px; font-weight: 700;
+      font-size: 14.5px; transition: 0.3s; box-shadow: 0 4px 12px rgba(220, 39, 67, 0.3); display: inline-block; width: 100%; text-align: center;
     }
-    #trace1Screen .insta-btn:hover { transform: scale(1.02); box-shadow: 0 6px 15px rgba(220, 39, 67, 0.4); }
-    #trace1Screen .insta-small-text { font-size: 12.5px; color: #4b6266; margin-top: 12px; line-height: 1.5; text-align: center; font-weight: 700; word-break: keep-all; }
+    #trace1Screen .insta-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(220, 39, 67, 0.4); }
+    #trace1Screen .insta-small-text { font-size: 12.5px; color: #4b6266; margin-top: 10px; line-height: 1.5; text-align: center; font-weight: 700; word-break: keep-all; }
+
+    #trace1Screen .section-subtitle { font-size: 14.5px; font-weight: 700; margin-bottom: 8px; color: #fff; text-align: center; background: var(--wwf-aqua); padding: 11px; border-radius: 8px; word-break: keep-all; }
+    #trace1Screen .section-desc { font-size: 13px; color: #4b6266; text-align: center; margin-bottom: 14px; line-height: 1.5; word-break: keep-all; padding: 0 6px; }
+    #trace1Screen .category-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    #trace1Screen .cat-btn { background: #e0e9eb; color: #4b6266; font-size: 13.5px; font-weight: 700; padding: 11px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; }
+    #trace1Screen .cat-btn.active { background: var(--wwf-aqua); color: #fff; box-shadow: 0 4px 10px rgba(0, 145, 145, 0.3); }
+    #trace1Screen .question-input { 
+      width: 100%; padding: 15px; border: 2px dashed #b1dfdc; border-radius: 12px; font-size: 14px; 
+      resize: none; outline: none; transition: 0.3s; background: #f0f7f9; line-height: 1.6; color: #112226; 
+    }
+    #trace1Screen .question-input:focus { border-style: solid; border-color: var(--wwf-aqua); background: #fff; }
+
     #trace1Screen .submit-btn { 
-      margin-top: 10px; width: 100%; padding: 20px; background-color: var(--wwf-blue); color: white; border: none; 
-      border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; word-break: keep-all; 
-      position: relative; z-index: 10; font-family: 'NanumBarunGothic', sans-serif; letter-spacing: 1px;
+      width: 100%; padding: 18px; background-color: var(--wwf-blue); color: white; border: none; 
+      border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s;
     }
     #trace1Screen .submit-btn:hover:not(:disabled) { background-color: #005a70; box-shadow: 0 6px 20px rgba(0, 114, 143, 0.4); }
     #trace1Screen .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    #trace1Screen .dna-mini-popup { 
-      position: absolute; top: -50px; left: 50%; transform: translateX(-50%) translateY(20px); 
-      background: var(--wwf-aqua); color: white; padding: 10px 20px; border-radius: 8px; 
-      font-size: 14px; font-weight: 700; box-shadow: 0 5px 15px rgba(0, 145, 145, 0.4); 
-      opacity: 0; pointer-events: none; transition: 0.4s; z-index: 100; white-space: nowrap; 
-    }
-    #trace1Screen .dna-mini-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    #trace1Screen .dna-mini-popup::after { 
-      content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); 
-      border-width: 8px 8px 0; border-style: solid; border-color: var(--wwf-aqua) transparent transparent transparent; 
-    }
 
     #successCard { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.3); opacity: 0; transform: translateY(20px); transition: 0.5s; display: none; border: 4px solid var(--wwf-blue); width: 100%; color: #112226; }
     #successCard.show { opacity: 1; transform: translateY(0); display: block; margin-bottom: 20px; animation: fadeIn 0.5s ease forwards; }
-    #successCard .success-header { background-color: var(--wwf-blue); color: white; text-align: center; padding: 25px; font-size: 20px; font-weight: 700; letter-spacing: 1px;}
-    #successCard .success-body { padding: 40px 20px; text-align: center; word-break: keep-all; }
-    #successCard h3 { font-size: 22px; color: var(--wwf-blue); margin-bottom: 15px; font-weight: 700; }
-    #successCard .popup-code-box { font-size: 24px; font-weight: 700; color: var(--wwf-blue); background: #f0f7f9; padding: 15px 30px; border-radius: 12px; display: inline-block; margin-bottom: 25px; border: 2px dashed var(--wwf-aqua); letter-spacing: 3px; }
+    #successCard .success-header { background-color: var(--wwf-blue); color: white; text-align: center; padding: 22px; font-size: 19px; font-weight: 700; }
+    #successCard .success-body { padding: 36px 20px; text-align: center; word-break: keep-all; }
+    #successCard h3 { font-size: 22px; color: var(--wwf-blue); margin-bottom: 14px; font-weight: 700; }
+    #successCard .popup-code-box { font-size: 24px; font-weight: 700; color: var(--wwf-blue); background: #f0f7f9; padding: 14px 28px; border-radius: 12px; display: inline-block; margin-bottom: 20px; border: 2px dashed var(--wwf-aqua); letter-spacing: 3px; }
 
     #finalPopup.popup-overlay { position: fixed; inset: 0; background: rgba(0, 114, 143, 0.85); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
     #finalPopup.popup-overlay.active { display: flex; animation: fadeIn 0.4s; }
-    #finalPopup .popup-modal { background: white; padding: 50px 40px; border-radius: 20px; text-align: center; max-width: 420px; width: 90%; position: relative; overflow: hidden; word-break: keep-all; box-shadow: 0 25px 50px rgba(0,0,0,0.5); color: #112226; border: none;}
-    #finalPopup .popup-icon { font-size: 70px; margin-bottom: 10px; animation: bouncePopup 1s infinite alternate; }
-    #finalPopup h2 { font-size: 30px; font-weight: 700; color: var(--wwf-blue); margin-bottom: 15px; }
-    #finalPopup p { font-size: 15px; color: #4b6266; line-height: 1.6; margin-bottom: 30px;}
-    #finalPopup .popup-close-btn { background: var(--wwf-blue); color: white; padding: 18px 40px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 18px; width: 100%; transition: 0.3s; word-break: keep-all; font-family: 'NanumBarunGothic', sans-serif;}
-    #finalPopup .popup-close-btn:hover { background: #005a70; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 114, 143, 0.4);}
+    #finalPopup .popup-modal { background: white; padding: 46px 36px; border-radius: 22px; text-align: center; max-width: 440px; width: 90%; word-break: keep-all; box-shadow: 0 25px 50px rgba(0,0,0,0.5); color: #112226; }
+    #finalPopup .popup-icon { font-size: 64px; margin-bottom: 8px; animation: bouncePopup 1s infinite alternate; }
+    #finalPopup h2 { font-size: 28px; font-weight: 700; color: var(--wwf-blue); margin-bottom: 12px; }
+    #finalPopup p { font-size: 15px; color: #4b6266; line-height: 1.65; margin-bottom: 28px; }
+    #finalPopup .popup-close-btn { background: var(--wwf-blue); color: white; padding: 16px 36px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 17px; width: 100%; transition: 0.3s; }
+    #finalPopup .popup-close-btn:hover { background: #005a70; transform: translateY(-2px); }
 
     /* ---------- TRACE 02 ---------- */
     .trace2-screen { overflow: hidden; background: transparent; }
     .trace2-progress { display: flex; align-items: center; gap: 10px; }
     .progress-orb {
-      display: grid; width: 48px; height: 48px; border: 2px solid rgba(0, 255, 178, 0.3); border-radius: 50%;
+      display: grid; width: 46px; height: 46px; border: 2px solid rgba(0, 255, 178, 0.3); border-radius: 50%;
       place-items: center; color: var(--neon-mint); background: conic-gradient(var(--neon-mint) 0%, rgba(0, 255, 178, 0.05) 0);
-      font-family: var(--font-display); font-size: .9rem; font-weight: 700; transition: background .4s ease; box-shadow: 0 0 10px rgba(0,255,178,0.2) inset;
+      font-size: .88rem; font-weight: 700; transition: background .4s ease; box-shadow: 0 0 10px rgba(0,255,178,0.2) inset;
     }
-    .trace2-layout { display: grid; height: calc(100vh - 74px); height: calc(100dvh - 74px); grid-template-columns: 350px minmax(0, 1fr); background: transparent; }
+    .trace2-layout { display: grid; height: calc(100vh - 72px); height: calc(100dvh - 72px); grid-template-columns: 360px minmax(0, 1fr); }
     .trace2-dock { position: relative; z-index: 10; display: flex; min-height: 0; flex-direction: column; color: var(--white); background: var(--panel-bg); border-right: 1px solid var(--panel-border); }
-    .dock-copy { padding: 25px 22px 17px; }
-    .dock-copy h1 { margin: 6px 0 9px; font-family: var(--font-display); font-size: 1.55rem; font-weight: 700; color: var(--white); text-shadow: 0 0 10px rgba(0,255,178,0.2); }
-    .dock-copy p { margin: 0; color: var(--mist); font-size: .74rem; line-height: 1.55; }
+    .dock-copy { padding: 24px 20px 16px; }
+    .dock-copy h1 { margin: 6px 0 8px; font-size: 1.5rem; font-weight: 700; color: var(--white); }
+    .dock-copy p { margin: 0; color: var(--mist); font-size: .75rem; line-height: 1.55; }
     
-    .mission-list { display: flex; min-height: 0; padding: 0 16px 20px; flex: 1; flex-direction: column; gap: 8px; overflow-y: auto; }
-    .mission-list::-webkit-scrollbar { width: 6px; }
-    .mission-list::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(0, 255, 178, 0.2); }
+    .mission-list { display: flex; min-height: 0; padding: 0 16px 16px; flex: 1; flex-direction: column; gap: 10px; overflow-y: auto; }
+    .mission-list::-webkit-scrollbar { width: 5px; }
+    .mission-list::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(0, 255, 178, 0.25); }
+    
     .mission-item {
-      display: grid; min-height: 64px; padding: 11px 12px; border: 1px solid rgba(0, 255, 178, 0.2); border-radius: 12px;
-      grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 10px; color: var(--white); text-align: left; background: rgba(0, 0, 0, 0.4); cursor: pointer; transition: .2s ease;
+      display: grid; min-height: 72px; padding: 12px 14px; border: 1px solid rgba(0, 255, 178, 0.2); border-radius: 12px;
+      grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 12px; color: var(--white); text-align: left; background: rgba(0, 0, 0, 0.4); cursor: pointer; transition: .2s ease;
     }
     .mission-item:hover, .mission-item.is-active { border-color: var(--neon-mint); background: rgba(0, 255, 178, 0.1); transform: translateY(-2px); box-shadow: 0 0 15px rgba(0,255,178,0.15); }
-    .mission-item.is-solved { border-color: var(--wwf-med-green); background: rgba(140, 198, 63, 0.1); }
-    .mission-item-icon { display: grid; width: 38px; height: 38px; border-radius: 50%; place-items: center; background: rgba(0, 255, 178, 0.1); color: var(--neon-mint); border: 1px solid rgba(0, 255, 178, 0.3); }
+    .mission-item.is-solved { border-color: var(--wwf-med-green); background: rgba(140, 198, 63, 0.08); }
+    .mission-item-icon { display: grid; width: 36px; height: 36px; border-radius: 50%; place-items: center; background: rgba(0, 255, 178, 0.1); color: var(--neon-mint); border: 1px solid rgba(0, 255, 178, 0.3); font-size: 1.1rem; }
     .is-solved .mission-item-icon { color: var(--abyss); background: var(--wwf-med-green); border-color: var(--wwf-med-green); }
-    .mission-item strong, .mission-item small { display: block; }
-    .mission-item strong { font-size: .77rem; font-weight: 700;}
-    .mission-item small { margin-top: 3px; color: var(--muted); font-size: .63rem; font-weight: 700;}
-    .mission-item-state { color: var(--neon-mint); font-size: .58rem; font-weight: 700; }
+    
+    .mission-clue-label { display: block; font-size: 0.68rem; font-weight: 700; color: var(--neon-mint); margin-bottom: 2px; }
+    .mission-sub-title { display: block; font-size: 0.83rem; font-weight: 700; line-height: 1.35; color: var(--white); margin-bottom: 2px; word-break: keep-all; }
+    .mission-location-text { display: block; color: var(--mist); font-size: 0.65rem; }
+    .mission-item-state { color: var(--neon-mint); font-size: .6rem; font-weight: 700; padding: 4px 6px; }
     .is-solved .mission-item-state { color: var(--wwf-med-green); }
     
     .dock-actions { display: flex; gap: 8px; padding: 14px 16px max(16px, env(safe-area-inset-bottom)); border-top: 1px dashed var(--panel-border); }
-    .dock-actions button { flex: 1; font-size: .7rem; }
+    .dock-actions button { flex: 1; font-size: .72rem; }
     
     .trace2-map-wrap { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; background: #0d1a1c; overflow: hidden; }
     #traceMap { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; background: #0d1a1c; }
     .leaflet-container { background: #0d1a1c !important; font-family: inherit; }
     
     .map-hint {
-      position: absolute; top: 18px; left: 50%; z-index: 500; max-width: calc(100% - 36px); padding: 10px 16px;
+      position: absolute; top: 16px; left: 50%; z-index: 500; max-width: calc(100% - 36px); padding: 9px 18px;
       border: 1px solid var(--neon-mint); border-radius: 999px; color: var(--neon-mint); background: var(--panel-bg);
-      box-shadow: 0 0 20px rgba(0, 255, 178, 0.2); font-size: .72rem; font-weight: 700; text-align: center; transform: translateX(-50%); backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(0, 255, 178, 0.2); font-size: .75rem; font-weight: 700; text-align: center; transform: translateX(-50%); backdrop-filter: blur(12px); pointer-events: none;
     }
     
     .custom-marker-wrap { background: transparent; border: 0; }
     .map-marker {
-      position: relative; display: grid; width: 46px; height: 46px; border: 2px solid var(--neon-mint); border-radius: 50% 50% 50% 0;
+      position: relative; display: grid; width: 44px; height: 44px; border: 2px solid var(--neon-mint); border-radius: 50% 50% 50% 0;
       place-items: center; color: var(--abyss); background: var(--neon-mint); box-shadow: 0 0 15px rgba(0, 255, 178, 0.5); font-size: 1.1rem; transform: rotate(-45deg); transition: .25s ease;
     }
     .map-marker span { transform: rotate(45deg); }
     .map-marker.is-solved { color: var(--abyss); background: var(--wwf-med-green); border-color: var(--wwf-med-green); box-shadow: 0 0 15px rgba(140, 198, 63, 0.4); }
-    .map-marker.is-active { filter: drop-shadow(0 0 12px var(--neon-mint)); transform: rotate(-45deg) scale(1.16); }
+    .map-marker.is-active { filter: drop-shadow(0 0 12px var(--neon-mint)); transform: rotate(-45deg) scale(1.15); }
 
     .quiz-panel {
-      position: fixed; top: 92px; right: 18px; bottom: 18px; z-index: 800; display: flex; width: min(450px, calc(100% - 36px));
+      position: fixed; top: 88px; right: 18px; bottom: 18px; z-index: 800; display: flex; width: min(450px, calc(100% - 36px));
       overflow: hidden; border-radius: 20px; flex-direction: column; color: var(--white); background: var(--panel-bg);
-      border: 1px solid var(--neon-mint); box-shadow: 0 0 40px rgba(0, 255, 178, 0.2); transform: translateX(calc(100% + 40px)); visibility: hidden; transition: transform .35s cubic-bezier(.2, .8, .2, 1), visibility 0s .35s;
-      backdrop-filter: blur(10px);
+      border: 1px solid var(--neon-mint); box-shadow: 0 0 40px rgba(0, 255, 178, 0.25); transform: translateX(calc(100% + 40px)); visibility: hidden; transition: transform .35s cubic-bezier(.2, .8, .2, 1), visibility 0s .35s;
+      backdrop-filter: blur(14px);
     }
     .quiz-panel.is-open { transform: translateX(0); visibility: visible; transition: transform .35s cubic-bezier(.2, .8, .2, 1), visibility 0s; }
-    .quiz-head { position: relative; padding: 27px 58px 23px 24px; color: var(--white); background: rgba(0, 255, 178, 0.1); border-bottom: 1px solid var(--panel-border); }
-    .quiz-head h2 { margin: 8px 0 6px; font-family: var(--font-display); font-size: 1.65rem; font-weight: 700; color: var(--neon-mint); text-shadow: 0 0 10px rgba(0,255,178,0.3); }
+    .quiz-head { position: relative; padding: 24px 54px 20px 22px; color: var(--white); background: rgba(0, 255, 178, 0.08); border-bottom: 1px solid var(--panel-border); }
+    .quiz-head h2 { margin: 6px 0 4px; font-size: 1.4rem; font-weight: 700; color: var(--neon-mint); word-break: keep-all; }
     .quiz-head p { margin: 0; color: var(--mist); font-size: .75rem; }
-    .quiz-close { position: absolute; top: 15px; right: 15px; display: grid; width: 42px; height: 42px; border-radius: 13px; place-items: center; color: var(--neon-mint); background: rgba(0, 255, 178, 0.1); cursor: pointer; font-weight: 700; border: 1px solid rgba(0,255,178,0.3); }
-    .quiz-close:hover { background: rgba(0, 255, 178, 0.2); }
+    .quiz-close { position: absolute; top: 14px; right: 14px; display: grid; width: 40px; height: 40px; border-radius: 12px; place-items: center; color: var(--neon-mint); background: rgba(0, 255, 178, 0.1); cursor: pointer; font-weight: 700; border: 1px solid rgba(0,255,178,0.3); }
+    .quiz-close:hover { background: rgba(0, 255, 178, 0.25); }
     .quiz-body { min-height: 0; padding: 22px; flex: 1; overflow-y: auto; }
     
-    .turtle-chat { display: grid; grid-template-columns: 54px minmax(0, 1fr); align-items: start; gap: 12px; margin-bottom: 20px; }
-    .turtle-avatar { display: grid; width: 54px; height: 54px; border-radius: 50%; place-items: center; background: rgba(0, 255, 178, 0.1); border: 1px solid var(--neon-mint); font-size: 1.75rem; box-shadow: 0 0 15px rgba(0,255,178,0.2) inset; }
-    .turtle-bubble { position: relative; margin: 0; padding: 13px 14px; border: 1px solid var(--neon-mint); border-radius: 0 15px 15px 15px; color: var(--mist); background: rgba(0, 0, 0, 0.4); font-size: .79rem; line-height: 1.65; word-break: keep-all; font-weight: 400;}
-    .turtle-bubble em { color: var(--neon-mint); font-style: normal; font-weight: 700; text-shadow: 0 0 5px rgba(0,255,178,0.4); }
+    .turtle-chat { display: grid; grid-template-columns: 50px minmax(0, 1fr); align-items: start; gap: 12px; margin-bottom: 20px; }
+    .turtle-avatar { display: grid; width: 50px; height: 50px; border-radius: 50%; place-items: center; background: rgba(0, 255, 178, 0.1); border: 1px solid var(--neon-mint); font-size: 1.65rem; }
+    .turtle-bubble { margin: 0; padding: 14px; border: 1px solid var(--neon-mint); border-radius: 0 16px 16px 16px; color: var(--mist); background: rgba(0, 0, 0, 0.45); font-size: .82rem; line-height: 1.65; word-break: keep-all; }
+    .turtle-bubble em { color: var(--neon-mint); font-style: normal; font-weight: 700; }
     
-    .quiz-section { padding-top: 19px; border-top: 1px dashed var(--panel-border); }
-    .quiz-question { margin: 8px 0 15px; color: var(--white); font-size: .98rem; font-weight: 700; line-height: 1.55; word-break: keep-all; }
-    .quiz-options { display: grid; gap: 9px; }
+    .quiz-section { padding-top: 18px; border-top: 1px dashed var(--panel-border); }
+    .quiz-question { margin: 8px 0 14px; color: var(--white); font-size: .95rem; font-weight: 700; line-height: 1.55; word-break: keep-all; }
+    .quiz-options { display: grid; gap: 8px; }
     .quiz-option {
-      display: grid; min-height: 50px; padding: 11px 13px; border: 1px solid rgba(0, 255, 178, 0.3); border-radius: 12px;
-      grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 8px; color: var(--white); text-align: left; background: rgba(0, 0, 0, 0.4); cursor: pointer; font-size: .77rem; line-height: 1.48; transition: .18s ease; font-weight: 700;
+      display: grid; min-height: 48px; padding: 10px 14px; border: 1px solid rgba(0, 255, 178, 0.25); border-radius: 12px;
+      grid-template-columns: 26px minmax(0, 1fr); align-items: center; gap: 8px; color: var(--white); text-align: left; background: rgba(0, 0, 0, 0.4); cursor: pointer; font-size: .78rem; line-height: 1.48; transition: .18s ease; font-weight: 700;
     }
-    .quiz-option:hover:not(:disabled) { border-color: var(--neon-mint); background: rgba(0, 255, 178, 0.1); transform: translateY(-2px); box-shadow: 0 0 10px rgba(0,255,178,0.2); }
-    .quiz-option.is-correct { border-color: var(--wwf-med-green); color: var(--wwf-med-green); background: rgba(140, 198, 63, 0.1); }
-    .quiz-option.is-wrong { border-color: var(--wwf-red); color: var(--wwf-red); background: rgba(218, 29, 82, 0.1); }
-    .option-number { font-family: var(--font-display); font-size: 1rem; font-weight: 700;}
+    .quiz-option:hover:not(:disabled) { border-color: var(--neon-mint); background: rgba(0, 255, 178, 0.12); transform: translateY(-2px); }
+    .quiz-option.is-correct { border-color: var(--wwf-med-green); color: var(--wwf-med-green); background: rgba(140, 198, 63, 0.12); }
+    .quiz-option.is-wrong { border-color: var(--wwf-red); color: var(--wwf-red); background: rgba(218, 29, 82, 0.12); }
+    .option-number { font-size: .95rem; font-weight: 700; }
     
-    .quiz-feedback { margin-top: 14px; padding: 14px; border: 1px solid var(--wwf-med-green); border-radius: 12px; color: var(--mist); background: rgba(140, 198, 63, 0.05); font-size: .76rem; line-height: 1.58; animation: feedback-in .25s ease both; font-weight: 400;}
-    .quiz-feedback strong { display: block; margin-bottom: 5px; color: var(--wwf-med-green); font-weight: 700;}
+    .quiz-feedback { margin-top: 14px; padding: 14px; border: 1px solid var(--wwf-med-green); border-radius: 12px; color: var(--mist); background: rgba(140, 198, 63, 0.08); font-size: .76rem; line-height: 1.58; animation: feedback-in .25s ease both; }
+    .quiz-feedback strong { display: block; margin-bottom: 4px; color: var(--wwf-med-green); font-weight: 700; }
     
-    .source-note { margin-top: 17px; color: var(--muted); font-size: .66rem; line-height: 1.5; font-weight: 400;}
-    .source-note a { color: var(--neon-mint); text-underline-offset: 3px; font-weight: 700;}
+    .source-note { margin-top: 16px; color: var(--muted); font-size: .68rem; line-height: 1.5; }
+    .source-note a { color: var(--neon-mint); text-underline-offset: 3px; font-weight: 700; }
 
     /* ---------- TRACE 03 ---------- */
-    #trace3Screen {
-      background-color: #f4f8f9;
-      color: #333;
-      padding-bottom: 60px;
-    }
-    #trace3Screen .mission-topbar {
-      background: #101820;
-      color: white;
-      border-bottom: 1px solid rgba(0, 255, 178, 0.3);
-    }
-    .trace3-wrap {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      color: #333;
-    }
+    #trace3Screen { background-color: #f4f8f9; color: #333; padding-bottom: 60px; }
+    #trace3Screen .mission-topbar { background: #101820; color: white; border-bottom: 1px solid rgba(0, 255, 178, 0.3); }
+    .trace3-wrap { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
     .trace3-header { text-align: center; margin-bottom: 40px; }
-    .trace3-header h4 { color: #e76f51; font-size: 18px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
-    .trace3-header h1 { font-size: clamp(28px, 4vw, 40px); color: #101820; font-weight: 800; line-height: 1.3; word-break: keep-all; }
-    .trace3-header h1 span { color: #005b82; font-weight: 800; }
-    .trace3-header p { font-size: 16px; color: #555; margin-top: 12px; font-weight: 600; }
+    .trace3-header h4 { color: #e76f51; font-size: 16px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .trace3-header h1 { font-size: clamp(26px, 4vw, 38px); color: #101820; font-weight: 800; line-height: 1.3; word-break: keep-all; margin: 0; }
+    .trace3-header h1 span { color: #005b82; }
+    .trace3-header p { font-size: 15px; color: #555; margin-top: 12px; font-weight: 600; }
 
-    .trace3-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-    @media (max-width: 900px) { .trace3-grid { grid-template-columns: 1fr; } }
+    .trace3-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; }
+    @media (max-width: 960px) { .trace3-grid { grid-template-columns: 1fr; } }
 
-    .trace3-card {
-      background: #fff; border-radius: 24px; padding: 32px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.06); border: 2px solid #ebefef;
-      position: relative; overflow: hidden;
-    }
-    .trace3-badge {
-      position: absolute; top: 0; right: 28px; background: #297b48; color: white;
-      padding: 7px 18px; border-radius: 0 0 14px 14px; font-weight: 700; font-size: 14px;
-    }
-    .trace3-flow { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+    .trace3-card { background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.06); border: 2px solid #ebefef; position: relative; overflow: hidden; }
+    .trace3-badge { position: absolute; top: 0; right: 28px; background: #297b48; color: white; padding: 7px 18px; border-radius: 0 0 14px 14px; font-weight: 700; font-size: 13.5px; }
+    
+    .trace3-flow { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; }
     .trace3-flow-step { text-align: center; flex: 1; }
-    .trace3-flow-step .icon {
-      font-size: 28px; background: #e8f5e9; width: 54px; height: 54px; margin: 0 auto 8px;
-      display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08); transition: 0.3s;
-    }
-    .trace3-flow-step strong { display: block; font-size: 14px; color: #101820; margin-bottom: 2px; font-weight: 700; }
+    .trace3-flow-step .icon { font-size: 26px; background: #e8f5e9; width: 52px; height: 52px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+    .trace3-flow-step strong { display: block; font-size: 13.5px; color: #101820; margin-bottom: 2px; font-weight: 700; }
     .trace3-flow-step small { font-size: 11px; color: #777; font-weight: 600; }
     .trace3-flow-arrow { color: #bbb; font-size: 16px; margin-top: -24px; }
 
-    .trace3-story-title { font-size: 22px; font-weight: 800; color: #101820; margin-bottom: 18px; }
+    .trace3-story-title { font-size: 20px; font-weight: 800; color: #101820; margin-bottom: 18px; }
     .trace3-story-list { list-style: none; padding: 0; margin: 0; }
-    .trace3-story-list li { position: relative; padding-left: 28px; margin-bottom: 15px; font-size: 14.5px; line-height: 1.6; color: #444; word-break: keep-all; }
-    .trace3-story-list li::before { content: '🌊'; position: absolute; left: 0; top: 2px; font-size: 15px; }
+    .trace3-story-list li { position: relative; padding-left: 28px; margin-bottom: 14px; font-size: 14px; line-height: 1.6; color: #444; word-break: keep-all; }
+    .trace3-story-list li::before { content: '🌊'; position: absolute; left: 0; top: 2px; font-size: 14px; }
     .trace3-story-list li b { color: #005b82; font-weight: 700; background: linear-gradient(transparent 60%, #e8f5e9 60%); padding: 0 2px; }
-    .trace3-alert { background: rgba(231, 111, 81, 0.1); border-left: 4px solid #e76f51; padding: 14px 18px; border-radius: 0 12px 12px 0; margin-top: 20px; font-size: 13.5px; font-weight: 700; color: #d35400; line-height: 1.5; }
+    .trace3-alert { background: rgba(231, 111, 81, 0.1); border-left: 4px solid #e76f51; padding: 14px 18px; border-radius: 0 12px 12px 0; margin-top: 20px; font-size: 13px; font-weight: 700; color: #d35400; line-height: 1.5; }
 
-    .trace3-cert-panel {
-      background: #101820; border-radius: 28px; padding: 36px 30px; color: white;
-      box-shadow: 0 20px 40px rgba(16, 24, 32, 0.3); display: flex; flex-direction: column;
-    }
-    .trace3-padlet-box {
-      background: rgba(255,255,255,0.05); border: 2px dashed #297b48; border-radius: 20px;
-      padding: 28px 18px; text-align: center; margin-bottom: 24px;
-    }
-    .trace3-padlet-btn {
-      display: inline-flex; align-items: center; gap: 8px; background: #297b48; color: white;
-      padding: 13px 26px; border-radius: 30px; font-weight: 800; font-size: 15px; text-decoration: none;
-      box-shadow: 0 6px 18px rgba(41, 123, 72, 0.4); transition: 0.25s;
-    }
-    .trace3-padlet-btn:hover { background: #349658; transform: scale(1.03); }
+    .trace3-cert-panel { background: #101820; border-radius: 28px; padding: 36px 30px; color: white; box-shadow: 0 20px 40px rgba(16, 24, 32, 0.3); display: flex; flex-direction: column; }
+    .trace3-padlet-box { background: rgba(255,255,255,0.05); border: 2px dashed #297b48; border-radius: 20px; padding: 26px 18px; text-align: center; margin-bottom: 24px; }
+    .trace3-padlet-btn { display: inline-flex; align-items: center; gap: 8px; background: #297b48; color: white; padding: 13px 26px; border-radius: 30px; font-weight: 700; font-size: 14.5px; text-decoration: none; box-shadow: 0 6px 18px rgba(41, 123, 72, 0.4); transition: 0.25s; }
+    .trace3-padlet-btn:hover { background: #349658; transform: translateY(-2px); }
 
-    .trace3-input {
-      width: 100%; padding: 15px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06);
-      border-radius: 12px; font-size: 15px; color: white; outline: none; transition: 0.3s;
-    }
-    .trace3-input:focus { border-color: #00ffb2; background: rgba(255,255,255,0.1); }
-    .trace3-submit {
-      width: 100%; padding: 18px; background: #e76f51; color: white; border: none; border-radius: 16px;
-      font-weight: 800; font-size: 18px; cursor: pointer; transition: 0.3s; margin-top: 14px;
-    }
-    .trace3-submit:hover { background: #d65a3d; transform: translateY(-2px); }
+    .trace3-input { width: 100%; padding: 15px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); border-radius: 12px; font-size: 14.5px; color: white; outline: none; transition: 0.3s; }
+    .trace3-input:focus { border-color: var(--neon-mint); background: rgba(255,255,255,0.1); }
+    .trace3-submit { width: 100%; padding: 18px; background: #e76f51; color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 17px; cursor: pointer; transition: 0.3s; margin-top: 14px; }
+    .trace3-submit:hover:not(:disabled) { background: #d65a3d; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(231, 111, 81, 0.4); }
+    .trace3-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ---------- DIALOGS / TOAST ---------- */
     dialog { max-width: none; padding: 0; border: 0; color: inherit; background: transparent; }
@@ -703,109 +607,105 @@
 
     .unlock-dialog-card, .certificate-card {
       position: relative; width: min(520px, calc(100vw - 34px)); overflow: hidden; border: 1px solid var(--neon-mint);
-      border-radius: 20px; color: var(--white); background: var(--panel-bg); box-shadow: 0 0 40px rgba(0, 255, 178, 0.2); text-align: center;
+      border-radius: 20px; color: var(--white); background: var(--panel-bg); box-shadow: 0 0 40px rgba(0, 255, 178, 0.25); text-align: center;
+      backdrop-filter: blur(16px);
     }
-    .unlock-dialog-card { padding: 38px 28px 28px; }
+    .unlock-dialog-card { padding: 36px 28px 28px; }
     .unlock-icon {
-      display: grid; width: 96px; height: 96px; margin: 0 auto 18px; border: none;
+      display: grid; width: 92px; height: 92px; margin: 0 auto 18px; border: none;
       border-radius: 50%; place-items: center; color: var(--abyss); background: var(--neon-mint);
-      box-shadow: 0 0 30px rgba(0, 255, 178, 0.5); font-size: 2.7rem; animation: lock-pop .65s cubic-bezier(.2, .8, .2, 1.3);
+      box-shadow: 0 0 30px rgba(0, 255, 178, 0.5); font-size: 2.6rem; animation: lock-pop .65s cubic-bezier(.2, .8, .2, 1.3);
     }
-    .unlock-dialog-card h2 { margin: 8px 0 12px; font-family: var(--font-display); font-size: clamp(1.8rem, 7vw, 2.7rem); font-weight: 700; color: var(--neon-mint); text-shadow: 0 0 15px rgba(0,255,178,0.3); }
-    .unlock-dialog-card p { margin: 0 auto 22px; max-width: 440px; color: var(--mist); font-size: .9rem; line-height: 1.7; word-break: keep-all; font-weight: 400;}
+    .unlock-dialog-card h2 { margin: 8px 0 12px; font-size: clamp(1.8rem, 6vw, 2.5rem); font-weight: 700; color: var(--neon-mint); }
+    .unlock-dialog-card p { margin: 0 auto 22px; max-width: 440px; color: var(--mist); font-size: .9rem; line-height: 1.7; word-break: keep-all; }
     .dialog-actions { display: flex; justify-content: center; gap: 10px; }
 
-    .certificate-card { width: min(760px, calc(100vw - 34px)); max-height: 90vh; max-height: 90dvh; padding: 24px; overflow-y: auto; color: var(--white); }
+    .certificate-card { width: min(720px, calc(100vw - 34px)); max-height: 90vh; max-height: 90dvh; padding: 24px; overflow-y: auto; color: var(--white); }
     .certificate-paper {
-      position: relative; padding: clamp(34px, 7vw, 62px) 24px; border: 2px solid var(--neon-mint); border-radius: 20px;
-      background: rgba(0, 0, 0, 0.5); text-align: center; box-shadow: 0 0 20px rgba(0,255,178,0.1) inset;
+      position: relative; padding: clamp(32px, 6vw, 56px) 24px; border: 2px solid var(--neon-mint); border-radius: 18px;
+      background: rgba(0, 0, 0, 0.55); text-align: center; box-shadow: 0 0 20px rgba(0,255,178,0.1) inset;
     }
-    .certificate-paper::before, .certificate-paper::after { position: absolute; font-size: 2.3rem; content: "🐢"; filter: grayscale(1) opacity(0.3); }
-    .certificate-paper::before { top: 18px; left: 18px; transform: rotate(-16deg); }
-    .certificate-paper::after { right: 18px; bottom: 18px; transform: rotate(16deg); }
-    .certificate-paper h2 { margin: 12px 0; color: var(--neon-mint); font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 700; text-shadow: 0 0 15px rgba(0,255,178,0.3); }
+    .certificate-paper::before, .certificate-paper::after { position: absolute; font-size: 2.2rem; content: "🐢"; filter: grayscale(1) opacity(0.25); }
+    .certificate-paper::before { top: 16px; left: 16px; transform: rotate(-16deg); }
+    .certificate-paper::after { right: 16px; bottom: 16px; transform: rotate(16deg); }
+    .certificate-paper h2 { margin: 12px 0; color: var(--neon-mint); font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 700; }
     .certificate-code {
-      display: inline-block; margin: 10px 0 18px; padding: 8px 20px; border-bottom: 2px dashed var(--neon-mint); color: var(--neon-mint);
-      font-family: var(--font-display); font-size: clamp(1.2rem, 4vw, 1.7rem); font-weight: 700; letter-spacing: .08em;
+      display: inline-block; margin: 10px 0 18px; padding: 8px 22px; border-bottom: 2px dashed var(--neon-mint); color: var(--neon-mint);
+      font-size: clamp(1.2rem, 4vw, 1.6rem); font-weight: 700; letter-spacing: .08em;
     }
-    .certificate-paper p { max-width: 540px; margin: 0 auto; font-size: .88rem; line-height: 1.8; word-break: keep-all; font-weight: 400; color: var(--mist);}
-    .certificate-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
-    .certificate-stats span { padding: 8px 13px; border-radius: 999px; color: var(--neon-mint); background: rgba(0, 255, 178, 0.1); border: 1px solid var(--neon-mint); font-size: .75rem; font-weight: 700; box-shadow: 0 0 10px rgba(0,255,178,0.2); }
-    .certificate-actions { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
+    .certificate-paper p { max-width: 520px; margin: 0 auto; font-size: .88rem; line-height: 1.8; word-break: keep-all; color: var(--mist); }
+    .certificate-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 24px; }
+    .certificate-stats span { padding: 8px 14px; border-radius: 999px; color: var(--neon-mint); background: rgba(0, 255, 178, 0.1); border: 1px solid var(--neon-mint); font-size: .75rem; font-weight: 700; }
+    .certificate-actions { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
 
     .dialog-close-x {
-      position: absolute; top: 14px; right: 14px; z-index: 3; display: grid; width: 42px; height: 42px; border-radius: 13px;
+      position: absolute; top: 14px; right: 14px; z-index: 3; display: grid; width: 40px; height: 40px; border-radius: 12px;
       place-items: center; color: var(--neon-mint); background: rgba(0, 255, 178, 0.1); cursor: pointer; font-size: 1.1rem; font-weight: 700; border: 1px solid rgba(0,255,178,0.3);
     }
-    .dialog-close-x:hover { background: rgba(0, 255, 178, 0.2); }
+    .dialog-close-x:hover { background: rgba(0, 255, 178, 0.25); }
 
     .toast {
       position: fixed; bottom: max(24px, env(safe-area-inset-bottom)); left: 50%; z-index: 9999; max-width: calc(100% - 32px);
-      padding: 12px 19px; border: 1px solid var(--neon-mint); border-radius: 999px; color: var(--abyss);
-      background: rgba(0, 255, 178, 0.95); box-shadow: 0 0 20px rgba(0, 255, 178, 0.4); font-size: .78rem; font-weight: 700;
-      text-align: center; opacity: 0; pointer-events: none; transform: translate(-50%, 30px); transition: .28s ease; backdrop-filter: blur(12px);
+      padding: 12px 22px; border: 1px solid var(--neon-mint); border-radius: 999px; color: var(--abyss);
+      background: rgba(0, 255, 178, 0.96); box-shadow: 0 0 20px rgba(0, 255, 178, 0.4); font-size: .8rem; font-weight: 700;
+      text-align: center; opacity: 0; pointer-events: none; transform: translate(-50%, 25px); transition: .28s ease; backdrop-filter: blur(12px);
     }
     .toast.is-showing { opacity: 1; transform: translate(-50%, 0); }
 
     .particle {
-      position: fixed; z-index: 9998; width: 9px; height: 9px; border-radius: 50%; pointer-events: none;
-      animation: particle-burst .95s ease-out forwards;
+      position: fixed; z-index: 9998; width: 8px; height: 8px; border-radius: 50%; pointer-events: none;
+      animation: particle-burst .9s ease-out forwards;
     }
 
     @keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-9px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-5px); } }
-    @keyframes unlock-glow { 0% { box-shadow: 0 0 0 rgba(0, 255, 178, 0); } 45% { box-shadow: 0 0 40px rgba(0, 255, 178, .6); } 100% { box-shadow: 0 0 0 rgba(0, 255, 178, 0); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-4px); } }
+    @keyframes unlock-glow { 0% { box-shadow: 0 0 0 rgba(0, 255, 178, 0); } 50% { box-shadow: 0 0 45px rgba(0, 255, 178, .7); } 100% { box-shadow: 0 0 0 rgba(0, 255, 178, 0); } }
     @keyframes feedback-in { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
-    @keyframes lock-pop { from { opacity: 0; transform: scale(.35) rotate(-25deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+    @keyframes lock-pop { from { opacity: 0; transform: scale(.3) rotate(-25deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
     @keyframes particle-burst {
       from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
       to { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(.2) rotate(240deg); }
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes bouncePopup { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-15px) scale(1.05); } }
+    @keyframes bouncePopup { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-12px) scale(1.04); } }
+
+    /* ---------- PRINT STYLES FOR CERTIFICATE ---------- */
+    @media print {
+      body * { visibility: hidden; }
+      #certificateDialog, #certificateDialog * { visibility: visible; }
+      #certificateDialog {
+        position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+        background: white !important; color: black !important;
+      }
+      .certificate-card {
+        border: none !important; box-shadow: none !important; width: 100% !important; max-height: none !important;
+        background: white !important; color: black !important;
+      }
+      .certificate-paper {
+        border: 2px solid #00728f !important; background: #fff !important; color: #111 !important;
+      }
+      .certificate-paper h2, .certificate-code { color: #00728f !important; }
+      .certificate-paper p { color: #333 !important; }
+      .dialog-close-x, .certificate-actions { display: none !important; }
+    }
 
     @media (max-width: 900px) {
       .vault-heading { grid-template-columns: 1fr; }
-      .vault-heading .reset-journey { justify-self: start; }
       .vault-card-button { grid-template-columns: 80px minmax(0, 1fr); padding: 24px; }
-      .safe-lock { width: 70px; height: 70px; }
+      .safe-lock { width: 72px; height: 72px; }
       .safe-lock-center { font-size: 1.5rem; }
-      .lock-state-icon { width: 26px; height: 26px; font-size: 0.8rem; right: -2px; bottom: -2px; }
       .trace2-layout { grid-template-columns: 1fr; grid-template-rows: 40dvh minmax(0, 1fr); }
       .trace2-dock { grid-row: 2; border-right: none; border-top: 1px solid var(--panel-border); }
-      .dock-copy { padding: 15px 18px 10px; }
-      .dock-copy h1 { margin: 3px 0 5px; font-size: 1.25rem; }
-      .mission-list { display: grid; padding: 0 14px 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; }
-      .mission-item { min-height: 58px; }
-      .quiz-panel { top: 82px; right: 10px; bottom: 10px; width: calc(100% - 20px); }
+      .dock-copy { padding: 16px 18px 10px; }
+      .mission-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .quiz-panel { top: 76px; right: 10px; bottom: 10px; width: calc(100% - 20px); }
     }
 
-    @media (max-width: 720px) {
-      .intro { align-items: center; }
-      .intro-inner { width: min(100% - 32px, 1180px); padding-bottom: max(56px, env(safe-area-inset-bottom)); }
-      .intro-brand { margin-bottom: 22px; }
-      .intro-actions { align-items: stretch; flex-direction: column; }
-      .intro-start { width: 100%; }
-      .intro-note { text-align: center; }
-      .vault-screen { padding-right: 16px; padding-left: 16px; }
-      .vault-topbar { align-items: flex-start; }
-      .progress-chip { min-width: 126px; }
-      .vault-heading { margin-top: 42px; }
+    @media (max-width: 640px) {
       .vault-grid { grid-template-columns: 1fr; }
-      .vault-card { min-height: 0; }
-      .vault-card-button { min-height: 220px; padding: 23px; grid-template-columns: 75px minmax(0, 1fr); gap: 18px; }
-      .safe-lock { width: 75px; height: 75px; }
-      .safe-lock-center { font-size: 1.4rem; }
-      .lock-state-icon { width: 28px; height: 28px; font-size: .8rem; right: -3px; bottom: -3px; }
-      .vault-copy p { margin: 9px 0 13px; font-size: .79rem; }
-      .mission-topbar { min-height: 70px; }
-      .mission-heading strong { font-size: .78rem; }
-      
-      .trace2-progress > div:last-child { display: none; }
-      .trace2-layout { height: calc(100dvh - 70px); grid-template-rows: 35dvh minmax(0, 1fr); }
       .mission-list { grid-template-columns: 1fr; }
-      .mission-item { grid-template-columns: 38px minmax(0, 1fr) auto; }
-      .dock-actions { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+      .blog-floating-widget { right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); padding: 8px 14px 8px 10px; gap: 10px; }
+      .widget-turtle { font-size: 1.55rem; }
       .dialog-actions, .certificate-actions { flex-direction: column; }
       .dialog-actions button, .certificate-actions button { width: 100%; }
     }
@@ -816,13 +716,13 @@
   <a class="skip-link" href="#mainContent">본문으로 바로가기</a>
   <div class="sr-only" id="liveRegion" aria-live="polite"></div>
 
-  <!-- INTRO -->
+  <!-- INTRO SCREEN -->
   <section class="screen intro" id="introScreen" data-screen="intro" aria-labelledby="introTitle">
     <div class="intro-inner">
       <div class="intro-lockup">
         <div class="intro-brand">
           <div class="intro-brand-mark" aria-hidden="true">
-             <span style="color: var(--wwf-red); font-size: 1.5rem;">🧬</span>
+             <span style="color: var(--wwf-red);">🧬</span>
           </div>
           <div>
             <strong>WWF Rangers 2기</strong>
@@ -831,25 +731,25 @@
         <h1 id="introTitle">바다거북의<br>흔적을 추적하라</h1>
         <p class="intro-copy">
           바다거북이 남긴 단서를 따라, 보이지 않는 바다의 여정을 추적해보세요.<br>
-          레인저님의 1년 미션이 지금 시작됩니다.
+          레인저님의 1년 보전 여정이 지금 시작됩니다.
         </p>
         <div class="intro-actions">
           <button class="primary-btn intro-start" id="startJourney" type="button">
             추적 미션 시작하기 &nbsp; →
           </button>
-          <span class="intro-note">완료한 미션에 따라 다음 단계가 열립니다.</span>
+          <span class="intro-note">완료한 미션에 따라 순차적으로 다음 단계가 열립니다.</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- VAULT HUB (미션 보드) -->
+  <!-- VAULT HUB SCREEN -->
   <main class="screen vault-screen" id="mainContent" data-screen="vault" hidden>
     <div class="vault-shell">
       <header class="vault-topbar">
         <div class="mini-brand">
           <div class="mini-brand-icon" aria-hidden="true">
-            <span style="color: var(--wwf-red); font-size: 1.2rem;">🧬</span>
+            <span style="color: var(--wwf-red);">🧬</span>
           </div>
           <div>
             <strong>WWF Rangers 2기</strong>
@@ -880,7 +780,7 @@
       </section>
 
       <section class="vault-grid" aria-label="TRACE 미션 금고">
-        <!-- TRACE 01 -->
+        <!-- TRACE 01 (초기 OPEN) -->
         <article class="vault-card" id="traceCard1" data-trace-card="1">
           <button class="vault-card-button" type="button" data-open-trace="1">
             <span class="safe-lock" aria-hidden="true">
@@ -894,12 +794,12 @@
               </span>
               <h3>Trace 01. 나의 코드 등록하기</h3>
               <p>나만의 코드로 여정을 시작합니다.</p>
-              <span class="vault-cta" data-card-cta="1">등록 내용 확인 →</span>
+              <span class="vault-cta" data-card-cta="1">첫 번째 봉인 열기 →</span>
             </span>
           </button>
         </article>
 
-        <!-- TRACE 02 -->
+        <!-- TRACE 02 (초기 LOCKED) -->
         <article class="vault-card is-locked" id="traceCard2" data-trace-card="2">
           <button class="vault-card-button" type="button" data-open-trace="2">
             <span class="safe-lock" aria-hidden="true">
@@ -913,12 +813,12 @@
               </span>
               <h3>Trace 02. 위협 단서 찾기</h3>
               <p>바다거북의 위협 단서를 추적합니다.</p>
-              <span class="vault-cta" data-card-cta="2">해독 결과 열람 →</span>
+              <span class="vault-cta" data-card-cta="2">TRACE 01 완료 후 해제</span>
             </span>
           </button>
         </article>
 
-        <!-- TRACE 03 (웹페이지 직접 연결) -->
+        <!-- TRACE 03 (초기 LOCKED) -->
         <article class="vault-card is-locked" id="traceCard3" data-trace-card="3">
           <button class="vault-card-button" type="button" data-open-trace="3">
             <span class="safe-lock" aria-hidden="true">
@@ -932,12 +832,12 @@
               </span>
               <h3>Trace 03. 나의 바다 조각 완성하기</h3>
               <p>작은 바다 조각을 완성해 인증합니다.</p>
-              <span class="vault-cta" data-card-cta="3">미션 시작하기 →</span>
+              <span class="vault-cta" data-card-cta="3">TRACE 02 완료 후 해제</span>
             </span>
           </button>
         </article>
 
-        <!-- TRACE 04 -->
+        <!-- TRACE 04 (초기 LOCKED) -->
         <article class="vault-card is-locked" id="traceCard4" data-trace-card="4">
           <button class="vault-card-button" type="button" data-open-trace="4">
             <span class="safe-lock" aria-hidden="true">
@@ -951,7 +851,7 @@
               </span>
               <h3>Trace 04. 현장 미션 신청하기</h3>
               <p>제주 바다로 향하는 신청서가 열립니다.</p>
-              <span class="vault-cta" data-card-cta="4">신청서 바로가기 ↗</span>
+              <span class="vault-cta" data-card-cta="4">TRACE 03 완료 후 해제</span>
             </span>
           </button>
         </article>
@@ -966,7 +866,7 @@
         </span>
       </footer>
 
-      <!-- 🐢 WWF 네이버 블로그 바로가기 귀여운 바다거북 위젯 -->
+      <!-- WWF 네이버 블로그 플로팅 위젯 -->
       <a href="https://blog.naver.com/wwf-korea" target="_blank" rel="noopener noreferrer" class="blog-floating-widget" aria-label="WWF 공식 네이버 블로그 바로가기">
         <span class="widget-turtle">🐢</span>
         <span class="widget-text">
@@ -977,7 +877,7 @@
     </div>
   </main>
 
-  <!-- TRACE 01 -->
+  <!-- TRACE 01 SCREEN -->
   <section class="screen mission-screen" id="trace1Screen" data-screen="trace1" hidden aria-labelledby="trace1Title">
     <header class="mission-topbar">
       <button class="mission-back" type="button" data-back-vault aria-label="미션 금고로 돌아가기">←</button>
@@ -1019,13 +919,13 @@
 
         <div class="input-group">
           <div class="pledge-container">
-            <p class="pledge-text">"나는 WWF 레인저로서 바다거북의<br>흔적을 추적하고,<br>바다거북 보전 여정에 함께할 것을 다짐합니다."</p>
+            <p class="pledge-text">"나는 WWF레인저로서<br>바다거북의 흔적을 추적하고,<br>바다거북 보전 여정에 함께할 것을 다짐합니다."</p>
             <button type="button" class="stamp-btn locked" id="stampButton">다짐 완료</button>
             <div class="stamp-mark" id="stampMark" aria-hidden="true">SEALED</div>
           </div>
 
           <div class="insta-check-container">
-            <a href="https://www.instagram.com/wwfkorea/" target="_blank" class="insta-btn">@wwfkorea 확인하러 가기 🐼</a>
+            <a href="https://www.instagram.com/wwfkorea/" target="_blank" rel="noopener noreferrer" class="insta-btn">@wwfkorea 확인하러 가기 🐼</a>
             <div class="insta-small-text">
               WWF 인스타를 팔로우하셨나요?<br>바다거북뿐 아니라 WWF가 진행하는 다양한 보전활동을<br>가장 먼저 확인해보세요! 💙
             </div>
@@ -1052,14 +952,14 @@
     <div class="popup-overlay" id="finalPopup">
       <div class="popup-modal">
         <div class="popup-icon">🎉🐢🎉</div>
-        <h2>흔적 등록 완료!</h2>
-        <p>고유 코드 등록부터 서약까지,<br>모든 흔적을 완벽하게 남겼습니다!</p>
-        <button class="popup-close-btn" id="finalPopupClose" type="button">마지막 확인하기 ➔</button>
+        <h2>고유 코드 등록 완료!</h2>
+        <p>나만의 코드와 첫 다짐이 등록되었습니다.<br>이제 바다거북 추적 여정을 시작해 주세요.</p>
+        <button class="popup-close-btn" id="finalPopupClose" type="button">Trace 01 완료하기</button>
       </div>
     </div>
   </section>
 
-  <!-- TRACE 02 -->
+  <!-- TRACE 02 SCREEN -->
   <section class="screen mission-screen trace2-screen" id="trace2Screen" data-screen="trace2" hidden aria-labelledby="trace2Title">
     <header class="mission-topbar">
       <button class="mission-back" type="button" data-back-vault aria-label="미션 금고로 돌아가기">←</button>
@@ -1092,14 +992,14 @@
 
       <div class="trace2-map-wrap">
         <div id="traceMap" aria-label="바다거북 위협 단서 세계지도"></div>
-        <div class="map-hint">🐢 마커를 눌러 위협 단서를 해독하세요</div>
+        <div class="map-hint">🐢 지도 위 마커나 왼쪽 단서를 클릭해 해독하세요</div>
       </div>
     </div>
 
     <aside class="quiz-panel" id="quizPanel" aria-labelledby="quizTitle" aria-hidden="true">
       <div class="quiz-head">
         <button class="quiz-close" id="quizClose" type="button" aria-label="단서 패널 닫기">✕</button>
-        <small class="eyebrow" id="quizKicker">CLUE 01 · 플라스틱 오염</small>
+        <small class="eyebrow" id="quizKicker">Clue 01 · 플라스틱 오염</small>
         <h2 id="quizTitle">단서 제목</h2>
         <p id="quizLocation">단서 위치</p>
       </div>
@@ -1107,7 +1007,7 @@
     </aside>
   </section>
 
-  <!-- TRACE 03 (나만의 바다 조각 완성하기 웹페이지) -->
+  <!-- TRACE 03 SCREEN -->
   <section class="screen mission-screen" id="trace3Screen" data-screen="trace3" hidden aria-labelledby="trace3HeaderTitle">
     <header class="mission-topbar">
       <button class="mission-back" type="button" data-back-vault aria-label="미션 금고로 돌아가기">←</button>
@@ -1126,7 +1026,6 @@
       </div>
 
       <div class="trace3-grid">
-        <!-- Left: Story & Flow -->
         <div style="display:flex; flex-direction:column; gap:24px;">
           <div class="trace3-card">
             <div class="trace3-badge">CONTENTS FLOW</div>
@@ -1167,7 +1066,7 @@
               <li><b>디프다제주와 WWF의 협력:</b> 해양 시민단체 디프다제주는 세계자연기금(WWF)과 함께 제주 바다의 바다거북 서식지 보전 및 폐그물·플라스틱을 수거하는 해양 정화 프로젝트(봉그깅)를 펼치고 있습니다.</li>
               <li><b>기후변화와 99%의 암컷:</b> 산란지 모래 온도가 높아지면서 새끼 거북의 99% 이상이 암컷으로 부화하는 심각한 성비 불균형(자성화) 현상이 발생하여 생존이 위협받고 있습니다.</li>
               <li><b>치명적인 플라스틱 1조각:</b> 플라스틱을 단 1조각만 섭취해도 바다거북의 사망 확률은 22%에 달합니다. 국내 전체 해양 쓰레기 중 약 50%가 플라스틱일 만큼 문제는 심각합니다.</li>
-              <li><b>쉘 뱅크(Shell Bank) 등록:</b> 해안에서 발견된 바다거북 사체의 유전자 정보는 WWF의 글로벌 데이터베이스인 '쉘 뱅크'에 등록되어 전 세계적인 보전 전략 수립에 핵심 단서로 쓰이게 됩니다.</li>
+              <li><b>쉘 뱅크(ShellBank) 등록:</b> 해안에서 발견된 바다거북 사체의 유전자 정보는 WWF의 글로벌 데이터베이스인 '쉘 뱅크'에 등록되어 전 세계적인 보전 전략 수립에 핵심 단서로 쓰이게 됩니다.</li>
             </ul>
             <div class="trace3-alert">
               🚨 잠깐! 발견일, 종, 서열 등 민감한 데이터의 공개 범위는 보전팀의 엄격한 검수를 거쳐 안전하게 관리됩니다.
@@ -1175,7 +1074,6 @@
           </div>
         </div>
 
-        <!-- Right: Certification Form -->
         <div class="trace3-cert-panel">
           <div style="text-align:center; margin-bottom:24px;">
             <h2 style="font-size:26px; font-weight:800; color:#b1dfdc; margin-bottom:8px;">🐢 레인저 미션 인증</h2>
@@ -1183,25 +1081,25 @@
           </div>
 
           <div class="trace3-padlet-box">
-            <div style="font-size:42px; margin-bottom:10px;">🌊📸</div>
-            <div style="font-size:18px; font-weight:800; margin-bottom:6px;">STEP 1. 완성된 키링 사진 자랑하기</div>
+            <div style="font-size:40px; margin-bottom:10px;">🌊📸</div>
+            <div style="font-size:17px; font-weight:800; margin-bottom:6px;">STEP 1. 완성된 키링 사진 자랑하기</div>
             <div style="font-size:13px; color:#a3d9c9; margin-bottom:16px;">가장 예쁘게 찍힌 나만의 바다 조각을 패들렛에 올려주세요!</div>
             <a href="https://padlet.com" target="_blank" class="trace3-padlet-btn" rel="noopener noreferrer">
               패들렛 갤러리로 이동 ➔
             </a>
           </div>
 
-          <div style="font-size:16px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; margin-bottom:14px;">
+          <div style="font-size:15px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:8px; margin-bottom:14px;">
             STEP 2. 레인저 흔적 남기기
           </div>
 
           <div style="margin-bottom:16px;">
-            <label style="display:block; font-size:13px; font-weight:700; color:#a3d9c9; margin-bottom:6px;">🔑 레인저 임명 코드 (8자리)</label>
+            <label for="t3-ranger-code" style="display:block; font-size:13px; font-weight:700; color:#a3d9c9; margin-bottom:6px;">🔑 레인저 임명 코드 (8자리)</label>
             <input type="text" id="t3-ranger-code" class="trace3-input" placeholder="발급받은 나의 레인저 코드 입력" maxlength="8" autocapitalize="characters">
           </div>
 
           <div style="margin-bottom:16px;">
-            <label style="display:block; font-size:13px; font-weight:700; color:#a3d9c9; margin-bottom:6px;">🌊 지키고 싶은 바다 (한 줄 소감)</label>
+            <label for="t3-trace-note" style="display:block; font-size:13px; font-weight:700; color:#a3d9c9; margin-bottom:6px;">🌊 지키고 싶은 바다 (한 줄 소감)</label>
             <textarea id="t3-trace-note" class="trace3-input" style="min-height:90px; resize:vertical;" placeholder="키링을 완성하며 느낀 점이나, 내가 지키고 싶은 바다의 모습을 자유롭게 적어주세요!"></textarea>
           </div>
 
@@ -1217,7 +1115,7 @@
     </div>
   </section>
 
-  <!-- TRACE 01 & 03 제출 싱크 폼 -->
+  <!-- DATA SUBMISSION FORM SINK -->
   <iframe name="traceSink" id="traceSink" title="제출 처리" hidden></iframe>
   
   <form id="remoteTrace1Form" method="post" target="traceSink" hidden>
@@ -1234,48 +1132,50 @@
     <input type="hidden" name="photoData" value="Uploaded_to_Padlet"> 
   </form>
 
-  <!-- TRACE 02 완료 알림 모달 -->
+  <!-- 잠금 해제 안내 모달 -->
   <dialog id="unlockDialog" aria-labelledby="unlockDialogTitle">
     <div class="unlock-dialog-card">
       <button class="dialog-close-x" id="unlockDialogClose" type="button" aria-label="잠금 해제 알림 닫기">✕</button>
       <div class="unlock-icon" id="unlockDialogIcon" aria-hidden="true">🔓</div>
-      <p class="eyebrow" id="unlockDialogEyebrow">TRACE 02 COMPLETE</p>
-      <h2 id="unlockDialogTitle">위협 단서 해독 완료</h2>
+      <p class="eyebrow" id="unlockDialogEyebrow">TRACE 01 COMPLETE</p>
+      <h2 id="unlockDialogTitle">고유 코드 등록 완료</h2>
       <p id="unlockDialogCopy">
-        8개의 단서를 따라 바다거북이 마주한 위협을 확인했습니다.<br>
-        이제 다음 Trace에서는 제주 바다거북 보전 활동과 나의 바다 조각 미션을 만나게 됩니다.
+        나만의 코드로 바다거북 여정이 시작되었습니다.<br>
+        이제 Trace 02에서 바다거북이 마주한 위협 단서를 확인해보세요.
       </p>
       <div class="dialog-actions">
         <button class="ghost-btn" id="unlockDialogVault" type="button">미션 보드 보기</button>
-        <button class="primary-btn" id="unlockDialogNext" type="button">TRACE 03 확인하기</button>
+        <button class="primary-btn" id="unlockDialogNext" type="button">TRACE 02 시작하기</button>
       </div>
     </div>
   </dialog>
 
-  <!-- TRACE 02 인증서 모달 -->
+  <!-- TRACE 02 수료 인증서 모달 -->
   <dialog id="certificateDialog" aria-labelledby="certificateTitle">
     <div class="certificate-card">
       <button class="dialog-close-x" id="certificateClose" type="button" aria-label="인증서 닫기">✕</button>
       <div class="certificate-paper">
-        <small style="color:var(--neon-mint);font-weight:900;letter-spacing:.16em">TRACE 02 - 위협 단서 찾기</small>
+        <small style="color:var(--neon-mint);font-weight:700;letter-spacing:.16em">TRACE 02 - 위협 단서 찾기</small>
         <h2 id="certificateTitle">위협 단서 해독 인증서</h2>
         <div class="certificate-code" id="certificateCode">WWF 바다거북 레인저</div>
         <p>
-          위 레인저는 바다거북이 마주한 4가지 주요 위협 플라스틱 오염, 혼획, 기후변화, 불법 포획·거래를 학습하고, 8개의 위협 단서를 모두 확인했음을 인증합니다.
+          위 레인저는 바다거북이 마주한 4가지 주요 위협인 플라스틱 오염, 혼획, 기후변화, 불법 포획·거래를 학습하고, 8개의 위협 단서를 모두 해독했음을 공식 인증합니다.
         </p>
         <div class="certificate-stats">
           <span>TRACE 02 완료 8/8 CLEAR</span>
+          <span>SHELLBANK DATA SYNCED</span>
         </div>
       </div>
       <div class="certificate-actions">
         <button class="ghost-btn" id="certificateBack" type="button">미션 보드로 돌아가기</button>
-        <button class="primary-btn" id="certificatePrint" type="button">인증서 PDF 저장</button>
+        <button class="primary-btn" id="certificatePrint" type="button">인증서 PDF 저장 📄</button>
       </div>
     </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <!-- LEAFLET JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
@@ -1285,10 +1185,11 @@
       const CONFIG = Object.freeze({
         trace1Endpoint: "https://script.google.com/macros/s/AKfycbzwSnpb7aU1gRRRRFrkqceO5fGreegibt2tnM11ONi52-318pE_EO8wQ6xGqX_Y6KpgmQ/exec",
         trace4Url: "https://forms.cloud.microsoft/pages/responsepage.aspx?id=4_I-hC_LHkKfic990TqP333EORmjkbNFp9Am5C-CudpUMjZYQU8yWE5TMEZJMjU4MjAxV0NUV0xLUC4u&route=shorturl",
-        submissionFallbackMs: 6500
+        submissionFallbackMs: 5000
       });
 
-      const STORAGE_KEY = "wwf_rangers_2nd_vault_v4";
+      // 스토리지 키 버전 갱신 (초기 상태 보장)
+      const STORAGE_KEY = "wwf_rangers_2nd_vault_v8";
 
       const defaultState = Object.freeze({
         version: 1,
@@ -1309,76 +1210,156 @@
 
       const missions = [
         {
-          id: 1, lat: 25, lng: -140, zone: "CLUE 01 · 플라스틱 오염", icon: "🥤",
-          title: "먹이로 착각한 플라스틱", location: "태평양 해양 쓰레기 지대",
-          story: "바다거북은 떠다니는 비닐을 먹이로 착각할 수 있어요. 삼킨 플라스틱은 소화기관을 막거나 포만감을 일으켜 생존을 위협합니다.",
-          question: "바다거북이 비닐을 먹이로 착각해 삼켰을 때 생길 수 있는 문제는 무엇일까요?",
-          options: ["소화기관이 막히거나 영양 섭취가 어려워진다", "헤엄치는 속도가 갑자기 빨라진다", "등딱지가 투명하게 변한다", "물 밖에서 더 오래 숨을 쉴 수 있다"],
+          id: 1,
+          lat: 25.0,
+          lng: -140.0,
+          clueLabel: "Clue 01 · 플라스틱 오염",
+          title: "먹이로 착각한 플라스틱",
+          location: "북태평양 쓰레기 집적 해역",
+          icon: "🥤",
+          story: "안녕! 난 말 한 마리만큼 무거워질 수 있는 커다란 장수거북(Leatherback)이야! 나는 내가 태어난 인도네시아의 외딴섬 해변에 알을 낳으러 캘리포니아 바다에서부터 태평양을 가로질러 무려 <em>10,000km가 넘는 엄청난 여행</em>을 해! 그런데 바다에 둥둥 떠다니는 <em>비닐봉지</em>를 내가 좋아하는 해파리로 착각해 실수로 먹을 뻔했지 뭐야. 우리가 <em>플라스틱 오염</em> 때문에 음식을 착각해서 큰 피해를 보고 있어. 🐢💦",
+          question: "Q1. 바다거북이 비닐을 먹이로 착각하면 어떤 문제가 생길까?",
+          options: [
+            "소화관이 막히거나 내부가 손상되어 영양실조와 폐사 위험이 커진다",
+            "에너지가 솟아나서 헤엄을 더 빨리 친다",
+            "등딱지가 투명하게 변신한다",
+            "물 위를 통통 튕기며 날아갈 수 있게 된다"
+          ],
           answer: 0,
-          explanation: "플라스틱을 삼키면 장이 막히거나 실제 먹이를 충분히 먹지 못해 쇠약해질 수 있습니다."
+          explanation: "장수거북은 비닐을 해파리 같은 먹이로 착각해 삼킬 수 있습니다. 삼킨 플라스틱은 소화관을 막거나 내부에 상처를 내고, 거짓 포만감과 영양실조를 일으켜 생명을 위협할 수 있습니다."
         },
         {
-          id: 2, lat: 35, lng: 129, zone: "CLUE 02 · 플라스틱 오염", icon: "♻️",
-          title: "바다로 흘러간 쓰레기", location: "도시와 연결된 해안",
-          story: "육지에서 버려진 플라스틱도 강과 빗물 배수로를 따라 바다로 이동합니다. 일상에서 발생 자체를 줄이는 행동이 중요해요.",
-          question: "플라스틱의 해양 유입을 줄이는 행동으로 가장 적절한 것은 무엇일까요?",
-          options: ["일회용 컵을 여러 겹 겹쳐 사용한다", "텀블러와 장바구니를 쓰고 주변 쓰레기를 줍는다", "해변의 쓰레기를 모래 속에 묻는다", "비가 오면 자연히 사라질 것이라고 생각한다"],
+          id: 2,
+          lat: 35.0,
+          lng: 129.0,
+          clueLabel: "Clue 02 · 플라스틱 오염",
+          title: "바다로 흘러간 쓰레기",
+          location: "도심 하천과 해안가",
+          icon: "♻️",
+          story: "바다 멀리 육지에 사는 친구들도 우릴 도와줄 수 있어! 도로와 하천 주변에 버려진 쓰레기 일부는 빗물과 물길을 따라 바다까지 흘러올 수 있거든. 바다거북이 건강하게 자라려면 깨끗한 바다가 꼭 필요해. 그래서 동네나 학교, 공원에서 쓰레기를 줍고 플라스틱을 덜 쓰는 멋진 습관이 필요해. 플라스틱 사용을 줄이고, <em>다시 사용할 수 있는 물병과 장바구니</em>를 이용하며, 쓰레기는 올바르게 <em>분리배출</em>해 줄래? ♻️",
+          question: "Q2. 플라스틱의 해양 유입을 줄이는 행동은 무엇일까?",
+          options: [
+            "일회용 컵을 두 개씩 겹쳐서 멋지게 쓴다",
+            "텀블러와 장바구니를 쓰고, 주변 쓰레기를 줍는다",
+            "쓰레기를 모래 속에 아주 깊이 숨겨둔다",
+            "아무데나 버려도 비가 오면 다 씻겨 내려갈 거라 믿는다"
+          ],
           answer: 1,
-          explanation: "재사용 제품을 선택하고 올바르게 배출하며, 유출되기 전 쓰레기를 수거하는 행동이 도움이 됩니다."
+          explanation: "일상 속에서 일회용품 대신 다회용품을 사용하고, 올바르게 분리배출하며 쓰레기 줍기 활동을 하는 것이 바다를 지키는 큰 힘이 됩니다."
         },
         {
-          id: 3, lat: 10, lng: 110, zone: "CLUE 03 · 혼획", icon: "🕸️",
-          title: "어망에 걸린 바다거북", location: "남중국해 어업 해역",
-          story: "바다거북은 아가미가 없어 수면으로 올라와 숨을 쉬어야 합니다. 어업 장비에 우연히 걸리면 수면에 도달하지 못할 수 있어요.",
-          question: "‘혼획’은 무엇을 의미할까요?",
-          options: ["바다거북이 무리를 지어 이동하는 행동", "목표 어종이 아닌 바다거북 등이 어구에 우연히 잡히는 현상", "바다거북 전용 보호구역의 이름", "구조된 거북이를 바다로 돌려보내는 활동"],
+          id: 3,
+          lat: 10.0,
+          lng: 110.0,
+          clueLabel: "Clue 03 · 혼획",
+          title: "어망에 걸린 바다거북",
+          location: "남중국해 어장",
+          icon: "🕸️",
+          story: "휴, 10,000km를 헤엄치는 건 정말 쉽지 않은 일이야! 이 길고 험난한 여행 중에 어업에서는 물고기를 잡기 위해 그물과 낚싯줄 같은 여러 어구를 사용해. 우리는 물고기처럼 아가미로 숨 쉬는 동물이 아니야. <em>폐로 호흡</em>하기 때문에 반드시 수면 위로 올라와야 하는데, 그물이나 낚싯줄에 걸리면 수면으로 올라오지 못해 <em>익사</em>할 수 있어 😭",
+          question: "Q3. '혼획'은 무엇을 의미할까?",
+          options: [
+            "거북이가 다른 거북이를 등에 업고 헤엄치는 재미있는 놀이",
+            "원래 잡으려던 어종이 아닌 바다거북이 의도치 않게 어구에 잡히거나 얽히는 현상",
+            "바다거북 전용 보호 구역을 부르는 특별한 말",
+            "어부들이 거북이에게 맛있는 먹이를 주는 행동"
+          ],
           answer: 1,
-          explanation: "혼획은 어업 과정에서 목표로 하지 않은 해양생물이 의도치 않게 함께 잡히는 현상입니다."
+          explanation: "혼획은 어업 활동 중 원래 잡으려던 목적 어종이 아닌, 바다거북이나 돌고래 같은 해양 생물이 의도치 않게 어구에 낚이거나 얽히는 현상을 말해요."
         },
         {
-          id: 4, lat: -10, lng: 140, zone: "CLUE 04 · 혼획", icon: "⚓",
-          title: "바다거북을 위한 안전한 어업", location: "호주 연안 어업구역",
-          story: "어업 방식과 장비를 개선하면 혼획을 줄일 수 있습니다. 그물에 탈출구를 두거나 종과 어업에 맞는 저감 장치를 활용하는 방식이 연구되고 있어요.",
-          question: "바다거북 혼획을 줄이기 위한 노력으로 알맞은 것은 무엇일까요?",
-          options: ["그물을 더 촘촘하게 만든다", "바다거북 탈출장치 등 혼획 저감 장비를 사용한다", "그물 주변에 더 밝은 조명을 켠다", "조업 시간을 무조건 늘린다"],
+          id: 4,
+          lat: -10.0,
+          lng: 140.0,
+          clueLabel: "Clue 04 · 혼획",
+          title: "바다거북을 위한 안전한 어업",
+          location: "호주 북부 새우 트롤 어업 구역",
+          icon: "⚓",
+          story: "대부분의 어업인들은 바다거북을 잡으려는 것이 아니라 물고기나 새우를 잡는 과정에서 의도치 않게 우리를 혼획하게 돼. 그래서 해양 과학자들과 어민들은 트롤망에 들어온 바다거북이 빠져나갈 수 있도록 특별한 비상구인 <em>바다거북 탈출장치(TED)</em>를 개발했어 🛠️ 트롤망을 사용하는 어선들이 이 장치를 올바르게 설치하면 바다거북의 혼획과 익사 위험을 크게 줄일 수 있대!",
+          question: "Q4. 바다거북 혼획을 줄이려면 어떤 노력이 필요할까?",
+          options: [
+            "그물을 거북이 크기보다 더 크고 촘촘하게 만든다",
+            "트롤망에 바다거북 탈출장치(TED)를 설치하고 혼획 저감 어구를 사용한다",
+            "거북이가 무서워하는 요란한 사이렌 소리를 물속에 튼다",
+            "그물에 거북이가 싫어하는 매운 냄새를 바른다"
+          ],
           answer: 1,
-          explanation: "바다거북 탈출장치(TED)와 같은 혼획 저감 장비는 거북이가 그물에서 빠져나올 가능성을 높입니다."
+          explanation: "트롤어업에서는 바다거북 탈출장치(TED)를 설치해 거북이가 그물 밖으로 빠져나가도록 할 수 있습니다. 연승어업에서는 큰 원형바늘과 특정 미끼의 조합을 사용하면 혼획과 부상을 크게 줄일 수 있습니다."
         },
         {
-          id: 5, lat: -4.5, lng: 120, zone: "CLUE 05 · 기후변화", icon: "🌡️",
-          title: "뜨거워지는 산란 해변", location: "인도네시아 산란 해변",
-          story: "바다거북 알의 부화 환경은 모래 온도의 영향을 받습니다. 기후변화로 모래가 지나치게 따뜻해지면 새끼의 성비가 크게 달라질 수 있어요.",
-          question: "모래 온도가 지나치게 높아질 때 바다거북 새끼의 성비에는 어떤 변화가 나타날 수 있을까요?",
-          options: ["수컷 비율만 크게 높아진다", "성비에는 아무 영향이 없다", "암컷 비율이 지나치게 높아질 수 있다", "모든 알이 쌍둥이로 부화한다"],
+          id: 5,
+          lat: 10.0,
+          lng: -85.0,
+          clueLabel: "Clue 05 · 기후변화",
+          title: "뜨거워지는 산란지",
+          location: "중미 코스타리카 산란지",
+          icon: "🌡️",
+          story: "영차! 이번에는 코스타리카 산란지에 사는 내 장수거북 친구의 이야기를 들려줄게! 엄마 장수거북은 튼튼한 앞지느러미로 무거운 몸을 끌고 모래사장에 올라온 뒤, 뒷지느러미로 알을 낳을 깊은 둥지를 파. 그리고 당구공만 한 알을 약 80개 낳고 주변 모래를 흩뿌려 둥지 자국을 감춰. 그런데 요즘 지구가 뜨거워지면서 <em>둥지의 모래 온도</em>도 높아지고 있어 🔥",
+          question: "Q5. 기후변화로 산란지의 모래 온도가 높아지면 새끼 바다거북의 성비에 어떤 변화가 생길까?",
+          options: [
+            "알에서 튼튼한 수컷 거북이만 태어난다",
+            "성비에는 아무런 영향이 없고 크기만 커진다",
+            "암컷의 비율이 크게 높아져 성비 불균형이 생길 수 있다",
+            "쌍둥이 거북이가 태어날 확률이 엄청나게 높아진다"
+          ],
           answer: 2,
-          explanation: "많은 바다거북은 부화 온도가 성 결정에 영향을 주며, 높은 온도는 암컷 비율을 높일 수 있습니다."
+          explanation: "바다거북은 알이 부화하는 모래 온도에 따라 성별이 결정됩니다. 온도가 높을수록 암컷 비율이 높아지며, 기후변화로 인한 고온 현상은 심각한 성비 불균형과 부화율 저하를 유발합니다."
         },
         {
-          id: 6, lat: 25, lng: -80, zone: "CLUE 06 · 산란지 훼손", icon: "🏝️",
-          title: "사라지는 산란 해변", location: "플로리다 산란 해변",
-          story: "해안 개발, 해수면 상승, 강한 폭풍은 산란 해변과 둥지를 훼손합니다. 밤의 인공조명은 새끼 거북이 바다 반대편으로 향하게 만들 수 있어요.",
-          question: "해안의 인공조명과 개발이 바다거북에게 미치는 영향은 무엇일까요?",
-          options: ["새끼가 방향을 잃고 산란 가능한 해변이 줄어든다", "먹이가 해변으로 더 많이 모인다", "등딱지가 더 단단해진다", "부화 기간이 항상 절반으로 줄어든다"],
+          id: 6,
+          lat: 25.0,
+          lng: -80.0,
+          clueLabel: "Clue 06 · 산란지 훼손",
+          title: "사라지는 산란 해변",
+          location: "미국 플로리다 해안",
+          icon: "🏝️",
+          story: "미국 플로리다 해안에서는 엄마 거북이 알을 낳고 바다로 돌아간 뒤 약 두 달이 지나면 새끼 거북들이 부화해 바다를 향해 달려가! 그런데 밤새 켜진 건물의 <em>인공 불빛</em>은 새끼들이 바다 대신 육지 쪽으로 잘못 이동하게 만들어. <em>해안 개발</em>은 산란할 해변을 줄이고, <em>해수면 상승</em>은 둥지를 물에 잠기게 하지. 해변에서는 둥지를 건드리지 말고 밤에는 불빛을 줄여줘! 🏖️",
+          question: "Q6. 해안개발·광공해·해수면 상승은 산란지에 어떤 영향을 줄까?",
+          options: [
+            "인공 불빛은 새끼 거북의 방향을 흐트러뜨리고, 해안 개발은 산란 공간을 줄이며, 해수면 상승은 둥지를 침수시킨다",
+            "새끼 거북이들이 숨바꼭질하기 딱 좋은 복잡한 환경이 된다",
+            "거북이의 먹이가 해변으로 더 많이 밀려와서 살기 좋아진다",
+            "거북이가 더 튼튼하고 거대하게 자랄 수 있게 해준다"
+          ],
           answer: 0,
-          explanation: "빛 공해는 새끼 거북의 방향 감각을 흐리고, 개발과 해수면 상승은 안전한 산란 공간을 줄입니다."
+          explanation: "인공 불빛은 달빛을 지표 삼아 바다로 향하는 새끼 바다거북을 혼란에 빠뜨립니다. 해안 개발과 해수면 상승은 산란지를 침식시키고 둥지를 침수시켜 번식을 위협합니다."
         },
         {
-          id: 7, lat: 18, lng: 105, zone: "CLUE 07 · 불법 포획·거래", icon: "⚠️",
-          title: "거래되는 바다거북", location: "동남아시아 거래 경로",
-          story: "일부 바다거북은 고기·알·가죽·등딱지 제품을 위해 불법적으로 포획됩니다. 특히 대모거북의 등딱지로 만든 장신구는 멸종위기종을 해치는 실제 제품일 수 있어요.",
-          question: "불법 거래 대상이 될 수 있는 바다거북 관련 제품은 무엇일까요?",
-          options: ["바다거북이 그려진 종이 엽서", "대모거북 등딱지로 만든 장신구와 공예품", "재활용 천으로 만든 거북이 인형", "바다거북 보호구역 안내 지도"],
+          id: 7,
+          lat: 18.0,
+          lng: 105.0,
+          clueLabel: "Clue 07 · 불법 포획·거래",
+          title: "거래되는 바다거북",
+          location: "동남아시아 불법 거래 사례",
+          icon: "⚠️",
+          story: "오랫동안 이어진 <em>'밀렵(Poaching)'</em>과 불법 거래 때문에 살아남는 거북이가 점점 줄어들고 있어서 너무 슬퍼. 사람들이 우리의 알을 몰래 훔쳐가거나, 예쁜 무늬를 가진 친구들의 <em>등딱지</em>를 탐내고 있거든. 😢",
+          question: "Q7. 불법 거래 대상이 되는 바다거북 관련 제품은 무엇일까?",
+          options: [
+            "바다거북이 흘린 감동적인 눈물로 만든 향수",
+            "대모거북 등딱지로 만든 장신구·공예품과 바다거북의 고기·알",
+            "바다거북이 모아둔 예쁜 조개껍데기 목걸이",
+            "거북이 모양의 친환경 플라스틱 장난감"
+          ],
           answer: 1,
-          explanation: "대모거북 등딱지로 만든 장신구와 공예품은 실제 바다거북을 희생해 만들어질 수 있습니다."
+          explanation: "대모거북의 아름다운 등딱지는 안경테, 빗, 장신구 등으로 불법 가공·거래되며, 알과 고기 또한 불법 밀렵의 주된 대상이 되고 있습니다."
         },
         {
-          id: 8, lat: 51.5, lng: -0.1, zone: "CLUE 08 · DNA 추적", icon: "🧬",
-          title: "ShellBank가 찾는 단서", location: "글로벌 DNA 추적망",
-          story: "ShellBank는 압수된 바다거북이나 제품에서 얻은 DNA를 기준 데이터와 비교해, 영향을 받은 개체군과 가능한 기원을 추적하는 데 도움을 줍니다.",
-          question: "ShellBank의 DNA 정보가 불법 거래 수사에 제공할 수 있는 핵심 단서는 무엇일까요?",
-          options: ["거래자의 정확한 이름과 비밀번호", "제품의 판매 가격", "압수품이 유래했을 가능성이 높은 산란 개체군과 지역", "거북이가 이동한 모든 날짜와 시간"],
+          id: 8,
+          lat: 51.5,
+          lng: -0.1,
+          clueLabel: "Clue 08 · DNA 추적",
+          title: "ShellBank가 찾는 단서",
+          location: "ShellBank 글로벌 DNA 데이터베이스",
+          icon: "🧬",
+          story: "희망적인 소식도 있어! 압수된 바다거북이나 등딱지 제품에서 DNA를 추출해 불법 거래의 경로를 추적하는 글로벌 프로젝트 <em>'ShellBank'</em>가 활약하고 있대! ShellBank는 수집된 DNA 데이터를 참조 자료와 비교해 해당 제품이 어느 산란 개체군에서 유래했는지 추적하여 시급한 보전 지역을 파악할 수 있게 해줘. 🧬✨",
+          question: "Q8. ShellBank는 압수된 바다거북 제품의 DNA를 분석해 무엇을 추적할까?",
+          options: [
+            "밀렵꾼 개인의 정확한 이름과 집 주소",
+            "거북이가 바다에서 만났던 친구들의 목록",
+            "제품이 유래한 바다거북의 산란 개체군이나 원산 지역",
+            "불법 거래자들이 벌어들인 정확한 판매 금액"
+          ],
           answer: 2,
-          explanation: "DNA 비교를 통해 압수품이 어느 산란 개체군과 연결되는지 추정하고, 보호와 단속이 필요한 지역을 찾을 수 있습니다."
+          explanation: "ShellBank는 압수된 바다거북 가공품의 DNA를 분석하여 원산지 및 산란 개체군을 추적함으로써 불법 거래 네트워크를 차단하고 취약 개체군을 보호합니다."
         }
       ];
 
@@ -1421,7 +1402,7 @@
           safe.trace3Complete = Boolean(parsed.trace3Complete);
           safe.trace4Visited = Boolean(parsed.trace4Visited);
         } catch (error) {
-          console.warn("State load failed", error);
+          console.warn("State load error", error);
         }
         return safe;
       }
@@ -1449,7 +1430,7 @@
           screen.hidden = screen !== target;
         });
         currentScreen = name;
-        document.body.classList.toggle("is-mission-open", name === "trace1" || name === "trace2" || name === "trace3");
+        document.body.classList.toggle("is-mission-open", ["trace1", "trace2", "trace3"].includes(name));
         window.scrollTo({ top: 0, behavior: "auto" });
 
         if (name === "vault") {
@@ -1464,9 +1445,8 @@
 
         if (name === "trace2") {
           initTrace2();
-          setTimeout(() => map?.invalidateSize(), 50);
-          setTimeout(() => map?.invalidateSize(), 200);
-          setTimeout(() => map?.invalidateSize(), 500);
+          setTimeout(() => map?.invalidateSize(), 100);
+          setTimeout(() => map?.invalidateSize(), 400);
         }
 
         if (name === "trace3") {
@@ -1508,6 +1488,7 @@
         document.getElementById("vaultProgressText").textContent = `${completed} / 4`;
         document.getElementById("vaultProgressBar").style.width = `${completed * 25}%`;
 
+        // TRACE 01
         setCardState(1, {
           locked: false,
           complete: state.trace1Complete,
@@ -1517,6 +1498,7 @@
           cta: state.trace1Complete ? "등록 내용 확인 →" : "첫 번째 봉인 열기 →"
         });
 
+        // TRACE 02
         setCardState(2, {
           locked: !trace2Unlocked,
           complete: trace2Complete,
@@ -1530,6 +1512,7 @@
               : `${state.trace2Solved.length}/8 단서 추적하기 →`
         });
 
+        // TRACE 03
         setCardState(3, {
           locked: !trace3Unlocked,
           complete: state.trace3Complete,
@@ -1537,12 +1520,13 @@
           pill: !trace3Unlocked ? "LOCKED" : state.trace3Complete ? "SECURED" : "OPEN",
           icon: !trace3Unlocked ? "🔒" : state.trace3Complete ? "✓" : "↗",
           cta: !trace3Unlocked
-            ? "TRACE 02 8/8 후 해제"
+            ? "TRACE 02 완료 후 해제"
             : state.trace3Complete
               ? "인증 내용 확인 →"
               : "미션 시작하기 →"
         });
 
+        // TRACE 04
         setCardState(4, {
           locked: !trace4Unlocked,
           complete: false,
@@ -1578,7 +1562,7 @@
 
         if (trace === 2) {
           if (!state.trace1Complete) {
-            rejectLockedCard(2, "아직 첫 번째 봉인이 잠겨 있어요. TRACE 01에서 코드를 활성화해 주세요.");
+            rejectLockedCard(2, "TRACE 01에서 레인저 고유 코드를 먼저 등록해 주세요.");
             return;
           }
           showScreen("trace2");
@@ -1596,7 +1580,7 @@
 
         if (trace === 4) {
           if (!state.trace3Complete) {
-            rejectLockedCard(4, "TRACE 03 미션을 먼저 인증하면 마지막 관문이 열립니다.");
+            rejectLockedCard(4, "TRACE 03 미션을 먼저 인증하면 마지막 현장 신청서가 열립니다.");
             return;
           }
           openTrace4Link();
@@ -1605,6 +1589,7 @@
 
       function rejectLockedCard(trace, message) {
         const card = document.querySelector(`[data-trace-card="${trace}"]`);
+        if (!card) return;
         card.classList.remove("is-shaking");
         void card.offsetWidth;
         card.classList.add("is-shaking");
@@ -1632,9 +1617,9 @@
           } else {
             window.location.href = url;
           }
-        }, 520);
+        }, 500);
 
-        showToast("철컥—제주 바다거북 보전 참여 신청서를 새 창에서 엽니다.");
+        showToast("제주 바다거북 보전 참여 신청서를 새 창에서 엽니다. 🌊");
       }
 
       function burstParticles(target) {
@@ -1644,10 +1629,10 @@
         const y = rect.top + rect.height / 2;
         const colors = ["#00ffb2", "#8cc63f", "#4bc6c6", "#ffffff", "#009191"];
 
-        for (let i = 0; i < 28; i += 1) {
+        for (let i = 0; i < 24; i += 1) {
           const particle = document.createElement("i");
-          const angle = (Math.PI * 2 * i) / 28;
-          const distance = 70 + Math.random() * 120;
+          const angle = (Math.PI * 2 * i) / 24;
+          const distance = 60 + Math.random() * 100;
           particle.className = "particle";
           particle.style.left = `${x}px`;
           particle.style.top = `${y}px`;
@@ -1655,7 +1640,7 @@
           particle.style.setProperty("--x", `${Math.cos(angle) * distance}px`);
           particle.style.setProperty("--y", `${Math.sin(angle) * distance}px`);
           document.body.appendChild(particle);
-          window.setTimeout(() => particle.remove(), 1100);
+          window.setTimeout(() => particle.remove(), 950);
         }
       }
 
@@ -1663,17 +1648,22 @@
         if (state.rangerCode) {
           rangerCodeInput.value = state.rangerCode;
           updateDnaSignal();
+        } else {
+          rangerCodeInput.value = "";
+          updateDnaSignal();
         }
+
         if (state.trace1Complete) {
           pledgeStamped = true;
           isDnaEntered = true;
           stampButton.classList.add("stamped");
           stampButton.classList.remove("locked");
-          trace1Submit.textContent = "등록 내용 업데이트하기";
+          trace1Submit.textContent = "Trace 01 완료하기";
           
           document.getElementById('successCard').classList.add('show');
           document.getElementById('displayCode').innerText = state.rangerCode;
           document.getElementById('phoneUI').style.display = 'flex';
+          document.getElementById("trace1HeaderState").textContent = "SECURED";
         } else {
           document.getElementById("trace1HeaderState").textContent = "OPEN";
           trace1Submit.textContent = "Trace 01 완료하기";
@@ -1702,19 +1692,19 @@
         
         const popup = document.getElementById('dnaPopup');
         if (valid) {
-            isDnaEntered = true;
-            stampButton.classList.remove('locked');
-            if (!dnaPopupShown) {
-                popup.classList.add('show');
-                dnaPopupShown = true;
-                setTimeout(() => { popup.classList.remove('show'); }, 3000);
-            }
+          isDnaEntered = true;
+          stampButton.classList.remove('locked');
+          if (!dnaPopupShown) {
+            popup.classList.add('show');
+            dnaPopupShown = true;
+            setTimeout(() => { popup.classList.remove('show'); }, 2800);
+          }
         } else {
-            isDnaEntered = false;
-            dnaPopupShown = false;
-            stampButton.classList.add('locked');
-            stampButton.classList.remove('stamped');
-            pledgeStamped = false;
+          isDnaEntered = false;
+          dnaPopupShown = false;
+          stampButton.classList.add('locked');
+          stampButton.classList.remove('stamped');
+          pledgeStamped = false;
         }
       }
 
@@ -1723,7 +1713,7 @@
 
         if (code.length !== 8) {
           rangerCodeInput.focus();
-          showToast("🧬 영문 또는 숫자로 8자리 고유 코드를 입력해 주세요.");
+          showToast("🧬 8자리 고유 코드를 정확히 입력해 주세요.");
           return;
         }
 
@@ -1759,7 +1749,7 @@
         }
       }
 
-      function finalizeTrace1(source) {
+      function finalizeTrace1() {
         if (!trace1Pending || trace1Finalized) return;
         trace1Finalized = true;
         trace1Pending = false;
@@ -1771,31 +1761,34 @@
         saveState();
 
         trace1Submit.disabled = false;
-        trace1Submit.textContent = "Trace 01 완료됨 ✅";
+        trace1Submit.textContent = "Trace 01 완료하기";
         document.getElementById("trace1HeaderState").textContent = "SECURED";
 
-        var duration = 3 * 1000;
-        var animationEnd = Date.now() + duration;
-        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
-        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-        var interval = setInterval(function() {
-            var timeLeft = animationEnd - Date.now();
-            if (timeLeft <= 0) { return clearInterval(interval); }
-            var particleCount = 50 * (timeLeft / duration);
-            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#00ffb2', '#009191', '#8cc63f', '#ffffff'] }));
-            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#00ffb2', '#009191', '#8cc63f', '#ffffff'] }));
-        }, 250);
-
+        triggerConfettiParty();
         navigator.vibrate?.([35, 45, 35]);
 
         if (!wasAlreadyComplete) {
           document.querySelectorAll('.code-input, .question-input, .cat-btn, .insta-btn').forEach(el => el.style.pointerEvents = 'none');
           document.getElementById('finalPopup').classList.add('active');
         } else {
-          showToast("TRACE 01 등록 내용을 업데이트했습니다. ✅");
+          showToast("TRACE 01 등록 내용이 갱신되었습니다. ✅");
           document.getElementById('successCard').classList.add('show');
           document.getElementById('displayCode').innerText = state.rangerCode;
         }
+      }
+
+      function triggerConfettiParty() {
+        const duration = 2.5 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+        const interval = setInterval(() => {
+          const timeLeft = animationEnd - Date.now();
+          if (timeLeft <= 0) return clearInterval(interval);
+          const particleCount = 45 * (timeLeft / duration);
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#00ffb2', '#009191', '#8cc63f', '#ffffff'] }));
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#00ffb2', '#009191', '#8cc63f', '#ffffff'] }));
+        }, 220);
       }
 
       function submitTrace3() {
@@ -1808,7 +1801,7 @@
 
         if (code.length !== 8) {
           codeInput.focus();
-          showToast("🔑 8자리 레인저 임명 코드를 정확히 입력해주세요.");
+          showToast("🔑 8자리 레인저 코드를 정확히 입력해주세요.");
           return;
         }
 
@@ -1835,7 +1828,7 @@
           document.getElementById("trace3HeaderState").textContent = "SECURED";
 
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-          showToast("🎉 TRACE 03 인증이 완료되어 마지막 TRACE 04가 열렸습니다!");
+          showToast("🎉 TRACE 03 인증 완료! 마지막 TRACE 04가 열렸습니다.");
 
           setTimeout(() => showScreen("vault"), 1400);
         }, 1200);
@@ -1862,39 +1855,30 @@
 
         if (!mapReady) {
           if (!window.L) {
-            showToast("지도를 불러오지 못했습니다. 미션 목록에서는 계속 참여할 수 있어요.");
+            showToast("지도를 로드할 수 없습니다. 목록에서 단서를 해독해주세요.");
             return;
           }
 
           map = L.map("traceMap", {
-            center: [15, 120],
+            center: [20, 20],
             zoom: 2,
             minZoom: 2,
             maxZoom: 8,
             zoomControl: true,
-            worldCopyJump: false
+            worldCopyJump: true
           });
 
           L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
             attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
-            maxZoom: 16,
-            noWrap: true,
-            bounds: [[-85, -180], [85, 180]]
-          }).addTo(map);
-
-          L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
-            attribution: "",
-            maxZoom: 16,
-            noWrap: true,
-            bounds: [[-85, -180], [85, 180]]
+            maxZoom: 16
           }).addTo(map);
 
           missions.forEach((mission) => {
             const markerIcon = L.divIcon({
               className: "custom-marker-wrap",
               html: `<div class="map-marker ${state.trace2Solved.includes(mission.id) ? "is-solved" : ""}" data-map-marker="${mission.id}"><span>${state.trace2Solved.includes(mission.id) ? "✓" : mission.icon}</span></div>`,
-              iconSize: [46, 46],
-              iconAnchor: [23, 46]
+              iconSize: [44, 44],
+              iconAnchor: [22, 44]
             });
             const marker = L.marker([mission.lat, mission.lng], { icon: markerIcon }).addTo(map);
             marker.on("click", () => openMission(mission.id));
@@ -1906,8 +1890,7 @@
           updateMarkers();
         }
 
-        setTimeout(() => map?.invalidateSize(), 50);
-        setTimeout(() => map?.invalidateSize(), 200);
+        setTimeout(() => map?.invalidateSize(), 100);
       }
 
       function renderMissionList() {
@@ -1923,8 +1906,9 @@
           button.innerHTML = `
             <span class="mission-item-icon" aria-hidden="true">${solved ? "✓" : mission.icon}</span>
             <span>
-              <strong>${mission.title}</strong>
-              <small>${mission.location}</small>
+              <span class="mission-clue-label">${mission.clueLabel}</span>
+              <strong class="mission-sub-title">${mission.title}</strong>
+              <small class="mission-location-text">${mission.location}</small>
             </span>
             <span class="mission-item-state">${solved ? "DONE" : "OPEN"}</span>
           `;
@@ -1970,9 +1954,9 @@
         activeMissionId = id;
         const solved = state.trace2Solved.includes(id);
 
-        document.getElementById("quizKicker").textContent = `${mission.zone} · ${solved ? "해독 완료" : "단서 해독"}`;
+        document.getElementById("quizKicker").textContent = mission.clueLabel;
         document.getElementById("quizTitle").textContent = `${mission.icon} ${mission.title}`;
-        document.getElementById("quizLocation").textContent = mission.location;
+        document.getElementById("quizLocation").textContent = `📍 ${mission.location}`;
         quizBody.scrollTop = 0;
         renderQuiz(mission, solved);
 
@@ -2044,22 +2028,15 @@
 
       function highlightStory(story) {
         const keywords = [
-          "DNA 흔적", "유전 단서", "플라스틱", "혼획", "기원", "수면", "인공조명", "ShellBank"
+          "10,000km", "비닐봉지", "소화관", "다회용품", "분리배출", "폐로 호흡", "익사", 
+          "바다거북 탈출장치(TED)", "바다거북 탈출장치", "모래 온도", "인공 불빛", "해안 개발", 
+          "해수면 상승", "밀렵(Poaching)", "등딱지", "ShellBank"
         ];
-        let output = escapeHtml(story);
+        let output = story;
         keywords.forEach((keyword) => {
-          output = output.replace(keyword, `<em>${keyword}</em>`);
+          output = output.replaceAll(keyword, `<em>${keyword}</em>`);
         });
         return output;
-      }
-
-      function escapeHtml(value) {
-        return String(value)
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#039;");
       }
 
       function makeFeedback(explanation) {
@@ -2079,7 +2056,7 @@
           selectedButton.classList.add("is-wrong");
           selectedButton.disabled = true;
           navigator.vibrate?.(35);
-          showToast("❌ 앗! 다른 단서를 다시 살펴보세요.");
+          showToast("❌ 앗! 단서의 이야기를 다시 한번 읽어보세요.");
           return;
         }
 
@@ -2095,7 +2072,7 @@
         selectedButton.closest(".quiz-section").appendChild(makeFeedback(mission.explanation));
 
         burstParticles(selectedButton);
-        showToast(`단서 ${mission.id} 해독 완료! ${state.trace2Solved.length}/8`);
+        showToast(`단서 ${mission.id} 해독 완료! (${state.trace2Solved.length}/8)`);
 
         if (!wasComplete && state.trace2Solved.length === 8) {
           window.setTimeout(() => {
@@ -2107,7 +2084,7 @@
               nextTarget: "trace3",
               nextLabel: "TRACE 03 시작하기"
             });
-          }, 700);
+          }, 650);
         }
       }
 
@@ -2143,7 +2120,7 @@
       }
 
       function resetJourney() {
-        if (!window.confirm("TRACE 01~04의 이 기기 진행 기록을 모두 초기화할까요?")) return;
+        if (!window.confirm("TRACE 01~04의 모든 진행 기록을 초기화할까요?")) return;
         localStorage.removeItem(STORAGE_KEY);
         state = { ...defaultState, trace2Solved: [] };
         
@@ -2157,7 +2134,7 @@
         renderVault();
         renderTrace2Progress();
         updateMarkers();
-        showToast("모든 진행 기록을 초기화했습니다.");
+        showToast("모든 진행 기록이 초기화되었습니다.");
       }
 
       function bindEvents() {
@@ -2194,7 +2171,7 @@
 
         stampButton.addEventListener("click", () => {
           if (!isDnaEntered) {
-            alert("먼저 위쪽의 8자리 고유 코드를 정확히 입력해주세요! 🧬");
+            showToast("🧬 위쪽의 8자리 고유 코드를 먼저 정확히 입력해주세요.");
             return;
           }
           pledgeStamped = true;
@@ -2211,12 +2188,12 @@
           const codeInput = document.getElementById('rangerCode').value.trim();
           document.getElementById('displayCode').innerText = codeInput;
           document.getElementById('successCard').classList.add('show');
-          trace1Submit.textContent = "등록 내용 업데이트하기";
+          trace1Submit.textContent = "Trace 01 완료하기";
           
           showUnlockDialog({
-            eyebrow: "IDENTITY VERIFIED",
-            title: "첫 번째 봉인 해제",
-            copy: "철컥—레인저 고유 코드와 서약이 등록되어 TRACE 02 위협 단서 금고가 열렸습니다.",
+            eyebrow: "TRACE 01 COMPLETE",
+            title: "고유 코드 등록 완료",
+            copy: "나만의 코드로 바다거북 여정이 시작되었습니다.<br>이제 Trace 02에서 바다거북이 마주한 위협 단서를 확인해보세요.",
             icon: "🔓",
             nextTarget: "trace2",
             nextLabel: "TRACE 02 시작하기"
