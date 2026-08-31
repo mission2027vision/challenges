@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>WWF Rangers 2 | TRACE 03 나만의 바다 조각</title>
+    
+    <!-- 나눔바른고딕 폰트 적용 (기존 Jua 폰트 제거) -->
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* WWF & 바다거북 테마 컬러 */
+            --wwf-dark: #101820; /* WWF 특유의 묵직한 다크 톤 */
+            --turtle-green: #297B48; /* 바다거북 등껍질 그린 */
+            --turtle-green-light: #E8F5E9;
+            --ocean-blue: #005B82; /* 깊은 바다 블루 */
+            --accent: #E76F51; /* 산호색 포인트 */
+            --bg: #F4F8F9;
+            --gray-light: #EBEFEF;
+            --text-dark: #333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* 전체 폰트 나눔바른고딕 단일 적용 */
+        body { font-family: 'NanumBarunGothic', sans-serif; background-color: var(--bg); color: var(--text-dark); letter-spacing: -0.5px; }
+        
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 50px 20px; }
+
+        /* ================= Header ================= */
+        .page-header { text-align: center; margin-bottom: 50px; animation: slideDown 0.6s ease-out; }
+        .page-header h4 { color: var(--accent); font-size: 20px; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+        .page-header h1 { font-size: 42px; color: var(--wwf-dark); font-weight: 800; line-height: 1.3; word-break: keep-all; }
+        .page-header h1 span { color: var(--ocean-blue); font-weight: 800; }
+        .page-header p { font-size: 18px; color: #555; margin-top: 15px; font-weight: 600; }
+
+        /* ================= Layout Grid ================= */
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        @media (max-width: 900px) { .content-grid { grid-template-columns: 1fr; } }
+
+        /* ================= Left: Story & Flow ================= */
+        .info-panel { display: flex; flex-direction: column; gap: 30px; }
+        
+        .card { background: #fff; border-radius: 24px; padding: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 2px solid var(--gray-light); position: relative; overflow: hidden; }
+        .card-badge { position: absolute; top: 0; right: 30px; background: var(--turtle-green); color: white; padding: 8px 20px; border-radius: 0 0 15px 15px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 10px rgba(41, 123, 72, 0.3); }
+        
+        /* Flow Steps */
+        .flow-container { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .flow-step { text-align: center; flex: 1; position: relative; z-index: 2; }
+        .flow-step .icon { font-size: 32px; background: var(--turtle-green-light); width: 60px; height: 60px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s; }
+        .flow-step:hover .icon { transform: scale(1.1) rotate(5deg); background: var(--turtle-green); color: white; }
+        .flow-step strong { display: block; font-size: 15px; color: var(--wwf-dark); margin-bottom: 4px; font-weight: 700; }
+        .flow-step small { font-size: 12px; color: #777; font-weight: 600; }
+        
+        /* Arrow between steps */
+        .flow-arrow { color: #ccc; font-size: 20px; margin: 0 5px; margin-top: -30px; }
+
+        /* Jeju Story */
+        .story-title { font-size: 26px; font-weight: 800; color: var(--wwf-dark); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .story-list { list-style: none; }
+        .story-list li { position: relative; padding-left: 30px; margin-bottom: 18px; font-size: 15px; line-height: 1.6; color: #444; word-break: keep-all; }
+        .story-list li::before { content: '🌊'; position: absolute; left: 0; top: 2px; font-size: 16px; }
+        .story-list li b { color: var(--ocean-blue); font-weight: 700; background: linear-gradient(transparent 60%, var(--turtle-green-light) 60%); padding: 0 2px; }
+        
+        .alert-box { background: rgba(231, 111, 81, 0.1); border-left: 5px solid var(--accent); padding: 15px 20px; border-radius: 0 15px 15px 0; margin-top: 25px; font-size: 14px; font-weight: 700; color: #d35400; line-height: 1.5; }
+
+        /* ================= Right: Certification Form ================= */
+        .certify-panel { background: var(--wwf-dark); border-radius: 30px; padding: 40px; color: white; box-shadow: 0 20px 40px rgba(16, 24, 32, 0.3); display: flex; flex-direction: column; }
+        .certify-header { text-align: center; margin-bottom: 30px; }
+        .certify-header h2 { font-size: 30px; font-weight: 800; color: var(--turtle-green-light); margin-bottom: 12px; }
+        .certify-header p { color: #A3D9C9; font-size: 15px; line-height: 1.5; font-weight: 600; }
+
+        /* Padlet Link UI (거북이 스타일) */
+        .padlet-area { background: rgba(255,255,255,0.05); border: 2px dashed var(--turtle-green); border-radius: 20px; padding: 35px 20px; text-align: center; transition: all 0.3s; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .padlet-area:hover { background: rgba(41, 123, 72, 0.1); border-color: #4CAF50; transform: translateY(-3px); }
+        .padlet-icon { font-size: 50px; margin-bottom: 15px; animation: swim 3s infinite ease-in-out; }
+        .padlet-text { font-size: 20px; font-weight: 800; margin-bottom: 8px; color: white; }
+        .padlet-hint { font-size: 14px; color: #A3D9C9; margin-bottom: 20px; font-weight: 600; }
+        
+        .padlet-btn-link { display: inline-flex; align-items: center; gap: 8px; background: var(--turtle-green); color: white; padding: 14px 28px; border-radius: 30px; font-weight: 800; font-size: 16px; text-decoration: none; transition: 0.3s; box-shadow: 0 8px 20px rgba(41, 123, 72, 0.4); }
+        .padlet-btn-link:hover { background: #349658; transform: scale(1.05); }
+
+        /* Inputs */
+        .step-title { font-size: 18px; font-weight: 700; color: white; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        
+        .input-group { margin-bottom: 20px; }
+        .input-label { display: block; font-size: 14px; font-weight: 700; color: #A3D9C9; margin-bottom: 8px; }
+        .text-input, .textarea-input { width: 100%; padding: 16px; border: 2px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); border-radius: 12px; font-size: 15px; color: white; outline: none; transition: 0.3s; font-family: inherit; font-weight: 600; }
+        .text-input::placeholder, .textarea-input::placeholder { color: rgba(255,255,255,0.3); font-weight: 400; }
+        .text-input:focus, .textarea-input:focus { border-color: var(--turtle-green); background: rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(41, 123, 72, 0.3); }
+        .textarea-input { resize: vertical; min-height: 100px; }
+
+        .submit-btn { width: 100%; padding: 20px; background: var(--accent); color: white; border: none; border-radius: 20px; font-weight: 800; font-size: 20px; cursor: pointer; transition: 0.3s; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: inherit; }
+        .submit-btn:hover { background: #d65a3d; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(231, 111, 81, 0.4); }
+        .submit-btn:disabled { background: #555; color: #888; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        /* ================= Success Overlay ================= */
+        .success-overlay { position: fixed; inset: 0; background: rgba(16, 24, 32, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .success-overlay.active { display: flex; animation: fadeIn 0.4s; }
+        .success-modal { background: white; padding: 50px 40px; border-radius: 30px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        .success-modal::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 10px; background: linear-gradient(90deg, var(--ocean-blue), var(--turtle-green)); }
+        
+        .turtle-jump { font-size: 80px; display: inline-block; margin-bottom: 10px; animation: jump 1s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); }
+        .success-modal h2 { font-size: 32px; font-weight: 800; color: var(--wwf-dark); margin-bottom: 15px; }
+        .success-modal p { font-size: 16px; line-height: 1.6; color: #555; margin-bottom: 30px; word-break: keep-all; font-weight: 600; }
+        
+        .close-btn { background: var(--wwf-dark); color: white; padding: 18px 40px; border-radius: 50px; font-weight: 800; cursor: pointer; border: none; font-size: 16px; width: 100%; transition: 0.3s; font-family: inherit; }
+        .close-btn:hover { background: var(--turtle-green); }
+
+        /* Animations */
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes swim { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
+        @keyframes jump { 0% { transform: translateY(0) rotate(-5deg); } 100% { transform: translateY(-25px) rotate(5deg) scale(1.1); } }
+    </style>
+</head>
+<body>
+
+<!-- 구글 시트 연동을 위한 백그라운드 폼 구조 -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){submitSuccess();}"></iframe>
+<form id="googleForm" action="https://script.google.com/macros/s/AKfycbyMKPE7RE-CU7YuXsf2_Mnn7XmG9KsqVYH4WS82mZQSKHAyuv0k3rM_2c-W1x3SDkYbNQ/exec" method="POST" target="hidden_iframe" style="display:none;">
+    <input type="hidden" name="formType" value="Trace03">
+    <input type="hidden" name="rangerCode" id="formRangerCode">
+    <input type="hidden" name="oceanComment" id="formOceanComment">
+    <input type="hidden" name="photoData" value="Uploaded_to_Padlet"> 
+</form>
+
+<div class="wrap">
+    <!-- Header -->
+    <div class="page-header">
+        <h4>WWF RANGERS 2ND GENERATION</h4>
+        <h1>TRACE 03 — <span>나만의 바다 조각 완성하기</span></h1>
+        <p>레인저들이 하나둘 모아 완성한 바다 조각이 세상을 바꿉니다!</p>
+    </div>
+
+    <div class="content-grid">
+        
+        <!-- Left: Story & Flow -->
+        <div class="info-panel">
+            
+            <!-- Flow Card -->
+            <div class="card">
+                <div class="card-badge">CONTENTS FLOW</div>
+                <h3 style="font-size: 22px; font-weight: 800; color:var(--wwf-dark); margin-bottom: 8px;">미션 진행 순서 🗺️</h3>
+                <p style="color: #666; font-size: 14px; font-weight: 600;">순서대로 차근차근 나만의 바다를 완성해 보세요!</p>
+                
+                <div class="flow-container">
+                    <div class="flow-step">
+                        <div class="icon">🏝️</div>
+                        <strong>01 제주 사례</strong>
+                        <small>발견·시료·기록</small>
+                    </div>
+                    <div class="flow-arrow">➔</div>
+                    <div class="flow-step">
+                        <div class="icon">🧩</div>
+                        <strong>02 DIY 키링</strong>
+                        <small>바다 조각 만들기</small>
+                    </div>
+                    <div class="flow-arrow">➔</div>
+                    <div class="flow-step">
+                        <div class="icon">🐢</div>
+                        <strong>03 완성 인증</strong>
+                        <small>패들렛+소감 제출</small>
+                    </div>
+                    <div class="flow-arrow">➔</div>
+                    <div class="flow-step">
+                        <div class="icon">📍</div>
+                        <strong>04 3rd Trace</strong>
+                        <small>지도 흔적 추가</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jeju Story Card -->
+            <div class="card">
+                <div class="card-badge" style="background: var(--ocean-blue);">제주 × ShellBank</div>
+                <div class="story-title">비밀 단서, 제주 바다 스토리!</div>
+                <!-- 💡 내용 보강 영역 -->
+                <ul class="story-list">
+                    <li><b>디프다제주와 WWF의 협력:</b> 해양 시민단체 디프다제주는 세계자연기금(WWF)과 함께 제주 바다의 바다거북 서식지 보전 및 폐그물·플라스틱을 수거하는 해양 정화 프로젝트(봉그깅)를 펼치고 있습니다 <sup style="color:#aaa;"></sup>.</li>
+                    <li><b>기후변화와 99%의 암컷:</b> 산란지 모래 온도가 높아지면서 새끼 거북의 99% 이상이 암컷으로 부화하는 심각한 성비 불균형(자성화) 현상이 발생하여 생존이 위협받고 있습니다 <sup style="color:#aaa;"></sup>.</li>
+                    <li><b>치명적인 플라스틱 1조각:</b> 플라스틱을 단 1조각만 섭취해도 바다거북의 사망 확률은 22%에 달합니다. 국내 전체 해양 쓰레기 중 약 50%가 플라스틱일 만큼 문제는 심각합니다 <sup style="color:#aaa;"></sup>.</li>
+                    <li><b>쉘 뱅크(Shell Bank) 등록:</b> 해안에서 발견된 바다거북 사체의 유전자 정보는 WWF의 글로벌 데이터베이스인 '쉘 뱅크'에 등록되어 전 세계적인 보전 전략 수립에 핵심 단서로 쓰이게 됩니다 <sup style="color:#aaa;"></sup>.</li>
+                </ul>
+                <div class="alert-box">
+                    🚨 잠깐! 발견일, 종, 서열 등 민감한 데이터의 공개 범위는 보전팀의 엄격한 검수를 거쳐 안전하게 관리됩니다.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right: Certification Form -->
+        <div class="certify-panel">
+            <div class="certify-header">
+                <h2>🐢 레인저 미션 인증</h2>
+                <p>바다거북을 구하는 위대한 첫걸음!<br>패들렛에 사진을 올리고 아래 폼을 제출해 주세요.</p>
+            </div>
+
+            <!-- Padlet Direct Link UI -->
+            <div class="padlet-area">
+                <div class="padlet-icon">🌊📸</div>
+                <div class="padlet-text">STEP 1. 완성된 키링 사진 자랑하기</div>
+                <div class="padlet-hint">가장 예쁘게 찍힌 나만의 바다 조각을 패들렛에 올려주세요!</div>
+                
+                <!-- 🎯 여기에 실제 패들렛 링크를 넣어주세요 -->
+                <a href="YOUR_PADLET_LINK_HERE" target="_blank" class="padlet-btn-link">
+                    패들렛 갤러리로 이동 ➔
+                </a>
+            </div>
+
+            <!-- Form Inputs -->
+            <div class="step-title">STEP 2. 레인저 흔적 남기기</div>
+            <div class="input-group">
+                <label class="input-label">🔑 레인저 임명 코드 (8자리)</label>
+                <input type="text" id="ranger-code" class="text-input" placeholder="발급받은 나의 레인저 코드 입력" maxlength="8" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase();">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">🌊 지키고 싶은 바다 (한 줄 소감)</label>
+                <textarea id="trace-note" class="textarea-input" placeholder="키링을 완성하며 느낀 점이나, 내가 지키고 싶은 바다의 모습을 자유롭게 적어주세요!"></textarea>
+            </div>
+            
+            <button class="submit-btn" id="submitBtn" onclick="submitVerification()">
+                <span>흔적 남기기 완료!</span> 🚀
+            </button>
+            <div style="text-align: center; margin-top: 15px; font-size: 13px; color: #88a; font-weight: 600;">
+                * 인증 내용은 Catchsecu 안전 제출을 거쳐 3rd Trace 지도에 반영됩니다.
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="success-overlay" id="success-overlay">
+    <div class="success-modal">
+        <div class="turtle-jump">🐢🧩</div>
+        <h2>인증 대성공! 짝짝짝</h2>
+        <p>레인저님의 아름다운 바다 조각이 기록되었습니다.<br>전 세계 레인저들이 하나둘 모은 조각들이 모여<br>바다거북이 헤엄치는 거대한 바다를 지킵니다!</p>
+        <button class="close-btn" onclick="location.reload()">다음 현장 여정으로 이동 ➔</button>
+    </div>
+</div>
+
+<script>
+    let submitted = false;
+
+    function submitVerification() {
+        const code = document.getElementById('ranger-code').value.trim();
+        if (code.length !== 8) {
+            alert("8자리 레인저 코드를 정확히 입력해주세요! 🔑");
+            return;
+        }
+
+        const note = document.getElementById('trace-note').value.trim();
+        if (note.length < 5) {
+            alert("바다를 위한 한 줄 소감을 5자 이상 남겨주세요! 🌊");
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = '안전하게 기록 중... 🐢';
+        submitBtn.disabled = true;
+        submitBtn.style.background = '#297B48';
+
+        document.getElementById('formRangerCode').value = code;
+        document.getElementById('formOceanComment').value = note;
+
+        submitted = true;
+        document.getElementById('googleForm').submit();
+        
+        setTimeout(submitSuccess, 1500);
+    }
+
+    function submitSuccess() {
+        document.getElementById('success-overlay').classList.add('active');
+        document.getElementById('ranger-code').disabled = true;
+        document.getElementById('trace-note').disabled = true;
+        document.getElementById('submitBtn').innerHTML = '제출 완료 ✅';
+    }
+</script>
+
+</body>
+</html>
