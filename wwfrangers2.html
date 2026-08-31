@@ -7,12 +7,12 @@
   <meta name="description" content="WWF Rangers 2기 바다거북 추적 미션">
   <title>WWF Rangers 2기 | 바다거북 추적 미션</title>
 
-  <!-- 팡파레 효과를 위한 Confetti 라이브러리 -->
+  <!-- 팡파레 효과 라이브러리 -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynHT8z7S0xjMZ3P+ZrAq4nR2eWbA=" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
   <style>
-    /* 나눔바른고딕 웹 폰트 일괄 적용 */
+    /* 나눔바른고딕 웹 폰트 적용 */
     @font-face {
       font-family: 'NanumBarunGothic';
       font-style: normal;
@@ -33,7 +33,7 @@
     }
 
     :root {
-      /* WWF Official Brand Colors */
+      /* WWF Official Colors */
       --wwf-blue: #00728f;
       --wwf-aqua: #009191;
       --wwf-green: #007932;
@@ -43,10 +43,10 @@
       --wwf-red: #da1d52;
       --wwf-base: #c4bc8e;
 
-      /* Black Mint Theme (Cyber/Deep Sea Vibe) */
-      --neon-mint: #00ffb2; /* 포인트 발광 컬러 */
-      --abyss: #040d0e; /* 가장 어두운 민트 블랙 바탕 */
-      --panel-bg: rgba(6, 21, 22, 0.85); /* 카드 배경 */
+      /* Cyber / Deep Sea Theme */
+      --neon-mint: #00ffb2;
+      --abyss: #040d0e;
+      --panel-bg: rgba(6, 21, 22, 0.85);
       --panel-border: rgba(0, 145, 145, 0.4);
       
       --white: #ffffff;
@@ -63,11 +63,7 @@
       --font-display: 'NanumBarunGothic', sans-serif;
     }
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { box-sizing: border-box; }
 
     html {
       color-scheme: dark;
@@ -87,7 +83,6 @@
       position: relative;
     }
 
-    /* 전역 그리드 배경 (블랙 민트 테마 핵심) */
     body::before {
       content: "";
       position: fixed;
@@ -176,7 +171,7 @@
       place-items: center; background: var(--neon-mint);
       font-size: 1.5rem; box-shadow: 0 0 20px rgba(0, 255, 178, 0.4);
     }
-    .intro-brand strong { color: var(--white); font-size: clamp(1.15rem, 2.2vw, 1.3rem); font-weight: 700; letter-spacing: .1em; }
+    .intro-brand strong { color: var(--white); font-size: clamp(1.15rem, 2.2vw, 1.3rem); font-weight: 700; letter-spacing: .1em; white-space: nowrap; }
 
     .intro h1 {
       margin: 0; max-width: 850px; color: var(--white); font-family: var(--font-display);
@@ -191,32 +186,27 @@
     }
 
     .intro-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px; width: 100%; }
-    
-    .intro-start {
-      min-width: 260px; font-size: 1.1rem; padding: 18px 30px;
-    }
-    
+    .intro-start { min-width: 260px; font-size: 1.1rem; padding: 18px 30px; }
     .intro-note { color: var(--muted); font-size: .85rem; font-weight: 400; width: 100%; margin-top: 10px; }
 
-    /* ---------- VAULT HUB ---------- */
+    /* ---------- VAULT HUB (미션 보드) ---------- */
     .vault-screen {
       position: relative; overflow: hidden; background: transparent;
       padding: max(28px, env(safe-area-inset-top)) max(22px, env(safe-area-inset-right)) max(42px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left));
     }
 
     .vault-shell { position: relative; z-index: 1; width: min(1220px, 100%); margin: 0 auto; }
-
     .vault-topbar, .mission-topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 
     .mini-brand { display: flex; align-items: center; gap: 12px; }
     .mini-brand-icon {
       display: grid; width: 44px; height: 44px; border-radius: 10px;
       place-items: center; background: var(--neon-mint);
-      font-size: 1.2rem; box-shadow: 0 0 15px rgba(0, 255, 178, 0.4);
+      font-size: 1.2rem; box-shadow: 0 0 15px rgba(0, 255, 178, 0.4); flex-shrink: 0;
     }
-    .mini-brand strong, .mini-brand small { display: block; }
-    .mini-brand strong { font-size: .9rem; letter-spacing: .05em; color: var(--white); }
-    .mini-brand small { margin-top: 3px; color: var(--neon-mint); font-size: .65rem; font-weight: 700; letter-spacing: .1em; }
+    .mini-brand strong, .mini-brand small { display: block; white-space: nowrap; }
+    .mini-brand strong { font-size: 0.95rem; letter-spacing: .02em; color: var(--white); font-weight: 700; }
+    .mini-brand small { margin-top: 3px; color: var(--neon-mint); font-size: .75rem; font-weight: 700; letter-spacing: .02em; }
 
     .progress-chip { min-width: 168px; padding: 10px 14px; border: 1px solid var(--neon-mint); border-radius: 999px; background: rgba(0, 255, 178, 0.05); }
     .progress-chip-row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 7px; font-size: .7rem; font-weight: 700; color: var(--mist); }
@@ -229,7 +219,12 @@
       margin: clamp(44px, 8vw, 78px) 0 40px;
     }
     .vault-heading h2 { margin: 0; font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 4.2rem); font-weight: 700; line-height: 1.2; color: var(--white); text-shadow: 0 0 20px rgba(0,255,178,0.2); }
-    .vault-heading p { max-width: 520px; margin: 14px 0 0; color: var(--mist); font-size: clamp(.92rem, 1.6vw, 1.05rem); line-height: 1.75; word-break: keep-all; font-weight: 400;}
+    
+    .vault-heading-desc {
+      max-width: 680px; margin: 14px 0 0; color: var(--mist);
+      font-size: clamp(.92rem, 1.6vw, 1.05rem); line-height: 1.75;
+      word-break: keep-all; font-weight: 400;
+    }
 
     .reset-journey { color: var(--muted); background: transparent; cursor: pointer; font-size: .78rem; font-weight: 700; }
     .reset-journey:hover { color: var(--neon-mint); }
@@ -250,12 +245,12 @@
     .vault-card.is-unlocking { z-index: 3; border-color: var(--neon-mint); animation: unlock-glow 1s ease; }
 
     .vault-card-button {
-      position: relative; z-index: 1; display: grid; width: 100%; height: 100%; padding: 40px 30px;
-      grid-template-columns: 110px minmax(0, 1fr); align-items: center; gap: 30px; color: inherit; text-align: left; background: transparent; cursor: pointer;
+      position: relative; z-index: 1; display: grid; width: 100%; height: 100%; padding: 36px 28px;
+      grid-template-columns: 100px minmax(0, 1fr); align-items: center; gap: 24px; color: inherit; text-align: left; background: transparent; cursor: pointer;
     }
 
     .safe-lock {
-      position: relative; display: grid; width: 100px; height: 100px; 
+      position: relative; display: grid; width: 96px; height: 96px; 
       border: 2px dashed var(--neon-mint); border-radius: 50%;
       place-items: center; background: rgba(0, 255, 178, 0.05);
       box-shadow: 0 0 20px rgba(0, 255, 178, 0.2) inset; transition: transform .7s cubic-bezier(.17, .67, .18, 1.2);
@@ -278,7 +273,7 @@
     .is-unlocking .safe-lock { transform: rotate(720deg) scale(1.08); }
 
     .vault-copy { position: relative; z-index: 1; min-width: 0; }
-    .vault-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .vault-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
     .trace-label, .state-pill { display: inline-flex; align-items: center; min-height: 26px; padding: 5px 12px; border-radius: 6px; font-size: .7rem; font-weight: 700; letter-spacing: .12em; }
     .trace-label { color: var(--abyss); background: var(--neon-mint); box-shadow: 0 0 10px rgba(0,255,178,0.3); }
     .state-pill { border: 1px solid var(--neon-mint); color: var(--neon-mint); background: transparent; }
@@ -286,8 +281,13 @@
     .is-locked .state-pill { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); }
     .is-complete .state-pill, .is-visited .state-pill { border-color: var(--neon-mint); color: var(--neon-mint); }
 
-    .vault-copy h3 { margin: 0; font-family: var(--font-display); font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; line-height: 1.4; color: var(--white); }
-    .vault-copy p { margin: 12px 0 20px; color: var(--mist); font-size: .95rem; line-height: 1.6; word-break: keep-all; font-weight: 400;}
+    .vault-copy h3 {
+      margin: 0; font-family: var(--font-display);
+      font-size: clamp(1.25rem, 1.8vw, 1.55rem);
+      font-weight: 700; line-height: 1.35; color: var(--white);
+      letter-spacing: -0.02em; word-break: keep-all;
+    }
+    .vault-copy p { margin: 10px 0 16px; color: var(--mist); font-size: .92rem; line-height: 1.55; word-break: keep-all; font-weight: 400;}
     .vault-cta { display: inline-flex; align-items: center; gap: 8px; color: var(--neon-mint); font-size: .85rem; font-weight: 700; }
     .is-locked .vault-cta { color: var(--muted); }
 
@@ -298,13 +298,83 @@
     .vault-footer a { color: var(--neon-mint); text-decoration: none; font-weight: 700; }
     .vault-footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
+    /* =========================================================
+       WWF 네이버 블로그 귀여운 바다거북 플로팅 위젯
+       ========================================================= */
+    .blog-floating-widget {
+      position: fixed;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      right: 24px;
+      z-index: 90;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px 10px 14px;
+      background: rgba(6, 21, 22, 0.94);
+      border: 2px solid var(--neon-mint);
+      border-radius: 999px;
+      color: var(--white);
+      text-decoration: none;
+      box-shadow: 0 8px 30px rgba(0, 255, 178, 0.35);
+      backdrop-filter: blur(12px);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      animation: floatTurtleWidget 3.5s ease-in-out infinite;
+    }
+    .blog-floating-widget:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 12px 35px rgba(0, 255, 178, 0.55);
+      border-color: #ffffff;
+      color: var(--white);
+    }
+    .widget-turtle {
+      font-size: 1.9rem;
+      display: inline-block;
+      animation: wiggleTurtle 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 6px rgba(0, 255, 178, 0.6));
+    }
+    .widget-text { text-align: left; }
+    .widget-text strong {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--neon-mint);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .widget-text small {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--mist);
+      font-weight: 400;
+    }
+    @keyframes floatTurtleWidget {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+    @keyframes wiggleTurtle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-10deg) scale(1.05); }
+      75% { transform: rotate(10deg) scale(1.05); }
+    }
+    @media (max-width: 600px) {
+      .blog-floating-widget {
+        right: 16px;
+        bottom: max(16px, env(safe-area-inset-bottom));
+        padding: 8px 14px 8px 10px;
+        gap: 10px;
+      }
+      .widget-turtle { font-size: 1.55rem; }
+      .widget-text strong { font-size: 0.74rem; }
+      .widget-text small { font-size: 0.62rem; }
+    }
+
     /* ---------- MISSION COMMON ---------- */
     .mission-screen {
-      position: fixed; inset: 0; z-index: 100; overflow-y: auto;
+      position: fixed; inset: 0; z-index: 100;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
       background: var(--abyss); color: var(--white);
     }
     
-    /* Trace 02용 배경 그리드 */
     .mission-screen::before {
       content: "";
       position: fixed; inset: 0;
@@ -332,51 +402,38 @@
     .mission-heading small { color: var(--neon-mint); font-size: .66rem; font-weight: 700; letter-spacing: .18em; }
     .mission-heading strong { margin-top: 3px; font-size: .94rem; font-weight: 700;}
 
-    /* =========================================================
-       TRACE 01 전용 CSS Override (Light Sea Turtle Theme)
-       ========================================================= */
+    /* ---------- TRACE 01 (스크롤 수정 적용) ---------- */
     #trace1Screen {
       background-color: var(--wwf-blue);
-      background-image: linear-gradient(rgba(0, 114, 143, 0.7), rgba(0, 40, 50, 0.9)), url('https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=1920&q=80');
+      background-image: linear-gradient(rgba(0, 114, 143, 0.78), rgba(0, 40, 50, 0.93)), url('https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=1920&q=80');
       background-size: cover;
       background-position: center;
-      background-attachment: fixed;
+      /* background-attachment: fixed 제거로 모바일 스크롤 락 해결 */
       color: var(--white);
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y;
     }
-
-    #trace1Screen::before { display: none; } /* 그리드 숨김 */
-
+    #trace1Screen::before { display: none; }
     #trace1Screen .mission-topbar {
-      position: absolute;
-      top: 0; left: 0; width: 100%;
-      background: transparent;
-      border: none;
-      backdrop-filter: none;
-      z-index: 50;
+      position: absolute; top: 0; left: 0; width: 100%;
+      background: transparent; border: none; backdrop-filter: none; z-index: 50;
     }
-    #trace1Screen .mission-heading, 
-    #trace1Screen .state-pill { display: none; }
-    
+    #trace1Screen .mission-heading, #trace1Screen .state-pill { display: none; }
     #trace1Screen .mission-back { border-color: rgba(255,255,255,0.3); color: var(--white); background: rgba(255,255,255,0.1); }
     #trace1Screen .mission-back:hover { background: rgba(255,255,255,0.2); border-color: var(--white); color: var(--white); }
 
-    .trace1-container { 
-      max-width: 480px; 
-      width: 100%; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 25px; 
-      margin: 0 auto; 
-      padding: clamp(60px, 8vw, 80px) 20px 72px;
+    .trace1-container {
+      max-width: 480px; width: 100%; display: flex; flex-direction: column; gap: 25px;
+      margin: 0 auto; padding: clamp(60px, 8vw, 80px) 20px 100px;
+      position: relative; z-index: 10;
     }
-
     #trace1Screen .header-full { text-align: center; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.3); padding-bottom: 24px; }
     #trace1Screen .header-full h4 { color: var(--wwf-base); font-size: 14px; font-weight: 700; margin-bottom: 16px; letter-spacing: 1px; }
-    #trace1Screen .header-full .trace-badge { display: inline-block; background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px; font-size: 13px; color: var(--wwf-yellow); font-weight: 700; letter-spacing: 1.5px; margin-bottom: 15px; box-shadow: none; }
+    #trace1Screen .header-full .trace-badge { display: inline-block; background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px; font-size: 13px; color: var(--wwf-yellow); font-weight: 700; letter-spacing: 1.5px; margin-bottom: 15px; }
     #trace1Screen .header-full h1 { font-size: 34px; color: #ffffff; font-weight: 700; line-height: 1.35; word-break: keep-all; margin-bottom: 16px; text-shadow: 0 4px 15px rgba(0,0,0,0.4); }
     #trace1Screen .header-full p.desc { font-size: 15px; color: #d8eef2; line-height: 1.6; word-break: keep-all; font-weight: 400; margin: 0; }
 
-    /* Phone UI (화이트 글래스모피즘 적용) */
     #trace1Screen .phone-mockup { 
       background: rgba(255, 255, 255, 0.95); 
       border: 8px solid rgba(255, 255, 255, 0.3); 
@@ -386,50 +443,40 @@
       display: flex; 
       flex-direction: column; 
       position: relative; 
-      overflow: hidden; 
-      backdrop-filter: blur(10px);
-      color: #112226; /* Light theme text color */
+      backdrop-filter: blur(10px); 
+      color: #112226; 
     }
-    
     #trace1Screen .phone-title { text-align: center; font-size: 22px; font-weight: 700; color: var(--wwf-blue); margin-bottom: 25px; }
     #trace1Screen .input-group { margin-bottom: 30px; position: relative; z-index: 10; }
-    
     #trace1Screen .input-hint { display: flex; justify-content: space-between; font-size: 13px; color: #4b6266; margin-bottom: 8px; padding: 0 4px; font-weight: 700; }
     #trace1Screen .input-hint span:last-child { color: var(--wwf-aqua); }
-    
     #trace1Screen .code-input { 
       width: 100%; padding: 18px; border: 2px solid #e0e9eb; border-radius: 12px; font-size: 20px; 
       outline: none; transition: 0.3s; text-align: center; letter-spacing: 4px; font-weight: 700; background: #fff; font-family: 'NanumBarunGothic', sans-serif; color: var(--wwf-blue);
     }
     #trace1Screen .code-input:focus { border-color: var(--wwf-aqua); box-shadow: 0 0 10px rgba(0, 145, 145, 0.2); background: #f2f9fa; }
     #trace1Screen .code-input.success { border-color: var(--wwf-med-green); background: #f2f9eb; color: var(--wwf-green); box-shadow: none; }
-
     #trace1Screen .section-subtitle { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #fff; text-align: center; background: var(--wwf-aqua); padding: 12px; border-radius: 8px; word-break: keep-all; }
     #trace1Screen .section-desc { font-size: 13px; color: #4b6266; text-align: center; margin-bottom: 16px; line-height: 1.5; word-break: keep-all; padding: 0 10px; font-weight: 400; }
-    
     #trace1Screen .category-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
     #trace1Screen .cat-btn { background: #e0e9eb; color: #4b6266; font-size: 13.5px; font-weight: 700; padding: 12px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
     #trace1Screen .cat-btn.active { background: var(--wwf-aqua); color: #fff; border-color: var(--wwf-aqua); box-shadow: 0 4px 10px rgba(0, 145, 145, 0.3); }
-    
     #trace1Screen .question-input { 
       width: 100%; padding: 16px; border: 2px dashed #b1dfdc; border-radius: 12px; font-size: 14px; 
       font-family: 'NanumBarunGothic', sans-serif; resize: none; outline: none; transition: 0.3s; background: #f0f7f9; line-height: 1.6; color: #112226;
     }
     #trace1Screen .question-input:focus { border-style: solid; border-color: var(--wwf-aqua); background: #fff; }
-
     #trace1Screen .pledge-container { 
       text-align: center; padding: 28px 20px; background: #f0f7f9; border-radius: 12px; border: 2px dashed var(--wwf-aqua); 
       position: relative; overflow: hidden; word-break: keep-all; margin-bottom: 24px; 
     }
     #trace1Screen .pledge-text { font-size: 14px; color: #112226; font-weight: 700; margin-bottom: 20px; line-height: 1.6; }
-    
     #trace1Screen .stamp-btn { 
       background: white; border: 2px solid var(--wwf-blue); color: var(--wwf-blue); padding: 14px 35px; 
       border-radius: 30px; font-weight: 700; cursor: pointer; transition: 0.3s; position: relative; z-index: 2; font-size: 16px; letter-spacing: 1px; 
     }
     #trace1Screen .stamp-btn.locked { background: #e0e9eb !important; border-color: #ccc !important; color: #999 !important; cursor: not-allowed; }
-    #trace1Screen .stamp-btn:hover:not(.locked) { background: var(--wwf-blue); color: white; box-shadow: 0 4px 15px rgba(0, 114, 143, 0.4);}
-    
+    #trace1Screen .stamp-btn.stamped { background-color: #e0e9eb !important; border-color: transparent !important; color: transparent !important; pointer-events: none; }
     #trace1Screen .stamp-mark { 
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(3.5) rotate(-20deg); 
       opacity: 0; font-size: 38px; font-weight: 700; color: var(--wwf-red); z-index: 10; pointer-events: none; 
@@ -437,9 +484,7 @@
       background: rgba(255, 255, 255, 0.9); box-shadow: 0 4px 15px rgba(218, 29, 82, 0.3);
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out; 
     }
-    #trace1Screen .stamp-btn.stamped { background-color: #e0e9eb !important; border-color: transparent !important; color: transparent !important; pointer-events: none; }
     #trace1Screen .stamp-btn.stamped + .stamp-mark { transform: translate(-50%, -50%) scale(1) rotate(-8deg); opacity: 1; }
-
     #trace1Screen .insta-check-container { display: flex; flex-direction: column; align-items: center; }
     #trace1Screen .insta-btn {
       background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
@@ -448,7 +493,6 @@
     }
     #trace1Screen .insta-btn:hover { transform: scale(1.02); box-shadow: 0 6px 15px rgba(220, 39, 67, 0.4); }
     #trace1Screen .insta-small-text { font-size: 12.5px; color: #4b6266; margin-top: 12px; line-height: 1.5; text-align: center; font-weight: 700; word-break: keep-all; }
-
     #trace1Screen .submit-btn { 
       margin-top: 10px; width: 100%; padding: 20px; background-color: var(--wwf-blue); color: white; border: none; 
       border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; word-break: keep-all; 
@@ -456,7 +500,6 @@
     }
     #trace1Screen .submit-btn:hover:not(:disabled) { background-color: #005a70; box-shadow: 0 6px 20px rgba(0, 114, 143, 0.4); }
     #trace1Screen .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
     #trace1Screen .dna-mini-popup { 
       position: absolute; top: -50px; left: 50%; transform: translateX(-50%) translateY(20px); 
       background: var(--wwf-aqua); color: white; padding: 10px 20px; border-radius: 8px; 
@@ -469,7 +512,6 @@
       border-width: 8px 8px 0; border-style: solid; border-color: var(--wwf-aqua) transparent transparent transparent; 
     }
 
-    /* Trace 01 성공 카드 */
     #successCard { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.3); opacity: 0; transform: translateY(20px); transition: 0.5s; display: none; border: 4px solid var(--wwf-blue); width: 100%; color: #112226; }
     #successCard.show { opacity: 1; transform: translateY(0); display: block; margin-bottom: 20px; animation: fadeIn 0.5s ease forwards; }
     #successCard .success-header { background-color: var(--wwf-blue); color: white; text-align: center; padding: 25px; font-size: 20px; font-weight: 700; letter-spacing: 1px;}
@@ -477,16 +519,14 @@
     #successCard h3 { font-size: 22px; color: var(--wwf-blue); margin-bottom: 15px; font-weight: 700; }
     #successCard .popup-code-box { font-size: 24px; font-weight: 700; color: var(--wwf-blue); background: #f0f7f9; padding: 15px 30px; border-radius: 12px; display: inline-block; margin-bottom: 25px; border: 2px dashed var(--wwf-aqua); letter-spacing: 3px; }
 
-    /* Trace 01 오버레이 팝업 */
     #finalPopup.popup-overlay { position: fixed; inset: 0; background: rgba(0, 114, 143, 0.85); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
     #finalPopup.popup-overlay.active { display: flex; animation: fadeIn 0.4s; }
     #finalPopup .popup-modal { background: white; padding: 50px 40px; border-radius: 20px; text-align: center; max-width: 420px; width: 90%; position: relative; overflow: hidden; word-break: keep-all; box-shadow: 0 25px 50px rgba(0,0,0,0.5); color: #112226; border: none;}
     #finalPopup .popup-icon { font-size: 70px; margin-bottom: 10px; animation: bouncePopup 1s infinite alternate; }
-    #finalPopup h2 { font-size: 30px; font-weight: 700; color: var(--wwf-blue); margin-bottom: 15px; text-shadow: none; }
+    #finalPopup h2 { font-size: 30px; font-weight: 700; color: var(--wwf-blue); margin-bottom: 15px; }
     #finalPopup p { font-size: 15px; color: #4b6266; line-height: 1.6; margin-bottom: 30px;}
     #finalPopup .popup-close-btn { background: var(--wwf-blue); color: white; padding: 18px 40px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 18px; width: 100%; transition: 0.3s; word-break: keep-all; font-family: 'NanumBarunGothic', sans-serif;}
     #finalPopup .popup-close-btn:hover { background: #005a70; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 114, 143, 0.4);}
-
 
     /* ---------- TRACE 02 ---------- */
     .trace2-screen { overflow: hidden; background: transparent; }
@@ -521,10 +561,10 @@
     
     .dock-actions { display: flex; gap: 8px; padding: 14px 16px max(16px, env(safe-area-inset-bottom)); border-top: 1px dashed var(--panel-border); }
     .dock-actions button { flex: 1; font-size: .7rem; }
-    .trace2-map-wrap { position: relative; min-width: 0; min-height: 0; }
     
-    /* Map Dark Mode Filter */
-    #traceMap { position: absolute; inset: 0; z-index: 1; background: var(--deep); filter: invert(100%) hue-rotate(180deg) brightness(75%) contrast(120%); }
+    .trace2-map-wrap { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; background: #0d1a1c; overflow: hidden; }
+    #traceMap { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; background: #0d1a1c; }
+    .leaflet-container { background: #0d1a1c !important; font-family: inherit; }
     
     .map-hint {
       position: absolute; top: 18px; left: 50%; z-index: 500; max-width: calc(100% - 36px); padding: 10px 16px;
@@ -578,7 +618,86 @@
     .source-note { margin-top: 17px; color: var(--muted); font-size: .66rem; line-height: 1.5; font-weight: 400;}
     .source-note a { color: var(--neon-mint); text-underline-offset: 3px; font-weight: 700;}
 
-    /* ---------- DIALOGS / TOAST / PARTICLES ---------- */
+    /* ---------- TRACE 03 ---------- */
+    #trace3Screen {
+      background-color: #f4f8f9;
+      color: #333;
+      padding-bottom: 60px;
+    }
+    #trace3Screen .mission-topbar {
+      background: #101820;
+      color: white;
+      border-bottom: 1px solid rgba(0, 255, 178, 0.3);
+    }
+    .trace3-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      color: #333;
+    }
+    .trace3-header { text-align: center; margin-bottom: 40px; }
+    .trace3-header h4 { color: #e76f51; font-size: 18px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .trace3-header h1 { font-size: clamp(28px, 4vw, 40px); color: #101820; font-weight: 800; line-height: 1.3; word-break: keep-all; }
+    .trace3-header h1 span { color: #005b82; font-weight: 800; }
+    .trace3-header p { font-size: 16px; color: #555; margin-top: 12px; font-weight: 600; }
+
+    .trace3-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    @media (max-width: 900px) { .trace3-grid { grid-template-columns: 1fr; } }
+
+    .trace3-card {
+      background: #fff; border-radius: 24px; padding: 32px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.06); border: 2px solid #ebefef;
+      position: relative; overflow: hidden;
+    }
+    .trace3-badge {
+      position: absolute; top: 0; right: 28px; background: #297b48; color: white;
+      padding: 7px 18px; border-radius: 0 0 14px 14px; font-weight: 700; font-size: 14px;
+    }
+    .trace3-flow { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+    .trace3-flow-step { text-align: center; flex: 1; }
+    .trace3-flow-step .icon {
+      font-size: 28px; background: #e8f5e9; width: 54px; height: 54px; margin: 0 auto 8px;
+      display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08); transition: 0.3s;
+    }
+    .trace3-flow-step strong { display: block; font-size: 14px; color: #101820; margin-bottom: 2px; font-weight: 700; }
+    .trace3-flow-step small { font-size: 11px; color: #777; font-weight: 600; }
+    .trace3-flow-arrow { color: #bbb; font-size: 16px; margin-top: -24px; }
+
+    .trace3-story-title { font-size: 22px; font-weight: 800; color: #101820; margin-bottom: 18px; }
+    .trace3-story-list { list-style: none; padding: 0; margin: 0; }
+    .trace3-story-list li { position: relative; padding-left: 28px; margin-bottom: 15px; font-size: 14.5px; line-height: 1.6; color: #444; word-break: keep-all; }
+    .trace3-story-list li::before { content: '🌊'; position: absolute; left: 0; top: 2px; font-size: 15px; }
+    .trace3-story-list li b { color: #005b82; font-weight: 700; background: linear-gradient(transparent 60%, #e8f5e9 60%); padding: 0 2px; }
+    .trace3-alert { background: rgba(231, 111, 81, 0.1); border-left: 4px solid #e76f51; padding: 14px 18px; border-radius: 0 12px 12px 0; margin-top: 20px; font-size: 13.5px; font-weight: 700; color: #d35400; line-height: 1.5; }
+
+    .trace3-cert-panel {
+      background: #101820; border-radius: 28px; padding: 36px 30px; color: white;
+      box-shadow: 0 20px 40px rgba(16, 24, 32, 0.3); display: flex; flex-direction: column;
+    }
+    .trace3-padlet-box {
+      background: rgba(255,255,255,0.05); border: 2px dashed #297b48; border-radius: 20px;
+      padding: 28px 18px; text-align: center; margin-bottom: 24px;
+    }
+    .trace3-padlet-btn {
+      display: inline-flex; align-items: center; gap: 8px; background: #297b48; color: white;
+      padding: 13px 26px; border-radius: 30px; font-weight: 800; font-size: 15px; text-decoration: none;
+      box-shadow: 0 6px 18px rgba(41, 123, 72, 0.4); transition: 0.25s;
+    }
+    .trace3-padlet-btn:hover { background: #349658; transform: scale(1.03); }
+
+    .trace3-input {
+      width: 100%; padding: 15px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06);
+      border-radius: 12px; font-size: 15px; color: white; outline: none; transition: 0.3s;
+    }
+    .trace3-input:focus { border-color: #00ffb2; background: rgba(255,255,255,0.1); }
+    .trace3-submit {
+      width: 100%; padding: 18px; background: #e76f51; color: white; border: none; border-radius: 16px;
+      font-weight: 800; font-size: 18px; cursor: pointer; transition: 0.3s; margin-top: 14px;
+    }
+    .trace3-submit:hover { background: #d65a3d; transform: translateY(-2px); }
+
+    /* ---------- DIALOGS / TOAST ---------- */
     dialog { max-width: none; padding: 0; border: 0; color: inherit; background: transparent; }
     dialog::backdrop { background: rgba(4, 13, 14, 0.9); backdrop-filter: blur(10px); }
 
@@ -592,8 +711,8 @@
       border-radius: 50%; place-items: center; color: var(--abyss); background: var(--neon-mint);
       box-shadow: 0 0 30px rgba(0, 255, 178, 0.5); font-size: 2.7rem; animation: lock-pop .65s cubic-bezier(.2, .8, .2, 1.3);
     }
-    .unlock-dialog-card h2 { margin: 8px 0 12px; font-family: var(--font-display); font-size: clamp(2rem, 8vw, 3.1rem); font-weight: 700; color: var(--neon-mint); text-shadow: 0 0 15px rgba(0,255,178,0.3); }
-    .unlock-dialog-card p { margin: 0 auto 22px; max-width: 400px; color: var(--mist); font-size: .9rem; line-height: 1.7; word-break: keep-all; font-weight: 400;}
+    .unlock-dialog-card h2 { margin: 8px 0 12px; font-family: var(--font-display); font-size: clamp(1.8rem, 7vw, 2.7rem); font-weight: 700; color: var(--neon-mint); text-shadow: 0 0 15px rgba(0,255,178,0.3); }
+    .unlock-dialog-card p { margin: 0 auto 22px; max-width: 440px; color: var(--mist); font-size: .9rem; line-height: 1.7; word-break: keep-all; font-weight: 400;}
     .dialog-actions { display: flex; justify-content: center; gap: 10px; }
 
     .certificate-card { width: min(760px, calc(100vw - 34px)); max-height: 90vh; max-height: 90dvh; padding: 24px; overflow-y: auto; color: var(--white); }
@@ -607,9 +726,9 @@
     .certificate-paper h2 { margin: 12px 0; color: var(--neon-mint); font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 700; text-shadow: 0 0 15px rgba(0,255,178,0.3); }
     .certificate-code {
       display: inline-block; margin: 10px 0 18px; padding: 8px 20px; border-bottom: 2px dashed var(--neon-mint); color: var(--neon-mint);
-      font-family: ui-monospace, Consolas, monospace; font-size: clamp(1.2rem, 4vw, 1.7rem); font-weight: 700; letter-spacing: .12em;
+      font-family: var(--font-display); font-size: clamp(1.2rem, 4vw, 1.7rem); font-weight: 700; letter-spacing: .08em;
     }
-    .certificate-paper p { max-width: 520px; margin: 0 auto; font-size: .86rem; line-height: 1.8; word-break: keep-all; font-weight: 400; color: var(--mist);}
+    .certificate-paper p { max-width: 540px; margin: 0 auto; font-size: .88rem; line-height: 1.8; word-break: keep-all; font-weight: 400; color: var(--mist);}
     .certificate-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
     .certificate-stats span { padding: 8px 13px; border-radius: 999px; color: var(--neon-mint); background: rgba(0, 255, 178, 0.1); border: 1px solid var(--neon-mint); font-size: .75rem; font-weight: 700; box-shadow: 0 0 10px rgba(0,255,178,0.2); }
     .certificate-actions { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
@@ -633,11 +752,7 @@
       animation: particle-burst .95s ease-out forwards;
     }
 
-    /* ---------- ANIMATION ---------- */
-    @keyframes intro-photo { from { transform: scale(1.08); opacity: .0; } to { transform: scale(1); opacity: 0.15; } }
-    @keyframes bubbles { from { background-position: 0 0, 0 0; } to { background-position: 20px -220px, -20px -300px; } }
     @keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes pulse-line { 0%, 100% { opacity: .3; transform: scaleY(.7); } 50% { opacity: 1; transform: scaleY(1); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-9px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-5px); } }
     @keyframes unlock-glow { 0% { box-shadow: 0 0 0 rgba(0, 255, 178, 0); } 45% { box-shadow: 0 0 40px rgba(0, 255, 178, .6); } 100% { box-shadow: 0 0 0 rgba(0, 255, 178, 0); } }
     @keyframes feedback-in { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
@@ -649,7 +764,6 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes bouncePopup { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-15px) scale(1.05); } }
 
-    /* ---------- RESPONSIVE ---------- */
     @media (max-width: 900px) {
       .vault-heading { grid-template-columns: 1fr; }
       .vault-heading .reset-journey { justify-self: start; }
@@ -658,7 +772,6 @@
       .safe-lock-center { font-size: 1.5rem; }
       .lock-state-icon { width: 26px; height: 26px; font-size: 0.8rem; right: -2px; bottom: -2px; }
       .trace2-layout { grid-template-columns: 1fr; grid-template-rows: 40dvh minmax(0, 1fr); }
-      .trace2-map-wrap { grid-row: 1; }
       .trace2-dock { grid-row: 2; border-right: none; border-top: 1px solid var(--panel-border); }
       .dock-copy { padding: 15px 18px 10px; }
       .dock-copy h1 { margin: 3px 0 5px; font-size: 1.25rem; }
@@ -670,13 +783,10 @@
     @media (max-width: 720px) {
       .intro { align-items: center; }
       .intro-inner { width: min(100% - 32px, 1180px); padding-bottom: max(56px, env(safe-area-inset-bottom)); }
-      .intro-photo { object-position: 62% center; }
-      .intro::before { background: linear-gradient(0deg, var(--abyss) 0%, rgba(6, 21, 22, 0.8) 48%, rgba(6, 21, 22, 0.3) 78%, rgba(6, 21, 22, 0.5) 100%); }
       .intro-brand { margin-bottom: 22px; }
       .intro-actions { align-items: stretch; flex-direction: column; }
       .intro-start { width: 100%; }
       .intro-note { text-align: center; }
-      .intro-scroll { display: none; }
       .vault-screen { padding-right: 16px; padding-left: 16px; }
       .vault-topbar { align-items: flex-start; }
       .progress-chip { min-width: 126px; }
@@ -699,34 +809,6 @@
       .dialog-actions, .certificate-actions { flex-direction: column; }
       .dialog-actions button, .certificate-actions button { width: 100%; }
     }
-
-    @media (max-width: 440px) {
-      .mini-brand small { display: none; }
-      .progress-chip { min-width: 114px; padding: 9px 11px; }
-      .vault-card-button { min-height: 200px; padding: 21px 18px; grid-template-columns: 65px minmax(0, 1fr); gap: 14px; }
-      .safe-lock { width: 65px; height: 65px; }
-      .safe-lock-center { font-size: 1.2rem; }
-      .lock-state-icon { width: 24px; height: 24px; font-size: 0.7rem; right: -2px; bottom: -2px;}
-      .vault-meta { gap: 5px; }
-      .trace-label, .state-pill { font-size: .57rem; }
-      .vault-copy h3 { font-size: 1.2rem; }
-      .vault-copy p { font-size: .73rem; line-height: 1.55; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-      .particle { display: none; }
-    }
-
-    @media print {
-      body * { visibility: hidden !important; }
-      #certificateDialog, #certificateDialog * { visibility: visible !important; }
-      #certificateDialog { position: absolute; inset: 0; display: block; background: #fff; }
-      #certificateDialog::backdrop, .certificate-actions, .dialog-close-x { display: none !important; }
-      .certificate-card { width: 100%; max-height: none; padding: 10mm; box-shadow: none; background: #fff; border: none; }
-      .certificate-paper { border: 2px solid #000; background: #fff; color: #000; box-shadow: none; }
-      .certificate-paper h2, .certificate-code, .certificate-stats span, .certificate-paper p { color: #000; }
-    }
   </style>
 </head>
 
@@ -743,10 +825,9 @@
              <span style="color: var(--wwf-red); font-size: 1.5rem;">🧬</span>
           </div>
           <div>
-            <strong>WWF RANGERS 2기</strong>
+            <strong>WWF Rangers 2기</strong>
           </div>
         </div>
-        <!-- 💡 줄바꿈 위치 수정 적용 -->
         <h1 id="introTitle">바다거북의<br>흔적을 추적하라</h1>
         <p class="intro-copy">
           바다거북이 남긴 단서를 따라, 보이지 않는 바다의 여정을 추적해보세요.<br>
@@ -762,7 +843,7 @@
     </div>
   </section>
 
-  <!-- VAULT HUB -->
+  <!-- VAULT HUB (미션 보드) -->
   <main class="screen vault-screen" id="mainContent" data-screen="vault" hidden>
     <div class="vault-shell">
       <header class="vault-topbar">
@@ -771,8 +852,8 @@
             <span style="color: var(--wwf-red); font-size: 1.2rem;">🧬</span>
           </div>
           <div>
-            <strong>WWF RANGERS 2기</strong>
-            <small>바다거북 수호대</small>
+            <strong>WWF Rangers 2기</strong>
+            <small>바다거북의 흔적을 추적하라</small>
           </div>
         </div>
         <div class="progress-chip" aria-label="전체 여정 진행도">
@@ -788,17 +869,18 @@
 
       <section class="vault-heading" aria-labelledby="vaultTitle">
         <div>
-          <p class="eyebrow">WWF RANGERS SEASON 2</p>
-          <h2 id="vaultTitle">위협 단서 추적 허브</h2>
-          <p>
-            레인저님의 고유 코드를 등록하고, 전 세계 해양에 퍼진 위협 요인을 분석하세요.<br>
-            각 관문의 단서를 모두 해독하면 다음 보전 활동으로 연결됩니다.
+          <p class="eyebrow">WWF RANGERS 2기 미션 보드</p>
+          <h2 id="vaultTitle">바다거북 추적 미션</h2>
+          <p class="vault-heading-desc">
+            레인저님의 고유 코드를 등록하고, 바다거북이 남긴 단서를 하나씩 해독해보세요.<br>
+            미션을 완료할 때마다 새로운 미션이 열리고, 바다거북 보전을 위한 다음 행동으로 이어집니다.
           </p>
         </div>
         <button class="reset-journey" id="resetJourney" type="button">시스템 데이터 초기화</button>
       </section>
 
       <section class="vault-grid" aria-label="TRACE 미션 금고">
+        <!-- TRACE 01 -->
         <article class="vault-card" id="traceCard1" data-trace-card="1">
           <button class="vault-card-button" type="button" data-open-trace="1">
             <span class="safe-lock" aria-hidden="true">
@@ -810,13 +892,14 @@
                 <span class="trace-label">TRACE 01</span>
                 <span class="state-pill" data-state-pill="1">OPEN</span>
               </span>
-              <h3>Trace 01. 레인저 코드 등록</h3>
-              <p>부여받은 8자리 DNA 코드로 시스템에 접속합니다.</p>
+              <h3>Trace 01. 나의 코드 등록하기</h3>
+              <p>나만의 코드로 여정을 시작합니다.</p>
               <span class="vault-cta" data-card-cta="1">등록 내용 확인 →</span>
             </span>
           </button>
         </article>
 
+        <!-- TRACE 02 -->
         <article class="vault-card is-locked" id="traceCard2" data-trace-card="2">
           <button class="vault-card-button" type="button" data-open-trace="2">
             <span class="safe-lock" aria-hidden="true">
@@ -828,13 +911,14 @@
                 <span class="trace-label">TRACE 02</span>
                 <span class="state-pill" data-state-pill="2">LOCKED</span>
               </span>
-              <h3>Trace 02. 위협 단서 추적</h3>
-              <p>바다거북이 직면한 글로벌 위협을 해독합니다.</p>
+              <h3>Trace 02. 위협 단서 찾기</h3>
+              <p>바다거북의 위협 단서를 추적합니다.</p>
               <span class="vault-cta" data-card-cta="2">해독 결과 열람 →</span>
             </span>
           </button>
         </article>
 
+        <!-- TRACE 03 (웹페이지 직접 연결) -->
         <article class="vault-card is-locked" id="traceCard3" data-trace-card="3">
           <button class="vault-card-button" type="button" data-open-trace="3">
             <span class="safe-lock" aria-hidden="true">
@@ -843,16 +927,17 @@
             </span>
             <span class="vault-copy">
               <span class="vault-meta">
-                <span class="trace-label">BLOG TRACE</span>
+                <span class="trace-label">TRACE 03</span>
                 <span class="state-pill" data-state-pill="3">LOCKED</span>
               </span>
-              <h3>Trace 03. ShellBank 연구</h3>
-              <p>DNA 기반 불법 거래 추적 기록을 확인합니다.</p>
-              <span class="vault-cta" data-card-cta="3">연구 기록 다시 보기 ↗</span>
+              <h3>Trace 03. 나의 바다 조각 완성하기</h3>
+              <p>작은 바다 조각을 완성해 인증합니다.</p>
+              <span class="vault-cta" data-card-cta="3">미션 시작하기 →</span>
             </span>
           </button>
         </article>
 
+        <!-- TRACE 04 -->
         <article class="vault-card is-locked" id="traceCard4" data-trace-card="4">
           <button class="vault-card-button" type="button" data-open-trace="4">
             <span class="safe-lock" aria-hidden="true">
@@ -861,29 +946,38 @@
             </span>
             <span class="vault-copy">
               <span class="vault-meta">
-                <span class="trace-label">FIELD TRACE</span>
+                <span class="trace-label">TRACE 04</span>
                 <span class="state-pill" data-state-pill="4">LOCKED</span>
               </span>
-              <h3>Trace 04. 현장 조사 지원</h3>
-              <p>제주 연안 실태 조사 작전에 합류합니다.</p>
-              <span class="vault-cta" data-card-cta="4">활동 안내 다시 보기 ↗</span>
+              <h3>Trace 04. 현장 미션 신청하기</h3>
+              <p>제주 바다로 향하는 신청서가 열립니다.</p>
+              <span class="vault-cta" data-card-cta="4">신청서 바로가기 ↗</span>
             </span>
           </button>
         </article>
       </section>
 
       <footer class="vault-footer">
-        <span>※ 블로그 관문은 데이터베이스 연결(열람)만 기록하며, 실제 미션 완료·출석 인증을 대신하지 않습니다.</span>
+        <span>※ 모든 미션 완료 및 인증 기록은 시스템에 안전하게 보관됩니다.</span>
         <span>
           보전 데이터:
           <a href="https://www.worldwildlife.org/species/sea-turtle/" target="_blank" rel="noopener noreferrer">WWF Sea Turtle ↗</a> ·
           <a href="https://shellbankproject.org/the-science/" target="_blank" rel="noopener noreferrer">ShellBank ↗</a>
         </span>
       </footer>
+
+      <!-- 🐢 WWF 네이버 블로그 바로가기 귀여운 바다거북 위젯 -->
+      <a href="https://blog.naver.com/wwf-korea" target="_blank" rel="noopener noreferrer" class="blog-floating-widget" aria-label="WWF 공식 네이버 블로그 바로가기">
+        <span class="widget-turtle">🐢</span>
+        <span class="widget-text">
+          <strong>WWF 공식 블로그</strong>
+          <small>바다거북 이야기 보러가기 ↗</small>
+        </span>
+      </a>
     </div>
   </main>
 
-  <!-- TRACE 01 (Sea Turtle Light Theme Override) -->
+  <!-- TRACE 01 -->
   <section class="screen mission-screen" id="trace1Screen" data-screen="trace1" hidden aria-labelledby="trace1Title">
     <header class="mission-topbar">
       <button class="mission-back" type="button" data-back-vault aria-label="미션 금고로 돌아가기">←</button>
@@ -911,11 +1005,9 @@
         </div>
       </div>
 
-      <!-- Phone UI -->
       <div class="phone-mockup" id="phoneUI">
         <div class="phone-title">레인저 고유 코드 등록</div>
         
-        <!-- 1. 고유 코드 입력 -->
         <div class="input-group">
           <div class="input-hint">
             <span>8자리 고유 코드</span>
@@ -925,10 +1017,8 @@
           <input type="text" id="rangerCode" class="code-input" placeholder="8자리 고유 코드" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false">
         </div>
 
-        <!-- 2. 서약 영역 -->
         <div class="input-group">
           <div class="pledge-container">
-            <!-- 💡 줄바꿈 위치 수정 적용 -->
             <p class="pledge-text">"나는 WWF 레인저로서 바다거북의<br>흔적을 추적하고,<br>바다거북 보전 여정에 함께할 것을 다짐합니다."</p>
             <button type="button" class="stamp-btn locked" id="stampButton">다짐 완료</button>
             <div class="stamp-mark" id="stampMark" aria-hidden="true">SEALED</div>
@@ -942,7 +1032,6 @@
           </div>
         </div>
 
-        <!-- 3. 관심사 탭 영역 -->
         <div class="input-group">
           <div class="section-subtitle">🐢 레인저님의 관심사를 들려주세요</div>
           <p class="section-desc">궁금한 점, 보고싶은 콘텐츠, 참여하고 싶은 미션 아이디어를 자유롭게 남겨주세요.</p>
@@ -960,7 +1049,6 @@
       </div>
     </div>
 
-    <!-- 제출 완료 오버레이 -->
     <div class="popup-overlay" id="finalPopup">
       <div class="popup-modal">
         <div class="popup-icon">🎉🐢🎉</div>
@@ -991,9 +1079,9 @@
     <div class="trace2-layout">
       <aside class="trace2-dock">
         <div class="dock-copy">
-          <p class="eyebrow" style="margin-bottom:0">4 ZONES · 8 CLUES</p>
+          <p class="eyebrow" style="margin-bottom:0">TRACE 02 · 위협 추적 미션</p>
           <h1 id="trace2Title">바다거북 여정의 위협</h1>
-          <p>지도 마커 또는 아래 목록을 눌러 단서를 해독하세요.</p>
+          <p>바다거북의 이동과 생존을 위협하는 단서를 따라가며,<br>각 위협이 어떻게 보전 활동과 연결되는지 확인해 보세요.</p>
         </div>
         <div class="mission-list" id="missionList"></div>
         <div class="dock-actions">
@@ -1011,7 +1099,7 @@
     <aside class="quiz-panel" id="quizPanel" aria-labelledby="quizTitle" aria-hidden="true">
       <div class="quiz-head">
         <button class="quiz-close" id="quizClose" type="button" aria-label="단서 패널 닫기">✕</button>
-        <small class="eyebrow" id="quizKicker">THREAT CLUE</small>
+        <small class="eyebrow" id="quizKicker">CLUE 01 · 플라스틱 오염</small>
         <h2 id="quizTitle">단서 제목</h2>
         <p id="quizLocation">단서 위치</p>
       </div>
@@ -1019,74 +1107,188 @@
     </aside>
   </section>
 
-  <!-- Apps Script 제출용 숨김 폼 (C/D열 분리 적용) -->
-  <iframe name="trace1Sink" id="trace1Sink" title="TRACE 01 제출 처리" hidden></iframe>
-  <form id="remoteTrace1Form" method="post" target="trace1Sink" hidden>
+  <!-- TRACE 03 (나만의 바다 조각 완성하기 웹페이지) -->
+  <section class="screen mission-screen" id="trace3Screen" data-screen="trace3" hidden aria-labelledby="trace3HeaderTitle">
+    <header class="mission-topbar">
+      <button class="mission-back" type="button" data-back-vault aria-label="미션 금고로 돌아가기">←</button>
+      <div class="mission-heading">
+        <small>TRACE 03 · OCEAN PIECE</small>
+        <strong>나만의 바다 조각 완성하기</strong>
+      </div>
+      <span class="state-pill" id="trace3HeaderState">OPEN</span>
+    </header>
+
+    <div class="trace3-wrap">
+      <div class="trace3-header">
+        <h4>WWF RANGERS 2ND GENERATION</h4>
+        <h1 id="trace3HeaderTitle">TRACE 03 — <span>나만의 바다 조각 완성하기</span></h1>
+        <p>레인저들이 하나둘 모아 완성한 바다 조각이 세상을 바꿉니다!</p>
+      </div>
+
+      <div class="trace3-grid">
+        <!-- Left: Story & Flow -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+          <div class="trace3-card">
+            <div class="trace3-badge">CONTENTS FLOW</div>
+            <h3 style="font-size:20px; font-weight:800; color:#101820; margin-bottom:6px;">미션 진행 순서 🗺️</h3>
+            <p style="color:#666; font-size:13.5px; font-weight:600;">순서대로 차근차근 나만의 바다를 완성해 보세요!</p>
+            
+            <div class="trace3-flow">
+              <div class="trace3-flow-step">
+                <div class="icon">🏝️</div>
+                <strong>01 제주 사례</strong>
+                <small>발견·시료·기록</small>
+              </div>
+              <div class="trace3-flow-arrow">➔</div>
+              <div class="trace3-flow-step">
+                <div class="icon">🧩</div>
+                <strong>02 DIY 키링</strong>
+                <small>바다 조각 만들기</small>
+              </div>
+              <div class="trace3-flow-arrow">➔</div>
+              <div class="trace3-flow-step">
+                <div class="icon">🐢</div>
+                <strong>03 완성 인증</strong>
+                <small>패들렛+소감 제출</small>
+              </div>
+              <div class="trace3-flow-arrow">➔</div>
+              <div class="trace3-flow-step">
+                <div class="icon">📍</div>
+                <strong>04 3rd Trace</strong>
+                <small>지도 흔적 추가</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="trace3-card">
+            <div class="trace3-badge" style="background:#005b82;">제주 × ShellBank</div>
+            <div class="trace3-story-title">비밀 단서, 제주 바다 스토리!</div>
+            <ul class="trace3-story-list">
+              <li><b>디프다제주와 WWF의 협력:</b> 해양 시민단체 디프다제주는 세계자연기금(WWF)과 함께 제주 바다의 바다거북 서식지 보전 및 폐그물·플라스틱을 수거하는 해양 정화 프로젝트(봉그깅)를 펼치고 있습니다.</li>
+              <li><b>기후변화와 99%의 암컷:</b> 산란지 모래 온도가 높아지면서 새끼 거북의 99% 이상이 암컷으로 부화하는 심각한 성비 불균형(자성화) 현상이 발생하여 생존이 위협받고 있습니다.</li>
+              <li><b>치명적인 플라스틱 1조각:</b> 플라스틱을 단 1조각만 섭취해도 바다거북의 사망 확률은 22%에 달합니다. 국내 전체 해양 쓰레기 중 약 50%가 플라스틱일 만큼 문제는 심각합니다.</li>
+              <li><b>쉘 뱅크(Shell Bank) 등록:</b> 해안에서 발견된 바다거북 사체의 유전자 정보는 WWF의 글로벌 데이터베이스인 '쉘 뱅크'에 등록되어 전 세계적인 보전 전략 수립에 핵심 단서로 쓰이게 됩니다.</li>
+            </ul>
+            <div class="trace3-alert">
+              🚨 잠깐! 발견일, 종, 서열 등 민감한 데이터의 공개 범위는 보전팀의 엄격한 검수를 거쳐 안전하게 관리됩니다.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Certification Form -->
+        <div class="trace3-cert-panel">
+          <div style="text-align:center; margin-bottom:24px;">
+            <h2 style="font-size:26px; font-weight:800; color:#b1dfdc; margin-bottom:8px;">🐢 레인저 미션 인증</h2>
+            <p style="color:#a3d9c9; font-size:14px; line-height:1.5;">바다거북을 구하는 위대한 첫걸음!<br>패들렛에 사진을 올리고 아래 폼을 제출해 주세요.</p>
+          </div>
+
+          <div class="trace3-padlet-box">
+            <div style="font-size:42px; margin-bottom:10px;">🌊📸</div>
+            <div style="font-size:18px; font-weight:800; margin-bottom:6px;">STEP 1. 완성된 키링 사진 자랑하기</div>
+            <div style="font-size:13px; color:#a3d9c9; margin-bottom:16px;">가장 예쁘게 찍힌 나만의 바다 조각을 패들렛에 올려주세요!</div>
+            <a href="https://padlet.com" target="_blank" class="trace3-padlet-btn" rel="noopener noreferrer">
+              패들렛 갤러리로 이동 ➔
+            </a>
+          </div>
+
+          <div style="font-size:16px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; margin-bottom:14px;">
+            STEP 2. 레인저 흔적 남기기
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:13px; font-weight:700; color:#a3d9c9; margin-bottom:6px;">🔑 레인저 임명 코드 (8자리)</label>
+            <input type="text" id="t3-ranger-code" class="trace3-input" placeholder="발급받은 나의 레인저 코드 입력" maxlength="8" autocapitalize="characters">
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:13px; font-weight:700; color:#a3d9c9; margin-bottom:6px;">🌊 지키고 싶은 바다 (한 줄 소감)</label>
+            <textarea id="t3-trace-note" class="trace3-input" style="min-height:90px; resize:vertical;" placeholder="키링을 완성하며 느낀 점이나, 내가 지키고 싶은 바다의 모습을 자유롭게 적어주세요!"></textarea>
+          </div>
+
+          <button class="trace3-submit" id="t3-submit-btn" type="button">
+            <span>흔적 남기기 완료! 🚀</span>
+          </button>
+          
+          <div style="text-align:center; margin-top:14px; font-size:12px; color:#88a;">
+            * 인증 내용은 안전 제출을 거쳐 3rd Trace 기록에 반영됩니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRACE 01 & 03 제출 싱크 폼 -->
+  <iframe name="traceSink" id="traceSink" title="제출 처리" hidden></iframe>
+  
+  <form id="remoteTrace1Form" method="post" target="traceSink" hidden>
     <input type="hidden" name="formType" value="Trace01">
     <input type="hidden" name="rangerCode" id="remoteRangerCode">
-    <input type="hidden" name="selectedTrace" id="remoteSelectedTrace"> <!-- C열 (질문/서약) -->
-    <input type="hidden" name="rangerQuestion" id="remoteRangerQuestion"> <!-- D열 -->
+    <input type="hidden" name="selectedTrace" id="remoteSelectedTrace">
+    <input type="hidden" name="rangerQuestion" id="remoteRangerQuestion">
   </form>
 
-  <!-- 잠금 해제 모달 -->
+  <form id="remoteTrace3Form" action="https://script.google.com/macros/s/AKfycbyMKPE7RE-CU7YuXsf2_Mnn7XmG9KsqVYH4WS82mZQSKHAyuv0k3rM_2c-W1x3SDkYbNQ/exec" method="post" target="traceSink" hidden>
+    <input type="hidden" name="formType" value="Trace03">
+    <input type="hidden" name="rangerCode" id="formRangerCode3">
+    <input type="hidden" name="oceanComment" id="formOceanComment3">
+    <input type="hidden" name="photoData" value="Uploaded_to_Padlet"> 
+  </form>
+
+  <!-- TRACE 02 완료 알림 모달 -->
   <dialog id="unlockDialog" aria-labelledby="unlockDialogTitle">
     <div class="unlock-dialog-card">
       <button class="dialog-close-x" id="unlockDialogClose" type="button" aria-label="잠금 해제 알림 닫기">✕</button>
       <div class="unlock-icon" id="unlockDialogIcon" aria-hidden="true">🔓</div>
-      <p class="eyebrow" id="unlockDialogEyebrow">IDENTITY VERIFIED</p>
-      <h2 id="unlockDialogTitle">첫 번째 봉인 해제</h2>
-      <p id="unlockDialogCopy">철컥—TRACE 02 금고가 열렸습니다.</p>
+      <p class="eyebrow" id="unlockDialogEyebrow">TRACE 02 COMPLETE</p>
+      <h2 id="unlockDialogTitle">위협 단서 해독 완료</h2>
+      <p id="unlockDialogCopy">
+        8개의 단서를 따라 바다거북이 마주한 위협을 확인했습니다.<br>
+        이제 다음 Trace에서는 제주 바다거북 보전 활동과 나의 바다 조각 미션을 만나게 됩니다.
+      </p>
       <div class="dialog-actions">
-        <button class="ghost-btn" id="unlockDialogVault" type="button">금고 전체 보기</button>
-        <button class="primary-btn" id="unlockDialogNext" type="button">다음 TRACE로 이동</button>
+        <button class="ghost-btn" id="unlockDialogVault" type="button">미션 보드 보기</button>
+        <button class="primary-btn" id="unlockDialogNext" type="button">TRACE 03 확인하기</button>
       </div>
     </div>
   </dialog>
 
-  <!-- 인증서 -->
+  <!-- TRACE 02 인증서 모달 -->
   <dialog id="certificateDialog" aria-labelledby="certificateTitle">
     <div class="certificate-card">
       <button class="dialog-close-x" id="certificateClose" type="button" aria-label="인증서 닫기">✕</button>
       <div class="certificate-paper">
-        <small style="color:var(--neon-mint);font-weight:900;letter-spacing:.16em">TRACE 02 · TRACK THE THREAT</small>
-        <h2 id="certificateTitle">바다거북 위협 해독 인증서</h2>
-        <div class="certificate-code" id="certificateCode">OCEAN RANGER</div>
+        <small style="color:var(--neon-mint);font-weight:900;letter-spacing:.16em">TRACE 02 - 위협 단서 찾기</small>
+        <h2 id="certificateTitle">위협 단서 해독 인증서</h2>
+        <div class="certificate-code" id="certificateCode">WWF 바다거북 레인저</div>
         <p>
-          위 레인저는 플라스틱 오염, 혼획, 기후변화·산란지 훼손,
-          불법 포획·거래에 관한 8개의 단서를 모두 해독했음을 인증합니다.
+          위 레인저는 바다거북이 마주한 4가지 주요 위협 플라스틱 오염, 혼획, 기후변화, 불법 포획·거래를 학습하고, 8개의 위협 단서를 모두 확인했음을 인증합니다.
         </p>
         <div class="certificate-stats">
-          <span>단서 해독 8 / 8</span>
-          <span>TRACE SECURED ✓</span>
+          <span>TRACE 02 완료 8/8 CLEAR</span>
         </div>
       </div>
       <div class="certificate-actions">
-        <button class="ghost-btn" id="certificateBack" type="button">미션으로 돌아가기</button>
-        <button class="primary-btn" id="certificatePrint" type="button">인쇄 · PDF 저장</button>
+        <button class="ghost-btn" id="certificateBack" type="button">미션 보드로 돌아가기</button>
+        <button class="primary-btn" id="certificatePrint" type="button">인증서 PDF 저장</button>
       </div>
     </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
     (() => {
       "use strict";
 
-      /*
-       * 운영 전에 아래 세 주소만 확인하면 됩니다.
-       */
       const CONFIG = Object.freeze({
         trace1Endpoint: "https://script.google.com/macros/s/AKfycbzwSnpb7aU1gRRRRFrkqceO5fGreegibt2tnM11ONi52-318pE_EO8wQ6xGqX_Y6KpgmQ/exec",
-        trace3Url: "https://blog.naver.com/wwf-korea",
-        trace4Url: "https://blog.naver.com/wwf-korea",
+        trace4Url: "https://forms.cloud.microsoft/pages/responsepage.aspx?id=4_I-hC_LHkKfic990TqP333EORmjkbNFp9Am5C-CudpUMjZYQU8yWE5TMEZJMjU4MjAxV0NUV0xLUC4u&route=shorturl",
         submissionFallbackMs: 6500
       });
 
-      const STORAGE_KEY = "wwfRangersV2Vault";
-      const LEGACY_TRACE2_KEY = "shellbank_threats_quiz_v2";
+      const STORAGE_KEY = "wwf_rangers_2nd_vault_v4";
 
       const defaultState = Object.freeze({
         version: 1,
@@ -1094,7 +1296,7 @@
         trace1Complete: false,
         rangerCode: "",
         trace2Solved: [],
-        trace3Visited: false,
+        trace3Complete: false,
         trace4Visited: false
       });
 
@@ -1107,154 +1309,74 @@
 
       const missions = [
         {
-          id: 1,
-          lat: 25,
-          lng: -140,
-          zone: "위협 01 · 플라스틱",
-          icon: "🥤",
-          title: "플라스틱 오염 ①",
-          location: "태평양 해양 쓰레기 지대",
+          id: 1, lat: 25, lng: -140, zone: "CLUE 01 · 플라스틱 오염", icon: "🥤",
+          title: "먹이로 착각한 플라스틱", location: "태평양 해양 쓰레기 지대",
           story: "바다거북은 떠다니는 비닐을 먹이로 착각할 수 있어요. 삼킨 플라스틱은 소화기관을 막거나 포만감을 일으켜 생존을 위협합니다.",
           question: "바다거북이 비닐을 먹이로 착각해 삼켰을 때 생길 수 있는 문제는 무엇일까요?",
-          options: [
-            "소화기관이 막히거나 영양 섭취가 어려워진다",
-            "헤엄치는 속도가 갑자기 빨라진다",
-            "등딱지가 투명하게 변한다",
-            "물 밖에서 더 오래 숨을 쉴 수 있다"
-          ],
+          options: ["소화기관이 막히거나 영양 섭취가 어려워진다", "헤엄치는 속도가 갑자기 빨라진다", "등딱지가 투명하게 변한다", "물 밖에서 더 오래 숨을 쉴 수 있다"],
           answer: 0,
           explanation: "플라스틱을 삼키면 장이 막히거나 실제 먹이를 충분히 먹지 못해 쇠약해질 수 있습니다."
         },
         {
-          id: 2,
-          lat: 35,
-          lng: 129,
-          zone: "위협 01 · 플라스틱",
-          icon: "♻️",
-          title: "플라스틱 오염 ②",
-          location: "도시와 연결된 해안",
+          id: 2, lat: 35, lng: 129, zone: "CLUE 02 · 플라스틱 오염", icon: "♻️",
+          title: "바다로 흘러간 쓰레기", location: "도시와 연결된 해안",
           story: "육지에서 버려진 플라스틱도 강과 빗물 배수로를 따라 바다로 이동합니다. 일상에서 발생 자체를 줄이는 행동이 중요해요.",
           question: "플라스틱의 해양 유입을 줄이는 행동으로 가장 적절한 것은 무엇일까요?",
-          options: [
-            "일회용 컵을 여러 겹 겹쳐 사용한다",
-            "텀블러와 장바구니를 쓰고 주변 쓰레기를 줍는다",
-            "해변의 쓰레기를 모래 속에 묻는다",
-            "비가 오면 자연히 사라질 것이라고 생각한다"
-          ],
+          options: ["일회용 컵을 여러 겹 겹쳐 사용한다", "텀블러와 장바구니를 쓰고 주변 쓰레기를 줍는다", "해변의 쓰레기를 모래 속에 묻는다", "비가 오면 자연히 사라질 것이라고 생각한다"],
           answer: 1,
           explanation: "재사용 제품을 선택하고 올바르게 배출하며, 유출되기 전 쓰레기를 수거하는 행동이 도움이 됩니다."
         },
         {
-          id: 3,
-          lat: 10,
-          lng: 110,
-          zone: "위협 02 · 혼획",
-          icon: "🕸️",
-          title: "혼획 ①",
-          location: "남중국해 어업 해역",
+          id: 3, lat: 10, lng: 110, zone: "CLUE 03 · 혼획", icon: "🕸️",
+          title: "어망에 걸린 바다거북", location: "남중국해 어업 해역",
           story: "바다거북은 아가미가 없어 수면으로 올라와 숨을 쉬어야 합니다. 어업 장비에 우연히 걸리면 수면에 도달하지 못할 수 있어요.",
           question: "‘혼획’은 무엇을 의미할까요?",
-          options: [
-            "바다거북이 무리를 지어 이동하는 행동",
-            "목표 어종이 아닌 바다거북 등이 어구에 우연히 잡히는 현상",
-            "바다거북 전용 보호구역의 이름",
-            "구조된 거북이를 바다로 돌려보내는 활동"
-          ],
+          options: ["바다거북이 무리를 지어 이동하는 행동", "목표 어종이 아닌 바다거북 등이 어구에 우연히 잡히는 현상", "바다거북 전용 보호구역의 이름", "구조된 거북이를 바다로 돌려보내는 활동"],
           answer: 1,
           explanation: "혼획은 어업 과정에서 목표로 하지 않은 해양생물이 의도치 않게 함께 잡히는 현상입니다."
         },
         {
-          id: 4,
-          lat: -10,
-          lng: 140,
-          zone: "위협 02 · 혼획",
-          icon: "⚓",
-          title: "혼획 ②",
-          location: "호주 연안 어업구역",
+          id: 4, lat: -10, lng: 140, zone: "CLUE 04 · 혼획", icon: "⚓",
+          title: "바다거북을 위한 안전한 어업", location: "호주 연안 어업구역",
           story: "어업 방식과 장비를 개선하면 혼획을 줄일 수 있습니다. 그물에 탈출구를 두거나 종과 어업에 맞는 저감 장치를 활용하는 방식이 연구되고 있어요.",
           question: "바다거북 혼획을 줄이기 위한 노력으로 알맞은 것은 무엇일까요?",
-          options: [
-            "그물을 더 촘촘하게 만든다",
-            "바다거북 탈출장치 등 혼획 저감 장비를 사용한다",
-            "그물 주변에 더 밝은 조명을 켠다",
-            "조업 시간을 무조건 늘린다"
-          ],
+          options: ["그물을 더 촘촘하게 만든다", "바다거북 탈출장치 등 혼획 저감 장비를 사용한다", "그물 주변에 더 밝은 조명을 켠다", "조업 시간을 무조건 늘린다"],
           answer: 1,
           explanation: "바다거북 탈출장치(TED)와 같은 혼획 저감 장비는 거북이가 그물에서 빠져나올 가능성을 높입니다."
         },
         {
-          id: 5,
-          lat: -4.5,
-          lng: 120,
-          zone: "위협 03 · 기후변화",
-          icon: "🌡️",
-          title: "기후변화 ①",
-          location: "인도네시아 산란 해변",
+          id: 5, lat: -4.5, lng: 120, zone: "CLUE 05 · 기후변화", icon: "🌡️",
+          title: "뜨거워지는 산란 해변", location: "인도네시아 산란 해변",
           story: "바다거북 알의 부화 환경은 모래 온도의 영향을 받습니다. 기후변화로 모래가 지나치게 따뜻해지면 새끼의 성비가 크게 달라질 수 있어요.",
           question: "모래 온도가 지나치게 높아질 때 바다거북 새끼의 성비에는 어떤 변화가 나타날 수 있을까요?",
-          options: [
-            "수컷 비율만 크게 높아진다",
-            "성비에는 아무 영향이 없다",
-            "암컷 비율이 지나치게 높아질 수 있다",
-            "모든 알이 쌍둥이로 부화한다"
-          ],
+          options: ["수컷 비율만 크게 높아진다", "성비에는 아무 영향이 없다", "암컷 비율이 지나치게 높아질 수 있다", "모든 알이 쌍둥이로 부화한다"],
           answer: 2,
           explanation: "많은 바다거북은 부화 온도가 성 결정에 영향을 주며, 높은 온도는 암컷 비율을 높일 수 있습니다."
         },
         {
-          id: 6,
-          lat: 25,
-          lng: -80,
-          zone: "위협 03 · 산란지",
-          icon: "🏝️",
-          title: "산란지 훼손 ②",
-          location: "플로리다 산란 해변",
+          id: 6, lat: 25, lng: -80, zone: "CLUE 06 · 산란지 훼손", icon: "🏝️",
+          title: "사라지는 산란 해변", location: "플로리다 산란 해변",
           story: "해안 개발, 해수면 상승, 강한 폭풍은 산란 해변과 둥지를 훼손합니다. 밤의 인공조명은 새끼 거북이 바다 반대편으로 향하게 만들 수 있어요.",
           question: "해안의 인공조명과 개발이 바다거북에게 미치는 영향은 무엇일까요?",
-          options: [
-            "새끼가 방향을 잃고 산란 가능한 해변이 줄어든다",
-            "먹이가 해변으로 더 많이 모인다",
-            "등딱지가 더 단단해진다",
-            "부화 기간이 항상 절반으로 줄어든다"
-          ],
+          options: ["새끼가 방향을 잃고 산란 가능한 해변이 줄어든다", "먹이가 해변으로 더 많이 모인다", "등딱지가 더 단단해진다", "부화 기간이 항상 절반으로 줄어든다"],
           answer: 0,
           explanation: "빛 공해는 새끼 거북의 방향 감각을 흐리고, 개발과 해수면 상승은 안전한 산란 공간을 줄입니다."
         },
         {
-          id: 7,
-          lat: 18,
-          lng: 105,
-          zone: "위협 04 · 불법거래",
-          icon: "⚠️",
-          title: "불법 포획·거래 ①",
-          location: "동남아시아 거래 경로",
+          id: 7, lat: 18, lng: 105, zone: "CLUE 07 · 불법 포획·거래", icon: "⚠️",
+          title: "거래되는 바다거북", location: "동남아시아 거래 경로",
           story: "일부 바다거북은 고기·알·가죽·등딱지 제품을 위해 불법적으로 포획됩니다. 특히 대모거북의 등딱지로 만든 장신구는 멸종위기종을 해치는 실제 제품일 수 있어요.",
           question: "불법 거래 대상이 될 수 있는 바다거북 관련 제품은 무엇일까요?",
-          options: [
-            "바다거북이 그려진 종이 엽서",
-            "대모거북 등딱지로 만든 장신구와 공예품",
-            "재활용 천으로 만든 거북이 인형",
-            "바다거북 보호구역 안내 지도"
-          ],
+          options: ["바다거북이 그려진 종이 엽서", "대모거북 등딱지로 만든 장신구와 공예품", "재활용 천으로 만든 거북이 인형", "바다거북 보호구역 안내 지도"],
           answer: 1,
           explanation: "대모거북 등딱지로 만든 장신구와 공예품은 실제 바다거북을 희생해 만들어질 수 있습니다."
         },
         {
-          id: 8,
-          lat: 51.5,
-          lng: -0.1,
-          zone: "위협 04 · ShellBank",
-          icon: "🧬",
-          title: "불법거래 × ShellBank ②",
-          location: "글로벌 DNA 추적망",
+          id: 8, lat: 51.5, lng: -0.1, zone: "CLUE 08 · DNA 추적", icon: "🧬",
+          title: "ShellBank가 찾는 단서", location: "글로벌 DNA 추적망",
           story: "ShellBank는 압수된 바다거북이나 제품에서 얻은 DNA를 기준 데이터와 비교해, 영향을 받은 개체군과 가능한 기원을 추적하는 데 도움을 줍니다.",
           question: "ShellBank의 DNA 정보가 불법 거래 수사에 제공할 수 있는 핵심 단서는 무엇일까요?",
-          options: [
-            "거래자의 정확한 이름과 비밀번호",
-            "제품의 판매 가격",
-            "압수품이 유래했을 가능성이 높은 산란 개체군과 지역",
-            "거북이가 이동한 모든 날짜와 시간"
-          ],
+          options: ["거래자의 정확한 이름과 비밀번호", "제품의 판매 가격", "압수품이 유래했을 가능성이 높은 산란 개체군과 지역", "거북이가 이동한 모든 날짜와 시간"],
           answer: 2,
           explanation: "DNA 비교를 통해 압수품이 어느 산란 개체군과 연결되는지 추정하고, 보호와 단속이 필요한 지역을 찾을 수 있습니다."
         }
@@ -1290,28 +1412,17 @@
 
       function loadState() {
         const safe = { ...defaultState, trace2Solved: [] };
-
         try {
           const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
           safe.introSeen = Boolean(parsed.introSeen);
           safe.trace1Complete = Boolean(parsed.trace1Complete);
           safe.rangerCode = /^[A-Z0-9]{8}$/.test(parsed.rangerCode || "") ? parsed.rangerCode : "";
           safe.trace2Solved = normalizeSolved(parsed.trace2Solved);
-          safe.trace3Visited = Boolean(parsed.trace3Visited);
+          safe.trace3Complete = Boolean(parsed.trace3Complete);
           safe.trace4Visited = Boolean(parsed.trace4Visited);
         } catch (error) {
-          console.warn("WWF Rangers state could not be read.", error);
+          console.warn("State load failed", error);
         }
-
-        if (safe.trace2Solved.length === 0) {
-          try {
-            const legacy = JSON.parse(localStorage.getItem(LEGACY_TRACE2_KEY) || "{}");
-            safe.trace2Solved = normalizeSolved(legacy.solvedCases);
-          } catch (error) {
-            console.warn("Legacy TRACE 02 progress could not be migrated.", error);
-          }
-        }
-
         return safe;
       }
 
@@ -1325,10 +1436,6 @@
 
       function saveState() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        localStorage.setItem(
-          LEGACY_TRACE2_KEY,
-          JSON.stringify({ solvedCases: [...state.trace2Solved] })
-        );
         renderVault();
         renderTrace2Progress();
       }
@@ -1342,7 +1449,7 @@
           screen.hidden = screen !== target;
         });
         currentScreen = name;
-        document.body.classList.toggle("is-mission-open", name === "trace1" || name === "trace2");
+        document.body.classList.toggle("is-mission-open", name === "trace1" || name === "trace2" || name === "trace3");
         window.scrollTo({ top: 0, behavior: "auto" });
 
         if (name === "vault") {
@@ -1357,9 +1464,13 @@
 
         if (name === "trace2") {
           initTrace2();
-          window.requestAnimationFrame(() => {
-            map?.invalidateSize();
-          });
+          setTimeout(() => map?.invalidateSize(), 50);
+          setTimeout(() => map?.invalidateSize(), 200);
+          setTimeout(() => map?.invalidateSize(), 500);
+        }
+
+        if (name === "trace3") {
+          hydrateTrace3();
         }
       }
 
@@ -1382,7 +1493,7 @@
         let count = 0;
         if (state.trace1Complete) count += 1;
         if (state.trace2Solved.length === 8) count += 1;
-        if (state.trace3Visited) count += 1;
+        if (state.trace3Complete) count += 1;
         if (state.trace4Visited) count += 1;
         return count;
       }
@@ -1391,7 +1502,7 @@
         const trace2Unlocked = state.trace1Complete;
         const trace2Complete = state.trace2Solved.length === 8;
         const trace3Unlocked = state.trace1Complete && trace2Complete;
-        const trace4Unlocked = state.trace3Visited;
+        const trace4Unlocked = state.trace3Complete;
         const completed = progressCount();
 
         document.getElementById("vaultProgressText").textContent = `${completed} / 4`;
@@ -1421,33 +1532,34 @@
 
         setCardState(3, {
           locked: !trace3Unlocked,
-          complete: false,
-          visited: state.trace3Visited,
-          pill: !trace3Unlocked ? "LOCKED" : state.trace3Visited ? "VISITED" : "BLOG OPEN",
-          icon: !trace3Unlocked ? "🔒" : state.trace3Visited ? "✓" : "↗",
+          complete: state.trace3Complete,
+          visited: false,
+          pill: !trace3Unlocked ? "LOCKED" : state.trace3Complete ? "SECURED" : "OPEN",
+          icon: !trace3Unlocked ? "🔒" : state.trace3Complete ? "✓" : "↗",
           cta: !trace3Unlocked
             ? "TRACE 02 8/8 후 해제"
-            : state.trace3Visited
-              ? "연구 기록 다시 보기 ↗"
-              : "연구 기록 열기 ↗"
+            : state.trace3Complete
+              ? "인증 내용 확인 →"
+              : "미션 시작하기 →"
         });
 
         setCardState(4, {
           locked: !trace4Unlocked,
           complete: false,
           visited: state.trace4Visited,
-          pill: !trace4Unlocked ? "LOCKED" : state.trace4Visited ? "VISITED" : "BLOG OPEN",
+          pill: !trace4Unlocked ? "LOCKED" : state.trace4Visited ? "VISITED" : "FORM OPEN",
           icon: !trace4Unlocked ? "🔒" : state.trace4Visited ? "✓" : "↗",
           cta: !trace4Unlocked
-            ? "TRACE 03 열람 후 해제"
+            ? "TRACE 03 완료 후 해제"
             : state.trace4Visited
-              ? "활동 안내 다시 보기 ↗"
-              : "활동 안내 보기 ↗"
+              ? "신청서 다시 보기 ↗"
+              : "신청서 바로가기 ↗"
         });
       }
 
       function setCardState(trace, cardState) {
         const card = document.querySelector(`[data-trace-card="${trace}"]`);
+        if (!card) return;
         card.classList.toggle("is-locked", cardState.locked);
         card.classList.toggle("is-complete", cardState.complete);
         card.classList.toggle("is-visited", cardState.visited);
@@ -1475,19 +1587,19 @@
 
         if (trace === 3) {
           if (!state.trace1Complete || state.trace2Solved.length !== 8) {
-            rejectLockedCard(3, "TRACE 02의 8개 위협 단서를 모두 해독하면 연구 기록이 열립니다.");
+            rejectLockedCard(3, "TRACE 02의 8개 위협 단서를 모두 해독하면 열립니다.");
             return;
           }
-          openBlogTrace(3);
+          showScreen("trace3");
           return;
         }
 
         if (trace === 4) {
-          if (!state.trace3Visited) {
-            rejectLockedCard(4, "TRACE 03 연구 기록을 먼저 열람하면 마지막 관문이 열립니다.");
+          if (!state.trace3Complete) {
+            rejectLockedCard(4, "TRACE 03 미션을 먼저 인증하면 마지막 관문이 열립니다.");
             return;
           }
-          openBlogTrace(4);
+          openTrace4Link();
         }
       }
 
@@ -1500,14 +1612,9 @@
         showToast(`🔒 ${message}`);
       }
 
-      function openBlogTrace(trace) {
-        const url = trace === 3 ? CONFIG.trace3Url : CONFIG.trace4Url;
-        if (!url) {
-          showToast("블로그 링크 준비 중입니다. CONFIG의 URL을 입력해 주세요.");
-          return;
-        }
-
-        const card = document.querySelector(`[data-trace-card="${trace}"]`);
+      function openTrace4Link() {
+        const url = CONFIG.trace4Url;
+        const card = document.querySelector(`[data-trace-card="4"]`);
         const newWindow = window.open("about:blank", "_blank");
         if (newWindow) newWindow.opener = null;
 
@@ -1515,8 +1622,7 @@
         burstParticles(card);
         navigator.vibrate?.([30, 35, 30]);
 
-        if (trace === 3) state.trace3Visited = true;
-        if (trace === 4) state.trace4Visited = true;
+        state.trace4Visited = true;
         saveState();
 
         window.setTimeout(() => {
@@ -1528,9 +1634,7 @@
           }
         }, 520);
 
-        showToast(trace === 3
-          ? "철컥—ShellBank 연구 기록을 새 창에서 엽니다."
-          : "철컥—현장 활동 안내를 새 창에서 엽니다.");
+        showToast("철컥—제주 바다거북 보전 참여 신청서를 새 창에서 엽니다.");
       }
 
       function burstParticles(target) {
@@ -1575,6 +1679,19 @@
           trace1Submit.textContent = "Trace 01 완료하기";
           document.getElementById('successCard').classList.remove('show');
           document.getElementById('phoneUI').style.display = 'flex';
+        }
+      }
+
+      function hydrateTrace3() {
+        const codeInput = document.getElementById('t3-ranger-code');
+        if (state.rangerCode && !codeInput.value) {
+          codeInput.value = state.rangerCode;
+        }
+        if (state.trace3Complete) {
+          document.getElementById("trace3HeaderState").textContent = "SECURED";
+          document.getElementById('t3-submit-btn').innerHTML = '인증 완료됨 ✅';
+        } else {
+          document.getElementById("trace3HeaderState").textContent = "OPEN";
         }
       }
 
@@ -1657,7 +1774,6 @@
         trace1Submit.textContent = "Trace 01 완료됨 ✅";
         document.getElementById("trace1HeaderState").textContent = "SECURED";
 
-        // Confetti 효과
         var duration = 3 * 1000;
         var animationEnd = Date.now() + duration;
         var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
@@ -1682,11 +1798,54 @@
         }
       }
 
+      function submitTrace3() {
+        const codeInput = document.getElementById('t3-ranger-code');
+        const noteInput = document.getElementById('t3-trace-note');
+        const submitBtn = document.getElementById('t3-submit-btn');
+
+        const code = codeInput.value.trim().toUpperCase();
+        const note = noteInput.value.trim();
+
+        if (code.length !== 8) {
+          codeInput.focus();
+          showToast("🔑 8자리 레인저 임명 코드를 정확히 입력해주세요.");
+          return;
+        }
+
+        if (note.length < 5) {
+          noteInput.focus();
+          showToast("🌊 바다를 위한 한 줄 소감을 5자 이상 적어주세요.");
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "기록 저장 중... 🐢";
+
+        document.getElementById('formRangerCode3').value = code;
+        document.getElementById('formOceanComment3').value = note;
+        document.getElementById('remoteTrace3Form').submit();
+
+        setTimeout(() => {
+          state.trace3Complete = true;
+          if (!state.rangerCode) state.rangerCode = code;
+          saveState();
+
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "흔적 남기기 완료! ✅";
+          document.getElementById("trace3HeaderState").textContent = "SECURED";
+
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          showToast("🎉 TRACE 03 인증이 완료되어 마지막 TRACE 04가 열렸습니다!");
+
+          setTimeout(() => showScreen("vault"), 1400);
+        }, 1200);
+      }
+
       function showUnlockDialog({ eyebrow, title, copy, icon, nextTarget, nextLabel }) {
         unlockTarget = nextTarget;
         document.getElementById("unlockDialogEyebrow").textContent = eyebrow;
         document.getElementById("unlockDialogTitle").textContent = title;
-        document.getElementById("unlockDialogCopy").textContent = copy;
+        document.getElementById("unlockDialogCopy").innerHTML = copy;
         document.getElementById("unlockDialogIcon").textContent = icon;
         document.getElementById("unlockDialogNext").textContent = nextLabel;
         if (!unlockDialog.open) unlockDialog.showModal();
@@ -1711,13 +1870,21 @@
             center: [15, 120],
             zoom: 2,
             minZoom: 2,
-            maxZoom: 7,
+            maxZoom: 8,
             zoomControl: true,
             worldCopyJump: false
           });
 
-          L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-            attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+          L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+            attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+            maxZoom: 16,
+            noWrap: true,
+            bounds: [[-85, -180], [85, 180]]
+          }).addTo(map);
+
+          L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+            attribution: "",
+            maxZoom: 16,
             noWrap: true,
             bounds: [[-85, -180], [85, 180]]
           }).addTo(map);
@@ -1735,11 +1902,12 @@
           });
 
           mapReady = true;
-          window.setTimeout(() => map.invalidateSize(), 120);
         } else {
           updateMarkers();
-          window.setTimeout(() => map.invalidateSize(), 80);
         }
+
+        setTimeout(() => map?.invalidateSize(), 50);
+        setTimeout(() => map?.invalidateSize(), 200);
       }
 
       function renderMissionList() {
@@ -1932,12 +2100,12 @@
         if (!wasComplete && state.trace2Solved.length === 8) {
           window.setTimeout(() => {
             showUnlockDialog({
-              eyebrow: "THREAT FILES SECURED",
-              title: "두 번째 봉인 해제",
-              copy: "8개의 위협 단서를 모두 기록했습니다. TRACE 03 ShellBank 연구 기록이 열렸습니다.",
+              eyebrow: "TRACE 02 COMPLETE",
+              title: "위협 단서 해독 완료",
+              copy: "8개의 단서를 따라 바다거북이 마주한 위협을 확인했습니다.<br>이제 다음 Trace에서는 제주 바다거북 보전 활동과 나의 바다 조각 미션을 만나게 됩니다.",
               icon: "🧬",
-              nextTarget: "vault",
-              nextLabel: "TRACE 03 금고 보기"
+              nextTarget: "trace3",
+              nextLabel: "TRACE 03 시작하기"
             });
           }, 700);
         }
@@ -1954,7 +2122,7 @@
       }
 
       function showCertificateDialog() {
-        document.getElementById("certificateCode").textContent = state.rangerCode || "OCEAN RANGER";
+        document.getElementById("certificateCode").textContent = state.rangerCode ? `${state.rangerCode} (WWF 바다거북 레인저)` : "WWF 바다거북 레인저";
         if (!certificateDialog.open) certificateDialog.showModal();
       }
 
@@ -1965,7 +2133,7 @@
       function resetTrace2() {
         if (!window.confirm("TRACE 02의 8개 단서 진행 기록만 초기화할까요?")) return;
         state.trace2Solved = [];
-        state.trace3Visited = false;
+        state.trace3Complete = false;
         state.trace4Visited = false;
         saveState();
         closeQuiz();
@@ -1977,7 +2145,6 @@
       function resetJourney() {
         if (!window.confirm("TRACE 01~04의 이 기기 진행 기록을 모두 초기화할까요?")) return;
         localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(LEGACY_TRACE2_KEY);
         state = { ...defaultState, trace2Solved: [] };
         
         pledgeStamped = false;
@@ -2037,10 +2204,6 @@
 
         trace1Submit.addEventListener("click", submitTrace1);
 
-        document.getElementById("trace1Sink").addEventListener("load", () => {
-          if (trace1Pending) finalizeTrace1("remote");
-        });
-
         document.getElementById("finalPopupClose").addEventListener("click", () => {
           document.getElementById('finalPopup').classList.remove('active');
           document.querySelectorAll('.code-input, .question-input, .cat-btn, .insta-btn').forEach(el => el.style.pointerEvents = 'auto');
@@ -2071,6 +2234,11 @@
         document.getElementById("certificateClose").addEventListener("click", closeCertificate);
         document.getElementById("certificateBack").addEventListener("click", closeCertificate);
         document.getElementById("certificatePrint").addEventListener("click", () => window.print());
+
+        document.getElementById("t3-submit-btn").addEventListener("click", submitTrace3);
+        document.getElementById("t3-ranger-code").addEventListener("input", function() {
+          this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+        });
 
         unlockDialog.addEventListener("close", () => {
           lastFocusedElement?.focus?.({ preventScroll: true });
