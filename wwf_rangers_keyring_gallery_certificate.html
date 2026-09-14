@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#031c22">
+  <title>WWF Rangers | TRACE 03 & 05 DIY 키링 갤러리 & 수료증</title>
+  
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&family=Noto+Sans+KR:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --deep-bg: #021318;
+      --panel-bg: rgba(6, 47, 56, 0.85);
+      --card-bg: #093740;
+      --highlight: #30c9c5;
+      --accent: #ffd05a;
+      --ocean: #087f8c;
+      --coral: #ff765f;
+      --gold-dark: #b8860b;
+      --gold-light: #f9d976;
+      --paper: #fdfbf7;
+    }
+
+    * { box-sizing: border-box; }
+    
+    body, html {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      font-family: "Gowun Dodum", sans-serif;
+      background-color: var(--deep-bg);
+      color: #e2f1f3;
+      overflow-x: hidden;
+    }
+
+    /* Background Underwater Canvas */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #021318; }
+    ::-webkit-scrollbar-thumb { background: #087f8c; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #30c9c5; }
+
+    /* Glassmorphism Styles */
+    .glass-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(48, 201, 197, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .glass-card {
+      background: rgba(9, 55, 64, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    .glass-card:hover {
+      border-color: var(--highlight);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(48, 201, 197, 0.25);
+    }
+
+    /* Keyring Card 3D Flip Effects */
+    .keyring-card {
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    
+    .keyring-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .keyring-card.flipped .keyring-inner {
+      transform: rotateY(180deg);
+    }
+
+    .keyring-front, .keyring-back {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      backface-visibility: hidden;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      border: 2px solid rgba(48, 201, 197, 0.3);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    }
+
+    .keyring-front {
+      background-size: cover;
+      background-position: center;
+      background-color: #062f38;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .keyring-back {
+      background: rgba(6, 47, 56, 0.95);
+      backdrop-filter: blur(10px);
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1rem;
+      border-color: var(--highlight);
+    }
+
+    /* Floating Bubble Mode Animation */
+    .mode-float .floating-wrapper {
+      position: relative;
+      min-height: 85vh;
+      overflow: hidden;
+    }
+
+    .mode-float .keyring-card {
+      position: absolute;
+      animation: floatBubble 7s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatBubble {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-25px) rotate(3deg); }
+      100% { transform: translateY(-50px) rotate(-3deg); }
+    }
+
+    /* Glow Effects */
+    .glow-btn {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .glow-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(60deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: rotate(30deg);
+      transition: 0.5s;
+    }
+
+    .glow-btn:hover::after {
+      left: 100%;
+    }
+
+    /* Certificate Styling */
+    .cert-wrapper {
+      background: var(--paper);
+      border-radius: 12px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      border: 1px solid #e5d8b8;
+      background-image: radial-gradient(circle at center, #ffffff 0%, #fdfbf7 100%);
+      color: #17343a;
+    }
+
+    .cert-inner {
+      border: 6px double var(--gold-dark);
+      border-radius: 6px;
+      background: linear-gradient(135deg, rgba(249, 217, 118, 0.08) 0%, rgba(255,255,255,0) 50%, rgba(184, 134, 11, 0.08) 100%);
+    }
+
+    .gold-seal {
+      width: 90px; height: 90px;
+      background: radial-gradient(circle, #fceca1 0%, #d4af37 80%, #b8860b 100%);
+      border-radius: 50%;
+      border: 3px dashed #fff;
+      box-shadow: 0 0 0 4px #b8860b, 0 6px 15px rgba(0,0,0,0.25);
+      display: grid;
+      place-items: center;
+      transform: rotate(-10deg);
+    }
+
+    /* Confetti Particle Animation */
+    .confetti {
+      position: fixed;
+      z-index: 9999;
+      top: -20px;
+      width: 10px; height: 18px;
+      border-radius: 3px;
+      pointer-events: none;
+      animation: confetti-fall 3.5s linear forwards;
+    }
+
+    @keyframes confetti-fall {
+      to { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Print styling for Certificate */
+    @media print {
+      body * { visibility: hidden !important; }
+      #cert-overlay, #cert-overlay * { visibility: visible !important; }
+      #cert-overlay { position: absolute; inset: 0; background: white; padding: 0; display: block; opacity: 1; }
+      .cert-wrapper { box-shadow: none; border: none; width: 100%; max-height: none; padding: 0; }
+      .no-print { display: none !important; }
+      .name-input { border-bottom: none !important; }
+    }
+  </style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between">
+
+  <canvas id="bg-canvas"></canvas>
+
+  <header class="sticky top-0 z-40 w-full px-4 py-3 glass-panel border-b border-teal-500/30">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Logo & Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-teal-400 to-amber-300 flex items-center justify-center text-teal-950 font-bold text-2xl shadow-lg shadow-teal-500/20">
+          🐢
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/30">TRACE 03 & 05</span>
+            <span class="text-xs text-amber-300 font-bold"><i class="fa-solid fa-users"></i> 300 레인저 참여 중</span>
+          </div>
+          <h1 class="font-['Jua'] text-xl md:text-2xl text-white tracking-wide">300개의 바다 조각 : DIY 키링 갤러리</h1>
+        </div>
+      </div>
+
+      <!-- Header Action Buttons -->
+      <div class="flex items-center gap-2 md:gap-3 flex-wrap justify-center">
+        <!-- 등록하기 버튼 -->
+        <button onclick="openUploadModal()" class="glow-btn bg-gradient-to-r from-teal-400 to-teal-500 text-teal-950 font-['Jua'] px-4 py-2.5 rounded-full text-sm md:text-base font-bold shadow-lg shadow-teal-500/30 hover:scale-105 active:scale-95 transition flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-lg"></i>
+          <span>내 DIY 키링 올리기</span>
+        </button>
+
+        <!-- 수료증 버튼 -->
+        <button onclick="openCertificate()" class="glow-btn bg-gradient-to-r from-amber-300 to-amber-500 text-slate-900 font-['Jua'] px-4 py-2.5 rounded-full text-sm md:text-base font-bold shadow-lg shadow-amber-500/30 hover:scale-105 active:scale-95 transition flex items-center gap-2">
+          <i class="fa-solid fa-scroll text-lg"></i>
+          <span>TRACE 수료증 받기</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <section class="relative z-10 max-w-7xl mx-auto px-4 pt-6 pb-2 w-full">
+    <div class="glass-panel rounded-2xl p-4 md:p-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center border border-teal-500/20">
+      <div class="p-2 border-r border-teal-500/20 last:border-0">
+        <span class="block text-2xl md:text-3xl font-['Jua'] text-amber-300" id="stat-registered-count">300</span>
+        <span class="text-xs md:text-sm text-teal-100/80">등록된 바다 조각(키링)</span>
+      </div>
+      <div class="p-2 border-r border-teal-500/20 last:border-0">
+        <span class="block text-2xl md:text-3xl font-['Jua'] text-teal-300">1,850 kg</span>
+        <span class="text-xs md:text-sm text-teal-100/80">수거된 해양 플라스틱</span>
+      </div>
+      <div class="p-2 border-r border-teal-500/20 last:border-0">
+        <span class="block text-2xl md:text-3xl font-['Jua'] text-coral text-rose-400" id="stat-hearts-count">2,410</span>
+        <span class="text-xs md:text-sm text-teal-100/80">모인 보전 응원 하트</span>
+      </div>
+      <div class="p-2">
+        <span class="block text-2xl md:text-3xl font-['Jua'] text-emerald-300">100 %</span>
+        <span class="text-xs md:text-sm text-teal-100/80">바다거북 서식지 보호</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-10 max-w-7xl mx-auto px-4 py-4 w-full">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 glass-card p-4 rounded-xl">
+      
+      <!-- Search Box -->
+      <div class="relative w-full md:w-80">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-teal-400/70"></i>
+        <input type="text" id="search-input" oninput="handleSearch()" placeholder="레인저 이름 또는 메시지 검색..." 
+               class="w-full bg-slate-900/80 text-white text-sm rounded-full pl-10 pr-4 py-2 border border-teal-500/30 focus:outline-none focus:border-teal-400 placeholder-teal-200/40">
+      </div>
+
+      <!-- Filter Controls & View Switcher -->
+      <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end flex-wrap">
+        
+        <!-- Filter Tabs -->
+        <div class="flex bg-slate-900/80 rounded-full p-1 border border-teal-500/30 text-xs">
+          <button id="filter-all" onclick="setFilter('all')" class="px-3 py-1.5 rounded-full font-bold bg-teal-500 text-slate-950 transition">전체 (300)</button>
+          <button id="filter-popular" onclick="setFilter('popular')" class="px-3 py-1.5 rounded-full text-teal-200 hover:text-white transition">인기순 ❤️</button>
+          <button id="filter-mine" onclick="setFilter('mine')" class="px-3 py-1.5 rounded-full text-teal-200 hover:text-white transition">내 키링 🙋</button>
+        </div>
+
+        <!-- View Mode Switch -->
+        <button id="view-toggle-btn" onclick="toggleViewMode()" class="bg-teal-900/60 hover:bg-teal-800 text-teal-200 text-xs md:text-sm px-3.5 py-2 rounded-full border border-teal-500/40 transition flex items-center gap-1.5 font-bold">
+          <i class="fa-solid fa-cubes"></i>
+          <span id="view-mode-label">수중 플로팅 뷰 🫧</span>
+        </button>
+
+      </div>
+    </div>
+  </section>
+
+  <main class="relative z-10 max-w-7xl mx-auto px-4 py-4 w-full flex-1">
+    
+    <!-- Empty Search State -->
+    <div id="empty-state" class="hidden text-center py-20">
+      <div class="text-6xl mb-4">🐢</div>
+      <h3 class="font-['Jua'] text-2xl text-teal-200 mb-2">검색 결과가 없습니다</h3>
+      <p class="text-sm text-teal-300/60 mb-6">다른 레인저 이름이나 키워드로 검색해 보세요.</p>
+      <button onclick="resetSearch()" class="bg-teal-500/20 text-teal-300 border border-teal-400/40 px-5 py-2 rounded-full text-sm font-bold">전체목록 보기</button>
+    </div>
+
+    <!-- Gallery Items Grid Container -->
+    <div id="gallery-container" class="mode-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5 min-h-[500px]">
+      <!-- Keyrings dynamically injected via JavaScript -->
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-center items-center gap-3 mt-8 mb-12" id="pagination-wrapper">
+      <button onclick="changePage(-1)" id="btn-prev-page" class="w-10 h-10 rounded-full bg-slate-800/80 text-teal-300 border border-teal-500/30 flex items-center justify-center hover:bg-teal-500 hover:text-slate-950 transition disabled:opacity-30 disabled:pointer-events-none">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <span class="text-sm font-['Jua'] text-teal-200 px-4 py-2 bg-slate-900/70 rounded-full border border-teal-500/30" id="page-indicator">
+        1 / 25 페이지
+      </span>
+      <button onclick="changePage(1)" id="btn-next-page" class="w-10 h-10 rounded-full bg-slate-800/80 text-teal-300 border border-teal-500/30 flex items-center justify-center hover:bg-teal-500 hover:text-slate-950 transition disabled:opacity-30 disabled:pointer-events-none">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+  </main>
+
+  <footer class="relative z-10 w-full glass-panel py-6 px-4 text-center text-xs text-teal-200/60 border-t border-teal-500/20">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      <p>© 2026 WWF RANGERS - Sea Turtle Conservation Project TRACE 03 & 05</p>
+      <p class="flex items-center gap-2">
+        <span>300명의 레인저가 만든 작은 조각이 거대한 바다를 지킵니다.</span>
+        <span>🌊🐢</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ================================================================= -->
+  <!-- MODALS SECTION -->
+  <!-- ================================================================= -->
+
+  <div id="upload-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden place-items-center p-4 opacity-0 transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-lg rounded-2xl p-6 relative border border-teal-400/40 shadow-2xl overflow-y-auto max-h-[90vh]">
+      
+      <!-- Close Button -->
+      <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl w-8 h-8 rounded-full bg-slate-800/50 flex items-center justify-center">
+        ✕
+      </button>
+
+      <div class="text-center mb-6">
+        <span class="text-3xl inline-block mb-1">📸</span>
+        <h2 class="font-['Jua'] text-2xl text-white">내 DIY 키링 등록하기</h2>
+        <p class="text-xs text-teal-200/70">직접 만든 플라스틱 재활용 키링 사진을 바다 갤러리에 공유해 주세요!</p>
+      </div>
+
+      <form id="keyring-form" onsubmit="handleKeyringSubmit(event)" class="space-y-4">
+        
+        <!-- Ranger Name Input -->
+        <div>
+          <label class="block text-xs font-bold text-teal-300 mb-1">레인저 닉네임 / 코드</label>
+          <input type="text" id="ranger-name-input" required maxlength="12" placeholder="예: 거북이수호자_김바다" 
+                 class="w-full bg-slate-900/90 text-white text-sm rounded-xl px-4 py-2.5 border border-teal-500/40 focus:outline-none focus:border-teal-400">
+        </div>
+
+        <!-- Photo Selection Dropzone -->
+        <div>
+          <label class="block text-xs font-bold text-teal-300 mb-1">키링 사진 업로드 (스마트폰/PC 가능)</label>
+          <div id="dropzone" onclick="document.getElementById('photo-file-input').click()" 
+               class="border-2 border-dashed border-teal-400/40 hover:border-teal-300 rounded-2xl p-6 text-center cursor-pointer bg-slate-900/50 hover:bg-slate-900/80 transition group">
+            
+            <input type="file" id="photo-file-input" accept="image/*" class="hidden" onchange="previewSelectedImage(event)">
+            
+            <div id="upload-preview-container" class="hidden mb-3">
+              <img id="upload-preview-img" class="w-32 h-32 object-cover rounded-full mx-auto border-2 border-teal-400 shadow-md">
+            </div>
+
+            <div id="upload-placeholder">
+              <i class="fa-solid fa-cloud-arrow-up text-3xl text-teal-400 mb-2 group-hover:scale-110 transition"></i>
+              <p class="text-xs text-teal-100 font-bold">클릭하여 키링 사진을 선택하거나 이 영역으로 드래그하세요</p>
+              <span class="text-[10px] text-teal-300/50 block mt-1">PNG, JPG, WEBP 지원 (자동 압축 처리)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Input -->
+        <div>
+          <label class="block text-xs font-bold text-teal-300 mb-1">바다거북에게 전하는 다짐 & 응원 메시지</label>
+          <textarea id="ranger-msg-input" required rows="3" maxlength="80" placeholder="예: 바다거북아 아프지 마! 일회용 플라스틱 줄이기에 앞장설게! 🌊" 
+                    class="w-full bg-slate-900/90 text-white text-sm rounded-xl p-3 border border-teal-500/40 focus:outline-none focus:border-teal-400"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-teal-400 to-teal-500 text-slate-950 font-['Jua'] text-lg rounded-xl shadow-lg shadow-teal-500/30 hover:brightness-110 transition active:scale-[0.98]">
+          🌊 바다 갤러리에 등록 완료하기
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <div id="detail-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden place-items-center p-4 opacity-0 transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 relative border border-teal-400/40 shadow-2xl text-center">
+      
+      <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl w-8 h-8 rounded-full bg-slate-800/50 flex items-center justify-center">
+        ✕
+      </button>
+
+      <div class="relative w-48 h-48 mx-auto my-4 rounded-full border-4 border-teal-400 shadow-xl overflow-hidden bg-slate-900">
+        <img id="detail-img" src="" class="w-full h-full object-cover">
+      </div>
+
+      <span id="detail-tag" class="inline-block px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/30 text-xs font-bold mb-2">
+        WWF Ranger Keyring
+      </span>
+
+      <h3 id="detail-name" class="font-['Jua'] text-2xl text-white mb-2">레인저</h3>
+      
+      <p id="detail-msg" class="text-sm text-teal-100 bg-slate-900/60 p-4 rounded-xl border border-teal-500/20 mb-6 italic leading-relaxed">
+        "응원 메시지"
+      </p>
+
+      <div class="flex items-center justify-center gap-3">
+        <button id="detail-heart-btn" onclick="toggleDetailHeart()" class="flex-1 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-heart text-rose-400"></i>
+          <span id="detail-heart-count">0</span> 하트 보내기
+        </button>
+
+        <button onclick="closeDetailModal()" class="px-5 py-2.5 bg-slate-800 text-teal-200 rounded-xl text-sm font-bold hover:bg-slate-700 transition">
+          닫기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="cert-overlay" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden place-items-center p-4 opacity-0 transition-opacity duration-300">
+    <div class="cert-wrapper w-full max-w-3xl max-h-[92vh] overflow-y-auto p-6 md:p-10 relative">
+      
+      <!-- Close Button -->
+      <button onclick="closeCertificate()" class="no-print absolute top-4 right-4 text-amber-800 hover:text-slate-900 text-2xl w-10 h-10 rounded-full flex items-center justify-center transition">
+        ✕
+      </button>
+
+      <div class="cert-inner p-6 md:p-10 text-center relative overflow-hidden">
+        
+        <!-- Watermark Turtle Icon -->
+        <div class="absolute inset-0 flex items-center justify-center text-[220px] opacity-[0.03] pointer-events-none select-none text-amber-800">
+          🐢
+        </div>
+
+        <div class="relative z-10 mb-8">
+          <span class="block font-['Jua'] text-xs md:text-sm text-amber-700 tracking-widest mb-2">
+            WWF RANGERS 2ND GENERATION
+          </span>
+          <h1 class="font-['Jua'] text-3xl md:text-5xl text-slate-900 tracking-tight">
+            바다거북 보전 여정 수료증
+          </h1>
+        </div>
+
+        <div class="relative z-10 mb-8 space-y-4">
+          <!-- Printable / Editable Ranger Name Input -->
+          <div class="inline-block relative border-b-2 border-amber-700/60 pb-1">
+            <input type="text" id="cert-ranger-name" value="레인저 A1B2C304" maxlength="16" spellcheck="false"
+                   class="name-input text-center font-['Jua'] text-2xl md:text-3xl text-slate-900 bg-transparent outline-none w-64 md:w-80">
+            <i class="fa-solid fa-pen-to-square text-amber-600/50 text-xs absolute right-0 bottom-2 no-print"></i>
+          </div>
+
+          <p class="text-sm md:text-base leading-relaxed text-slate-800 max-w-xl mx-auto font-medium">
+            위 레인저는 <strong class="text-amber-800 font-bold">TRACE 01(첫 다짐), TRACE 02(위협 단서 해독), TRACE 03(바다 조각 키링 완성)</strong> 플라스틱 재활용 보전 캠페인 과정을 성실히 완수하였습니다.<br><br>
+            당신이 만든 작은 키링 조각들이 모여 300명의 거대하고 맑은 바다를 이루었습니다. 바다거북과 해양 생태계를 지켜낸 고귀한 참여에 깊이 감사드립니다.
+          </p>
+        </div>
+
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 mt-10 pt-6 border-t border-amber-800/20 font-['Jua'] text-slate-800">
+          <div class="text-left text-sm">
+            <span class="block text-slate-500 text-xs">수료일자</span>
+            <span>2026년 12월 31일</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <span class="text-base md:text-lg">WWF 레인저스 운영본부</span>
+            
+            <!-- Gold Seal -->
+            <div class="gold-seal text-3xl shadow-lg">
+              🐢
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Print Action Button -->
+      <div class="no-print mt-6 text-center">
+        <button onclick="window.print()" class="bg-slate-900 text-amber-300 hover:bg-teal-950 font-['Jua'] text-base md:text-lg px-8 py-3 rounded-full shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 mx-auto">
+          <i class="fa-solid fa-print"></i>
+          <span>수료증 PDF 저장 / 인쇄하기</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-amber-300 text-slate-950 px-6 py-3 rounded-full font-['Jua'] text-sm md:text-base shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-10 flex items-center gap-2 border border-amber-400">
+    <span id="toast-icon">✅</span>
+    <span id="toast-msg">알림 메시지</span>
+  </div>
+
+  <script>
+    /* =================================================================
+       1. CANVAS UNDERWATER BUBBLE & LIGHT ANIMATION (Replaces Map)
+       ================================================================= */
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let bubbles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Bubble {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + Math.random() * 100;
+        this.radius = Math.random() * 4 + 1;
+        this.speed = Math.random() * 1.2 + 0.3;
+        this.alpha = Math.random() * 0.5 + 0.1;
+        this.wobble = Math.random() * Math.PI * 2;
+        this.wobbleSpeed = Math.random() * 0.03 + 0.01;
+      }
+      update() {
+        this.y -= this.speed;
+        this.wobble += this.wobbleSpeed;
+        this.x += Math.sin(this.wobble) * 0.5;
+        if (this.y < -20) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(48, 201, 197, ${this.alpha})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(255, 255, 255, ${this.alpha * 0.8})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+
+    for (let i = 0; i < 60; i++) {
+      bubbles.push(new Bubble());
+    }
+
+    function animateBg() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Underwater Background Gradient
+      let bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bgGradient.addColorStop(0, '#04222a');
+      bgGradient.addColorStop(0.6, '#021318');
+      bgGradient.addColorStop(1, '#010b0e');
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Light Rays
+      ctx.save();
+      ctx.fillStyle = 'rgba(48, 201, 197, 0.03)';
+      ctx.beginPath();
+      ctx.moveTo(canvas.width * 0.2, 0);
+      ctx.lineTo(canvas.width * 0.4, canvas.height);
+      ctx.lineTo(canvas.width * 0.1, canvas.height);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      bubbles.forEach(b => {
+        b.update();
+        b.draw();
+      });
+
+      requestAnimationFrame(animateBg);
+    }
+    animateBg();
+
+    /* =================================================================
+       2. 300 RANGER KEYRING DATA SIMULATION & STORAGE
+       ================================================================= */
+    const STORAGE_KEY = 'wwf_ranger_keyrings_v2';
+
+    // SVG Palette Mock Generators for Default 300 Keyrings
+    const colorThemes = [
+      ['#087f8c', '#30c9c5', '#ffd05a'],
+      ['#ff765f', '#ffd05a', '#062f38'],
+      ['#10b981', '#06b6d4', '#f59e0b'],
+      ['#6366f1', '#ec4899', '#38bdf8']
+    ];
+
+    function generateKeyringSVG(id, seed) {
+      const colors = colorThemes[seed % colorThemes.length];
+      return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+        <rect width="300" height="300" fill="%23062f38"/>
+        <circle cx="150" cy="150" r="110" fill="${encodeURIComponent(colors[0])}" opacity="0.4"/>
+        <circle cx="150" cy="150" r="85" fill="${encodeURIComponent(colors[1])}" opacity="0.6"/>
+        <path d="M150 70 L190 120 L170 190 L130 190 L110 120 Z" fill="${encodeURIComponent(colors[2])}"/>
+        <text x="150" y="260" font-family="sans-serif" font-weight="bold" font-size="16" fill="%23ffffff" text-anchor="middle">Ranger #${id + 1}</text>
+        <text x="150" y="160" font-size="50" text-anchor="middle" dominant-baseline="middle">🐢</text>
+      </svg>`;
+    }
+
+    const defaultMessages = [
+      "플라스틱 없이 바다거북이 헤엄치는 깨끗한 바다를 만들어요!",
+      "우리가 모은 작은 플라스틱 조각이 거대하고 맑은 보전의 힘이 됩니다.",
+      "텀블러 쓰기 & 일회용품 줄이기 실천 중! 🌊",
+      "TRACE 03 미션 완수! 바다거북 키링 완성!",
+      "멸종위기 해양생물들을 끝까지 함께 지켜내요."
+    ];
+
+    let keyringData = [];
+
+    function initKeyringsData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          keyringData = JSON.parse(saved);
+          return;
+        } catch (e) {
+          console.error("Failed to parse saved keyrings:", e);
+        }
+      }
+
+      // Generate 300 Default Rangers
+      keyringData = [];
+      for (let i = 0; i < 300; i++) {
+        const isUserMine = i === 0; // First item initialized as default user
+        keyringData.push({
+          id: i + 1,
+          rangerName: isUserMine ? "나의_바다키링" : `레인저_${(i + 101).toString(16).toUpperCase()}`,
+          imageUrl: generateKeyringSVG(i, i),
+          message: defaultMessages[i % defaultMessages.length],
+          hearts: Math.floor(Math.random() * 45) + 3,
+          isMine: isUserMine,
+          createdAt: Date.now() - (300 - i) * 3600000
+        });
+      }
+      saveToStorage();
+    }
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(keyringData));
+      updateStats();
+    }
+
+    function updateStats() {
+      document.getElementById('stat-registered-count').innerText = keyringData.length;
+      const totalHearts = keyringData.reduce((acc, curr) => acc + (curr.hearts || 0), 0);
+      document.getElementById('stat-hearts-count').innerText = totalHearts.toLocaleString();
+    }
+
+    /* =================================================================
+       3. GALLERY PAGINATION, SEARCH & FILTER STATE
+       ================================================================= */
+    let currentPage = 1;
+    const itemsPerPage = 24;
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let isFloatView = false;
+
+    function getFilteredData() {
+      return keyringData.filter(item => {
+        const matchesSearch = item.rangerName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              item.message.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        if (!matchesSearch) return false;
+
+        if (currentFilter === 'mine') return item.isMine;
+        return true;
+      }).sort((a, b) => {
+        if (currentFilter === 'popular') return b.hearts - a.hearts;
+        return b.id - a.id; // Newest first
+      });
+    }
+
+    function renderGallery() {
+      const container = document.getElementById('gallery-container');
+      const emptyState = document.getElementById('empty-state');
+      const filtered = getFilteredData();
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        document.getElementById('pagination-wrapper').classList.add('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      document.getElementById('pagination-wrapper').classList.remove('hidden');
+
+      // Pagination Calculation
+      const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const pageItems = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+      // Render Page Indicator
+      document.getElementById('page-indicator').innerText = `${currentPage} / ${totalPages} 페이지`;
+      document.getElementById('btn-prev-page').disabled = (currentPage === 1);
+      document.getElementById('btn-next-page').disabled = (currentPage === totalPages);
+
+      container.innerHTML = '';
+
+      if (isFloatView) {
+        container.className = "mode-float relative w-full min-h-[600px] flex flex-wrap justify-center gap-6 p-4";
+      } else {
+        container.className = "mode-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5";
+      }
+
+      pageItems.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'keyring-card aspect-square w-full';
+
+        if (isFloatView) {
+          const delay = (index * 0.3) % 4;
+          card.style.animationDelay = `${delay}s`;
+        }
+
+        card.innerHTML = `
+          <div class="keyring-inner">
+            <!-- Front Card -->
+            <div class="keyring-front p-3 flex flex-col justify-between" style="background-image: linear-gradient(180deg, rgba(2, 19, 24, 0.2) 0%, rgba(2, 19, 24, 0.8) 100%), url('${item.imageUrl}'); background-size: cover; background-position: center;">
+              
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/80 text-teal-300 border border-teal-500/30">
+                  #${item.id}
+                </span>
+                ${item.isMine ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">내 키링</span>' : ''}
+              </div>
+
+              <div>
+                <h4 class="font-['Jua'] text-sm md:text-base text-white truncate drop-shadow-md">${item.rangerName}</h4>
+                <div class="flex items-center justify-between text-xs text-rose-300 mt-1">
+                  <span><i class="fa-solid fa-heart text-rose-400"></i> ${item.hearts}</span>
+                  <span class="text-[10px] text-teal-200/70">클릭하여 정보 🔍</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Back Card -->
+            <div class="keyring-back text-left">
+              <div>
+                <span class="text-[10px] text-teal-300 font-bold block mb-1">레인저 메시지</span>
+                <p class="text-xs text-slate-100 leading-relaxed line-clamp-4 font-medium">${item.message}</p>
+              </div>
+
+              <div class="pt-2 border-t border-teal-500/30 flex items-center justify-between gap-1">
+                <button onclick="addHeart(event, ${item.id})" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 text-xs font-bold transition flex items-center gap-1">
+                  <i class="fa-solid fa-heart"></i> ${item.hearts}
+                </button>
+                <button onclick="openDetailModal(event, ${item.id})" class="px-2.5 py-1 rounded-lg bg-teal-500/20 hover:bg-teal-500/40 text-teal-300 text-xs font-bold transition">
+                  자세히
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Card Click Handler to Flip Card
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('button')) return;
+          this.classList.toggle('flipped');
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderGallery();
+      window.scrollTo({ top: 300, behavior: 'smooth' });
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      currentPage = 1;
+
+      document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+        btn.className = "px-3 py-1.5 rounded-full text-teal-200 hover:text-white transition";
+      });
+
+      const activeBtn = document.getElementById(`filter-${filter}`);
+      if (activeBtn) {
+        activeBtn.className = "px-3 py-1.5 rounded-full font-bold bg-teal-500 text-slate-950 transition";
+      }
+
+      renderGallery();
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById('search-input').value.trim();
+      currentPage = 1;
+      renderGallery();
+    }
+
+    function resetSearch() {
+      document.getElementById('search-input').value = '';
+      searchQuery = '';
+      setFilter('all');
+    }
+
+    function toggleViewMode() {
+      isFloatView = !isFloatView;
+      const label = document.getElementById('view-mode-label');
+      label.innerText = isFloatView ? "그리드 뷰로 변경 🔲" : "수중 플로팅 뷰 🫧";
+      renderGallery();
+    }
+
+    function addHeart(event, id) {
+      if (event) event.stopPropagation();
+      const item = keyringData.find(k => k.id === id);
+      if (item) {
+        item.hearts += 1;
+        saveToStorage();
+        renderGallery();
+        showToast(`❤️ ${item.rangerName}님에게 응원 하트를 보냈습니다!`);
+      }
+    }
+
+    /* =================================================================
+       4. UPLOAD KEYRING MODAL LOGIC (File Reader / Base64)
+       ================================================================= */
+    let selectedImageBase64 = null;
+
+    function openUploadModal() {
+      const modal = document.getElementById('upload-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('grid');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closeUploadModal() {
+      const modal = document.getElementById('upload-modal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('grid');
+      }, 300);
+    }
+
+    function previewSelectedImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        selectedImageBase64 = e.target.result;
+        document.getElementById('upload-preview-img').src = selectedImageBase64;
+        document.getElementById('upload-preview-container').classList.remove('hidden');
+        document.getElementById('upload-placeholder').classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleKeyringSubmit(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('ranger-name-input').value.trim();
+      const msg = document.getElementById('ranger-msg-input').value.trim();
+
+      if (!name || !msg) {
+        showToast("⚠️ 닉네임과 응원 메시지를 모두 입력해 주세요.");
+        return;
+      }
+
+      const newId = keyringData.length + 1;
+      const finalImage = selectedImageBase64 || generateKeyringSVG(newId, newId);
+
+      const newKeyring = {
+        id: newId,
+        rangerName: name,
+        imageUrl: finalImage,
+        message: msg,
+        hearts: 1,
+        isMine: true,
+        createdAt: Date.now()
+      };
+
+      keyringData.unshift(newKeyring);
+      saveToStorage();
+
+      // Certificate Name Syncing
+      document.getElementById('cert-ranger-name').value = name;
+
+      closeUploadModal();
+      showToast("🎉 축하합니다! 내 DIY 키링이 갤러리에 등록되었습니다.");
+
+      // Reset Form State
+      document.getElementById('keyring-form').reset();
+      selectedImageBase64 = null;
+      document.getElementById('upload-preview-container').classList.add('hidden');
+      document.getElementById('upload-placeholder').classList.remove('hidden');
+
+      setFilter('mine');
+    }
+
+    /* =================================================================
+       5. DETAIL MODAL LOGIC
+       ================================================================= */
+    let activeDetailId = null;
+
+    function openDetailModal(event, id) {
+      if (event) event.stopPropagation();
+      activeDetailId = id;
+
+      const item = keyringData.find(k => k.id === id);
+      if (!item) return;
+
+      document.getElementById('detail-img').src = item.imageUrl;
+      document.getElementById('detail-name').innerText = item.rangerName;
+      document.getElementById('detail-msg').innerText = `"${item.message}"`;
+      document.getElementById('detail-heart-count').innerText = item.hearts;
+      document.getElementById('detail-tag').innerText = item.isMine ? "나의 DIY 키링" : `Ranger #${item.id}`;
+
+      const modal = document.getElementById('detail-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('grid');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('detail-modal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('grid');
+      }, 300);
+    }
+
+    function toggleDetailHeart() {
+      if (activeDetailId) {
+        addHeart(null, activeDetailId);
+        const item = keyringData.find(k => k.id === activeDetailId);
+        if (item) {
+          document.getElementById('detail-heart-count').innerText = item.hearts;
+        }
+      }
+    }
+
+    /* =================================================================
+       6. CERTIFICATE & CONFETTI CELEBRATION LOGIC
+       ================================================================= */
+    function openCertificate() {
+      const modal = document.getElementById('cert-overlay');
+      modal.classList.remove('hidden');
+      modal.classList.add('grid');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+
+      // Launch Celebration Confetti
+      launchConfetti();
+    }
+
+    function closeCertificate() {
+      const modal = document.getElementById('cert-overlay');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('grid');
+      }, 300);
+    }
+
+    function launchConfetti() {
+      const colors = ["#ffd05a", "#ff765f", "#30c9c5", "#b8860b", "#f9d976", "#38bdf8"];
+      for (let i = 0; i < 60; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.backgroundColor = colors[i % colors.length];
+        confetti.style.animationDelay = `${Math.random() * 0.6}s`;
+        confetti.style.animationDuration = `${Math.random() * 2 + 2}s`;
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 4000);
+      }
+    }
+
+    /* =================================================================
+       7. TOAST NOTIFICATION SYSTEM
+       ================================================================= */
+    function showToast(msg, icon = "✅") {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast-icon').innerText = icon;
+
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-10');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-10');
+      }, 3200);
+    }
+
+    /* =================================================================
+       INITIALIZATION ON LOAD
+       ================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      initKeyringsData();
+      renderGallery();
+    });
+  </script>
+</body>
+</html>
