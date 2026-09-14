@@ -12,7 +12,7 @@
       
 * [🐢 메인 페이지 (index.html)](https://mission2027vision.github.io/challenges/)
 * * 💬 [보너스 미션: TRACE TALK Q&A (trace_talk.html)](https://mission2027vision.github.io/challenges/trace_talk.html)
-* 🧩 [TRACE 03 & 05 갤러리 및 수료증 (wwf_rangers_keyring_gallery_certificate.html)](wwf_rangers_keyring_gallery_certificate.html)
+* 🧩 [TRACE 03 & 05 갤러리 및 수료증 (https://mission2027vision.github.io/challenges/wwf_rangers_keyring_gallery_certificate.html)](wwf_rangers_keyring_gallery_certificate.html)
 
 ## 미션 구조
 
