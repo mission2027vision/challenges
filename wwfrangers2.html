@@ -893,7 +893,7 @@
         <h4>WWF RANGERS 2기 (바다거북 수호대)</h4>
         <div class="trace-badge">TRACE 01 · IDENTITY</div>
         <h1 id="trace1Title">나의 코드로 여정을<br>시작하세요</h1>
-        <p class="desc">A·C·G·T로 이루어진 8자리 고유 코드를 등록하고,<br>바다거북 수호대로서의 첫 다짐을 남겨보세요.</p>
+        <p class="desc">A·C·G·T로 이루어진 6자리 고유 코드를 등록하고,<br>바다거북 수호대로서의 첫 다짐을 남겨보세요.</p>
       </div>
 
       <div class="success-card" id="successCard">
@@ -910,11 +910,11 @@
         
         <div class="input-group">
           <div class="input-hint">
-            <span>8자리 고유 코드</span>
+            <span>6자리 고유 코드</span>
             <span>A·C·G·T로 입력</span>
           </div>
           <div class="dna-mini-popup" id="dnaPopup">삐빅 - 고유 코드 확인 완료!</div>
-          <input type="text" id="rangerCode" class="code-input" placeholder="8자리 고유 코드" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false">
+          <input type="text" id="rangerCode" class="code-input" placeholder="6자리 고유 코드" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false">
         </div>
 
         <div class="input-group">
@@ -1384,7 +1384,7 @@
           const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
           safe.introSeen = Boolean(parsed.introSeen);
           safe.trace1Complete = Boolean(parsed.trace1Complete);
-          safe.rangerCode = /^[A-Z0-9]{8}$/.test(parsed.rangerCode || "") ? parsed.rangerCode : "";
+          safe.rangerCode = /^[A-Z0-9]{6}$/.test(parsed.rangerCode || "") ? parsed.rangerCode : "";
           safe.trace2Solved = normalizeSolved(parsed.trace2Solved);
           safe.trace3Complete = Boolean(parsed.trace3Complete);
           safe.trace4Visited = Boolean(parsed.trace4Visited);
@@ -1698,9 +1698,9 @@
       function submitTrace1() {
         const code = rangerCodeInput.value.trim();
 
-        if (code.length !== 8) {
+        if (code.length !== 6) {
           rangerCodeInput.focus();
-          showToast("🧬 8자리 고유 코드를 정확히 입력해 주세요.");
+          showToast("🧬 6자리 고유 코드를 정확히 입력해 주세요.");
           return;
         }
 
@@ -1786,9 +1786,9 @@
         const code = codeInput.value.trim().toUpperCase();
         const note = noteInput.value.trim();
 
-        if (code.length !== 8) {
+        if (code.length !== 6) {
           codeInput.focus();
-          showToast("🔑 8자리 레인저 코드를 정확히 입력해주세요.");
+          showToast("🔑 6자리 레인저 코드를 정확히 입력해주세요.");
           return;
         }
 
@@ -2158,7 +2158,7 @@
 
         stampButton.addEventListener("click", () => {
           if (!isDnaEntered) {
-            showToast("🧬 위쪽의 8자리 고유 코드를 먼저 정확히 입력해주세요.");
+            showToast("🧬 위쪽의 6자리 고유 코드를 먼저 정확히 입력해주세요.");
             return;
           }
           pledgeStamped = true;
