@@ -1675,7 +1675,7 @@
 
       function updateDnaSignal() {
         const value = rangerCodeInput.value;
-        const valid = value.length === 8;
+        const valid = value.length === 6;
         rangerCodeInput.classList.toggle("success", valid);
         
         const popup = document.getElementById('dnaPopup');
@@ -2143,7 +2143,7 @@
         document.getElementById("resetJourney").addEventListener("click", resetJourney);
 
         rangerCodeInput.addEventListener("input", function() {
-          this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+          this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
           updateDnaSignal();
         });
 
