@@ -11,7 +11,7 @@
   * * 📸 [TRACE 3 (wwf_rangers_trace02.html)](https://mission2027vision.github.io/challenges/trace3.html)
       
 * [🐢 메인 페이지 (index.html)](https://mission2027vision.github.io/challenges/)
-* * 💬 [gpt버전메인페이지: TRACE TALK Q&A (trace_talk.html)](https://mission2027vision.github.io/challenges/trace_talk.html)
+* * 💬 [9/18 기준 메인페이지: TRACE TALK Q&A (trace_talk.html)](https://mission2027vision.github.io/challenges/trace_talk.html)
 * 🧩 [TRACE 03 & 05 갤러리 및 수료증 (wwf_rangers_keyring_gallery_certificate.html)](https://mission2027vision.github.io/challenges/wwf_rangers_keyring_gallery_certificate.html)
 
 ## 미션 구조
