@@ -2561,7 +2561,7 @@ const missions = [
         section.append(kicker, question, options);
 
         if (solved) {
-          section.appendChild(makeFeedback(mission.explanation));
+          section.appendChild(makeFeedback(mission));
         }
 
         const source = document.createElement("p");
@@ -2634,7 +2634,7 @@ const missions = [
         optionButtons.forEach((button) => {
           button.disabled = true;
         });
-        selectedButton.closest(".quiz-section").appendChild(makeFeedback(mission.explanation));
+        selectedButton.closest(".quiz-section").appendChild(makeFeedback(mission));
 
         burstParticles(selectedButton);
         showToast(`단서 ${mission.id} 해독 완료! (${state.trace2Solved.length}/${TRACE2_TOTAL})`);
