@@ -4,10 +4,12 @@ WWF Rangers + TRACE LOG | Single-file integration
 Replace your existing entry HTML (usually index.html) with this file on the same site.
 Mission progress uses wwf_rangers_2nd_vault_v10 and migrates the v8 key once.
 Old solved Q8 maps to Q9; new Q8 and Q10 require answers. Gallery IndexedDB is preserved.
-Earlier submission confirmations are retained, with access gated by all ten questions.
+Earlier confirmations are retained, with access gated by all ten questions and a certificate-link click.
+TRACE 02 certificate-link clicks unlock TRACE 03; they do not verify Catchsecu form receipts.
 TRACE 03 and 04 completion are participant confirmations, not verified external form receipts.
 TRACE 03 uses the registered code and goes directly to TRACE 04; no duplicate code/note fields.
-Fix version: 2026-09-18 / ten-question-journey
+Fix version: 2026-09-30 / trace02-certificate-link-gate-and-color-exports
+Certificate: direct PDF / PNG / JPG exports keep the mint/black palette.
 The browser gate controls the journey UI; it is not server authorization.
 Gallery photos remain local to this browser. No participation map / map API key added.
 -->
@@ -700,24 +702,28 @@ Gallery photos remain local to this browser. No participation map / map API key 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes bouncePopup { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-12px) scale(1.04); } }
 
-    /* ---------- PRINT STYLES FOR CERTIFICATE ---------- */
+    /* Browser print fallback; the PDF button downloads a color PDF directly. */
     @media print {
       body * { visibility: hidden; }
       #certificateDialog, #certificateDialog * { visibility: visible; }
       #certificateDialog {
-        position: absolute; left: 0; top: 0; width: 100%; height: 100%;
-        background: white !important; color: black !important;
+        position: absolute; left: 0; top: 0; margin: 0; width: 100%; height: auto;
+        background: #040d0e !important; color: #b1dfdc !important;
+        print-color-adjust: exact; -webkit-print-color-adjust: exact;
       }
       .certificate-card {
         border: none !important; box-shadow: none !important; width: 100% !important; max-height: none !important;
-        background: white !important; color: black !important;
+        overflow: visible !important; background: #040d0e !important; color: #b1dfdc !important;
       }
       .certificate-paper {
-        border: 2px solid #00728f !important; background: #fff !important; color: #111 !important;
+        break-inside: avoid; border: 2px solid #00ffb2 !important;
+        background: #020807 !important; color: #b1dfdc !important;
+        print-color-adjust: exact; -webkit-print-color-adjust: exact;
       }
-      .certificate-paper h2, .certificate-code { color: #00728f !important; }
-      .certificate-paper p { color: #333 !important; }
-      .dialog-close-x, .certificate-actions { display: none !important; }
+      .certificate-paper h2, .certificate-code, .certificate-paper small { color: #00ffb2 !important; }
+      .certificate-paper p { color: #b1dfdc !important; }
+      .certificate-stats span { color: #00ffb2 !important; background: #03261f !important; border-color: #00ffb2 !important; }
+      .dialog-close-x, .certificate-actions, .certificate-export-actions, .certificate-download-area, .certificate-note { display: none !important; }
     }
 
     @media (max-width: 900px) {
@@ -778,6 +784,26 @@ Gallery photos remain local to this browser. No participation map / map API key 
     .mission-item { flex-shrink: 0; }
     .dock-copy, .dock-actions { flex-shrink: 0; }
     .certificate-actions { flex-wrap: wrap; }
+
+    /* Certificate downloads retain the on-screen mint/black palette. */
+    .certificate-export-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+    .certificate-export-actions .ghost-btn { flex: 1 1 130px; padding: 12px 16px; }
+    .certificate-export-actions button:disabled { opacity: .55; cursor: wait; }
+    .certificate-download-area { text-align: center; color: var(--mist); font-size: .76rem; line-height: 1.7; }
+    #certificateExportStatus:empty { display: none; }
+    #certificateExportStatus { margin: 12px 0 0; }
+    #certificateDownloadLink { display: inline-block; margin-top: 8px; color: var(--neon-mint); text-decoration: underline; text-underline-offset: 4px; }
+    #certificateDownloadLink[hidden] { display: none; }
+    .certificate-actions > a { display: inline-flex; justify-content: center; align-items: center; text-align: center; text-decoration: none; }
+    @media (max-width: 640px) {
+      .certificate-actions > a { width: 100%; }
+      .certificate-export-actions { gap: 8px; }
+      .certificate-export-actions .ghost-btn { flex-basis: 80px; padding: 12px 8px; font-size: .8rem; }
+    }
+
+    .certificate-note { margin: 16px 0 0; color: var(--mist); text-align: center; font-size: .78rem; line-height: 1.8; word-break: keep-all; }
+    .certificate-note small { display: block; margin-top: 5px; font-size: .72rem; }
+    @media print { .certificate-note { display: none !important; } }
     .trace2-map-note { position: absolute; z-index: 500; bottom: 28px; left: 16px; right: 16px; width: fit-content; max-width: calc(100% - 32px); margin: 0; padding: 7px 12px; border-radius: 8px; color: var(--mist); background: rgba(4,13,14,.88); font-size: 11px; line-height: 1.6; pointer-events: none; word-break: keep-all; }
     @media (max-width: 640px) { .trace2-map-note { font-size: 10px; bottom: 20px; left: 10px; right: 10px; } }
   </style>
@@ -903,7 +929,7 @@ Gallery photos remain local to this browser. No participation map / map API key 
               </span>
               <h3>Trace 03. 나의 바다 조각 완성하기</h3>
               <p>작은 바다 조각을 완성해 인증합니다.</p>
-              <span class="vault-cta" data-card-cta="3">TRACE 02 완료 후 해제</span>
+              <span class="vault-cta" data-card-cta="3">10문항 해독·인증서 제출 링크 이동 후 해제</span>
             </span>
           </button>
         </article>
@@ -1282,11 +1308,23 @@ Gallery photos remain local to this browser. No participation map / map API key 
           <span>TRACE 02 완료</span><span id="certificateScore">10 / 10 해독 완료</span>
         </div>
       </div>
+      <div class="certificate-export-actions" id="certificateExportActions" role="group" aria-label="인증서 파일 저장" aria-busy="false">
+        <button class="ghost-btn" id="certificatePrint" type="button" data-certificate-format="pdf">📄 PDF 저장</button>
+        <button class="ghost-btn" id="certificatePng" type="button" data-certificate-format="png">🖼️ PNG 저장</button>
+        <button class="ghost-btn" id="certificateJpg" type="button" data-certificate-format="jpg">📷 JPG 저장</button>
+      </div>
+      <div class="certificate-download-area">
+        <p id="certificateExportStatus" role="status" aria-live="polite"></p>
+        <a id="certificateDownloadLink" target="_blank" rel="noopener noreferrer" hidden>파일 다시 저장하기 ↗</a>
+      </div>
       <div class="certificate-actions">
         <button class="ghost-btn" id="certificateBack" type="button">미션 보드로 돌아가기</button>
-        <button class="ghost-btn" id="certificatePrint" type="button">인증서 PDF 저장 📄</button>
-        <button class="primary-btn" id="certificateNext" type="button">TRACE 03 시작하기 →</button>
+        <a class="primary-btn" id="certificateNext" href="https://app.catchsecu.com/project/fbee802ee299bce/form" target="_blank" rel="noopener noreferrer" aria-describedby="certificateSubmissionNote">인증서 제출하기 ↗</a>
       </div>
+      <p class="certificate-note" id="certificateSubmissionNote">
+        제출 폼은 새 탭에서 열립니다. 폼 작성 후 이 미션 탭으로 돌아와 TRACE 03을 이어가 주세요.
+        <small>TRACE 03은 제출 링크를 누르면 열립니다. 실제 접수 완료는 캐치시큐 폼에서 확인해 주세요.</small>
+      </p>
     </div>
   </dialog>
 
@@ -1302,6 +1340,7 @@ Gallery photos remain local to this browser. No participation map / map API key 
 
       const CONFIG = Object.freeze({
         trace1Endpoint: "https://script.google.com/macros/s/AKfycbzwSnpb7aU1gRRRRFrkqceO5fGreegibt2tnM11ONi52-318pE_EO8wQ6xGqX_Y6KpgmQ/exec",
+        trace2CertificateUrl: "https://app.catchsecu.com/project/fbee802ee299bce/form",
         trace4Url: "https://forms.cloud.microsoft/pages/responsepage.aspx?id=4_I-hC_LHkKfic990TqP333EORmjkbNFp9Am5C-CudpUMjZYQU8yWE5TMEZJMjU4MjAxV0NUV0xLUC4u&route=shorturl",
         submissionFallbackMs: 5000
       });
@@ -1311,12 +1350,15 @@ Gallery photos remain local to this browser. No participation map / map API key 
       const LEGACY_STORAGE_KEY = "wwf_rangers_2nd_vault_v8";
 
       const defaultState = Object.freeze({
-        version: 2,
+        version: 3,
         trace2Revision: 2,
         introSeen: false,
         trace1Complete: false,
         rangerCode: "",
         trace2Solved: [],
+        trace2CertificateLinkClicked: false,
+        trace2CertificateLinkClickedAt: null,
+        trace2CertificateCode: "",
         trace3Complete: false,
         trace4Visited: false,
         trace4Complete: false
@@ -1471,7 +1513,7 @@ const missions = [
       {
         label: "🌦️ WWF-UK 보고서 · 기후변화와 장수거북의 산란 환경",
         url: "https://www.wwf.org.uk/sites/default/files/2021-06/FEELING_THE_HEAT_REPORT.pdf#page=14",
-        description: "『Feeling the Heat』 인쇄 26–27쪽. 코스타리카 장수거북의 부화와 산란지를 위협하는 기후변화를 살펴봐요."
+        description: "『Feeling the Heat』코스타리카 장수거북의 부화와 산란지를 위협하는 기후변화를 살펴봐요."
       }
     ]
   },
@@ -1599,7 +1641,7 @@ const missions = [
     lat: 32.87,
     lng: -117.25,
     clueLabel: "Clue 10 · ShellBank · 모계 DNA",
-    title: "어미에게서 이어진 고향의 단서",
+    title: "DNA에 남은 고향의 단서",
     location: "미국 · NOAA 남서수산과학센터",
     icon: "🧬",
     story: "🧬 ShellBank는 산란 집단별 <em>미토콘드리아 DNA</em>의 특징을 비교해 개체의 출신 지역을 추정합니다. 이 DNA는 암컷과 수컷 모두 가지고 있지만 <em>어미를 통해 다음 세대로 전달</em>돼요. 여기에 암컷 바다거북이 자신이 태어난 지역으로 돌아와 산란하는 경향을 함께 살펴보면 고향을 추적하는 중요한 단서가 됩니다. 마지막 단서를 풀고, 배운 내용을 <em>바다거북을 지키는 행동</em>으로 이어가 주세요.",
@@ -1616,7 +1658,7 @@ const missions = [
       {
         label: "📘 WWF-Australia 보고서 · 모계 DNA와 고향의 단서",
         url: "https://shellbankproject.org/wp-content/uploads/2022/11/WWF_Surrender_Your_Shell_report_final_digital.pdf#page=5",
-        description: "『Surrender Your Shell』 인쇄 8–9쪽. 어미에게서 이어지는 DNA와 암컷의 귀소성이 어떻게 단서가 되는지 살펴봐요."
+        description: "『Surrender Your Shell』이어지는 DNA와 암컷의 귀소성이 어떻게 단서가 되는지 살펴봐요."
       },
       {
         label: "🔬 WWF 공동연구 논문 · 등딱지의 미토콘드리아 DNA 분석",
@@ -1765,7 +1807,7 @@ renderQuiz = function (mission, solved) {
 
   const heading = document.createElement("h3");
   heading.id = `mission-resources-${mission.id}`;
-  heading.textContent = "📚 자료 (영상 포함)";
+  heading.textContent = "📚 자료";
 
   const note = document.createElement("p");
   note.className = "mission-resources-note";
@@ -1870,7 +1912,14 @@ makeFeedback = function (explanation) {
           safe.trace2Solved = fromLegacy
             ? normalizeSolved(oldSolved.filter(id => Number(id) >= 1 && Number(id) <= 8).map(id => Number(id) === 8 ? 9 : id))
             : normalizeSolved(oldSolved);
-          // Preserve earlier submission confirmations; all navigation still requires 10/10.
+          // A link click is not a verified receipt. Never infer it from old TRACE 03/04 flags.
+          safe.trace2CertificateLinkClicked = parsed.trace2CertificateLinkClicked === true
+            && parsed.trace2CertificateCode === safe.rangerCode && isTrace2Complete(safe);
+          safe.trace2CertificateCode = safe.trace2CertificateLinkClicked ? safe.rangerCode : "";
+          safe.trace2CertificateLinkClickedAt = safe.trace2CertificateLinkClicked
+            && Number.isFinite(parsed.trace2CertificateLinkClickedAt)
+            && parsed.trace2CertificateLinkClickedAt > 0 ? parsed.trace2CertificateLinkClickedAt : null;
+          // Earlier confirmations are retained, but every later screen checks the new gate.
           safe.trace3Complete = parsed.trace3Complete === true && safe.trace1Complete;
           safe.trace4Visited = parsed.trace4Visited === true && safe.trace3Complete;
           safe.trace4Complete = parsed.trace4Complete === true && safe.trace4Visited;
@@ -1891,6 +1940,18 @@ makeFeedback = function (explanation) {
       function isTrace2Complete(progress = state) {
         return progress.trace1Complete === true && /^[A-Z0-9]{6}$/.test(progress.rangerCode || "")
           && missions.every(mission => progress.trace2Solved.includes(mission.id));
+      }
+
+      function canOpenTrace3(progress = state) {
+        return isTrace2Complete(progress)
+          && progress.trace2CertificateLinkClicked === true
+          && progress.trace2CertificateCode === progress.rangerCode;
+      }
+
+      function trace3LockMessage() {
+        return isTrace2Complete()
+          ? '인증서의 ‘인증서 제출하기’를 눌러 제출 폼으로 이동하면 TRACE 03이 열립니다.'
+          : `TRACE 02의 ${TRACE2_TOTAL}문항을 모두 해독한 뒤 인증서 제출 링크로 이동해 주세요.`;
       }
 
       function persistState(nextState) {
@@ -1915,8 +1976,8 @@ makeFeedback = function (explanation) {
           showToast("TRACE 01에서 레인저 고유 코드를 먼저 등록해 주세요.");
           name = "vault";
         }
-        if (name === "trace3" && !isTrace2Complete()) {
-          showToast(`TRACE 02의 ${TRACE2_TOTAL}문항을 모두 해독하면 TRACE 03이 열립니다.`);
+        if (name === "trace3" && !canOpenTrace3()) {
+          showToast(trace3LockMessage());
           name = "vault";
         }
         closeCertificate();
@@ -1970,7 +2031,7 @@ makeFeedback = function (explanation) {
       }
 
       function canOpenTrace4() {
-        return state.trace1Complete === true && isTrace2Complete() && state.trace3Complete === true;
+        return canOpenTrace3() && state.trace3Complete === true;
       }
 
       function canOpenTraceLog() {
@@ -2047,7 +2108,7 @@ makeFeedback = function (explanation) {
         let count = 0;
         if (state.trace1Complete) count += 1;
         if (isTrace2Complete()) count += 1;
-        if (isTrace2Complete() && state.trace3Complete) count += 1;
+        if (canOpenTrace3() && state.trace3Complete) count += 1;
         if (canOpenTraceLog()) count += 1;
         return count;
       }
@@ -2055,7 +2116,7 @@ makeFeedback = function (explanation) {
       function renderVault() {
         const trace2Unlocked = state.trace1Complete;
         const trace2Complete = isTrace2Complete();
-        const trace3Unlocked = state.trace1Complete && trace2Complete;
+        const trace3Unlocked = canOpenTrace3();
         const trace4Unlocked = canOpenTrace4();
         const completed = progressCount();
 
@@ -2094,7 +2155,7 @@ makeFeedback = function (explanation) {
           pill: !trace3Unlocked ? "LOCKED" : state.trace3Complete ? "SECURED" : "OPEN",
           icon: !trace3Unlocked ? "🔒" : state.trace3Complete ? "✓" : "↗",
           cta: !trace3Unlocked
-            ? "TRACE 02 완료 후 해제"
+            ? trace2Complete ? "인증서 제출 링크로 이동해 주세요 →" : "10문항 해독·인증서 제출 링크 이동 후 해제"
             : state.trace3Complete
               ? "인증 내용 확인 →"
               : "미션 시작하기 →"
@@ -2110,8 +2171,8 @@ makeFeedback = function (explanation) {
           cta: !trace4Unlocked ? "TRACE 03 완료 후 해제" : state.trace4Complete ? "신청 완료 확인 →" : state.trace4Visited ? "제출 완료 확인하기 →" : "신청서 작성 및 완료 확인 →"
         });
         renderTraceLog();
-        if (!isTrace2Complete()) {
-          closeCertificate();
+        if (!isTrace2Complete()) closeCertificate();
+        if (!canOpenTrace3()) {
           if (unlockDialog.open && unlockTarget === "trace3") unlockDialog.close();
           if (currentScreen === "trace3" || currentScreen === "trace4") showScreen("vault");
         }
@@ -2146,8 +2207,9 @@ makeFeedback = function (explanation) {
         }
 
         if (trace === 3) {
-          if (!state.trace1Complete || !isTrace2Complete()) {
-            rejectLockedCard(3, `TRACE 02의 ${TRACE2_TOTAL}개 단서를 모두 해독하면 열립니다.`);
+          if (!canOpenTrace3()) {
+            rejectLockedCard(3, trace3LockMessage());
+            if (isTrace2Complete()) showCertificateDialog();
             return;
           }
           showScreen("trace3");
@@ -2365,6 +2427,11 @@ makeFeedback = function (explanation) {
         }
         if (!isTrace2Complete()) {
           setTrace3Status(`TRACE 02의 단서가 ${state.trace2Solved.length}/${TRACE2_TOTAL}개 완료되어 있습니다. ${TRACE2_TOTAL}개를 모두 완료한 뒤 다시 눌러주세요.`, true);
+          return;
+        }
+        if (!canOpenTrace3()) {
+          setTrace3Status(trace3LockMessage(), true);
+          showCertificateDialog();
           return;
         }
         if (state.trace3Complete) {
@@ -2675,6 +2742,257 @@ makeFeedback = function (explanation) {
         }
       }
 
+      // Certificate export: all three formats share the same opaque mint/black artwork.
+      let certificateExportRevision = 0;
+      let certificateExportBusy = false;
+      let certificateDownloadUrl = "";
+
+      function setCertificateExportBusy(busy) {
+        certificateExportBusy = busy;
+        document.querySelectorAll("[data-certificate-format]").forEach(button => {
+          button.disabled = busy;
+        });
+        document.getElementById("certificateExportActions").setAttribute("aria-busy", String(busy));
+      }
+
+      function clearCertificateDownload() {
+        const link = document.getElementById("certificateDownloadLink");
+        link.hidden = true;
+        link.removeAttribute("href");
+        link.removeAttribute("download");
+        if (certificateDownloadUrl) {
+          const previousUrl = certificateDownloadUrl;
+          // Allow the browser to finish consuming a download already in progress.
+          window.setTimeout(() => URL.revokeObjectURL(previousUrl), 60000);
+          certificateDownloadUrl = "";
+        }
+      }
+
+      function cancelCertificateExport() {
+        certificateExportRevision += 1;
+        setCertificateExportBusy(false);
+        clearCertificateDownload();
+        document.getElementById("certificateExportStatus").textContent = "";
+      }
+
+      function getCertificateSnapshot() {
+        const paper = document.querySelector("#certificateDialog .certificate-paper");
+        const description = [""];
+        paper.querySelector("p").childNodes.forEach(node => {
+          if (node.nodeName === "BR") description.push("");
+          else description[description.length - 1] += node.textContent;
+        });
+        return {
+          code: state.rangerCode,
+          eyebrow: paper.querySelector("small").textContent.trim(),
+          title: document.getElementById("certificateTitle").textContent.trim(),
+          recipient: document.getElementById("certificateCode").textContent.trim(),
+          description: description.map(line => line.replace(/\s+/g, " ").trim()).filter(Boolean),
+          badges: Array.from(paper.querySelectorAll(".certificate-stats span"), el => el.textContent.trim())
+        };
+      }
+
+      async function waitForCertificateFonts() {
+        if (!document.fonts || !document.fonts.load) return;
+        let timeout;
+        try {
+          await Promise.race([
+            Promise.allSettled([
+              document.fonts.load('400 30px "NanumBarunGothic"', "위협 단서 해독 인증서"),
+              document.fonts.load('700 74px "NanumBarunGothic"', "위협 단서 해독 인증서")
+            ]),
+            new Promise(resolve => { timeout = window.setTimeout(resolve, 4000); })
+          ]);
+        } finally {
+          window.clearTimeout(timeout);
+        }
+      }
+
+      function drawCertificate(snapshot) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 1600;
+        canvas.height = 960;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("이 브라우저에서 인증서 이미지를 만들 수 없습니다.");
+        const mint = "#00ffb2";
+        const fontFamily = '"NanumBarunGothic", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans CJK KR", "WenQuanYi Zen Hei", sans-serif';
+
+        function roundedRect(x, y, width, height, radius) {
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + width, y, x + width, y + height, radius);
+          ctx.arcTo(x + width, y + height, x, y + height, radius);
+          ctx.arcTo(x, y + height, x, y, radius);
+          ctx.arcTo(x, y, x + width, y, radius);
+          ctx.closePath();
+        }
+
+        function text(value, y, size, color = mint, weight = 700, maxWidth = 1320) {
+          let fitted = size;
+          ctx.font = `${weight} ${fitted}px ${fontFamily}`;
+          while (ctx.measureText(value).width > maxWidth && fitted > 16) {
+            fitted -= 1;
+            ctx.font = `${weight} ${fitted}px ${fontFamily}`;
+          }
+          ctx.fillStyle = color;
+          ctx.fillText(value, 800, y);
+        }
+
+        // Vector turtle watermarks avoid platform-dependent emoji fonts or external images.
+        function turtle(x, y, angle) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(angle);
+          ctx.globalAlpha = .23;
+          ctx.fillStyle = "#8d9d98";
+          [[-29,-23,23,10,-.6],[29,-23,23,10,.6],[-24,27,18,9,.7],[24,27,18,9,-.7],[0,-43,14,18,0]].forEach(([cx,cy,rx,ry,rotation]) => {
+            ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,rotation,0,Math.PI * 2); ctx.fill();
+          });
+          ctx.beginPath(); ctx.ellipse(0,0,33,40,0,0,Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#040d0e"; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-15,-17); ctx.lineTo(15,-17); ctx.lineTo(24,3);
+          ctx.lineTo(12,24); ctx.lineTo(-12,24); ctx.lineTo(-24,3); ctx.closePath();
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.fillStyle = "#040d0e";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        roundedRect(24, 24, 1552, 912, 34);
+        ctx.fillStyle = "#020807";
+        ctx.fill();
+        ctx.strokeStyle = mint;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        turtle(108, 123, -.4);
+        turtle(1490, 849, .4);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        text(snapshot.eyebrow, 173, 29);
+        text(snapshot.title, 280, 78);
+        text(snapshot.recipient, 438, 48);
+        ctx.strokeStyle = mint;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([11, 8]);
+        ctx.beginPath(); ctx.moveTo(270, 487); ctx.lineTo(1330, 487); ctx.stroke();
+        ctx.setLineDash([]);
+        snapshot.description.forEach((line, index) => {
+          text(line, 568 + index * 53, 31, "#b1dfdc", index === snapshot.description.length - 1 ? 700 : 400, 1260);
+        });
+        ctx.font = `700 25px ${fontFamily}`;
+        const widths = snapshot.badges.map(label => ctx.measureText(label).width + 66);
+        const gap = 22;
+        let x = (1600 - widths.reduce((sum, width) => sum + width, 0) - gap * (widths.length - 1)) / 2;
+        snapshot.badges.forEach((label, index) => {
+          roundedRect(x, 760, widths[index], 70, 35);
+          ctx.fillStyle = "#03261f"; ctx.fill();
+          ctx.strokeStyle = mint; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.fillStyle = mint; ctx.fillText(label, x + widths[index] / 2, 795);
+          x += widths[index] + gap;
+        });
+        return canvas;
+      }
+
+      function certificateCanvasBlob(canvas, mimeType, quality) {
+        return new Promise((resolve, reject) => {
+          canvas.toBlob(blob => {
+            if (!blob || blob.type !== mimeType) {
+              reject(new Error("선택한 파일 형식을 만들 수 없습니다. PNG 저장을 이용해 주세요."));
+              return;
+            }
+            resolve(blob);
+          }, mimeType, quality);
+        });
+      }
+
+      // A single JPEG image is embedded in a PDF page with the same aspect ratio.
+      // All offsets and stream lengths use bytes, including the image's binary bytes.
+      function certificatePdfBlob(jpegBytes, width, height) {
+        const encoder = new TextEncoder();
+        const chunks = [];
+        const offsets = [0];
+        let byteLength = 0;
+        function append(value) {
+          const bytes = typeof value === "string" ? encoder.encode(value) : value;
+          chunks.push(bytes);
+          byteLength += bytes.byteLength;
+        }
+        function object(id, body) {
+          offsets[id] = byteLength;
+          append(`${id} 0 obj\n${body}\nendobj\n`);
+        }
+        const pageWidth = width / 2;
+        const pageHeight = height / 2;
+        append("%PDF-1.4\n");
+        append(new Uint8Array([37, 226, 227, 207, 211, 10]));
+        object(1, "<< /Type /Catalog /Pages 2 0 R >>");
+        object(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+        object(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /XObject << /Certificate 4 0 R >> >> /Contents 5 0 R >>`);
+        offsets[4] = byteLength;
+        append(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.byteLength} >>\nstream\n`);
+        append(jpegBytes);
+        append("\nendstream\nendobj\n");
+        const commands = `q\n${pageWidth} 0 0 ${pageHeight} 0 0 cm\n/Certificate Do\nQ\n`;
+        object(5, `<< /Length ${encoder.encode(commands).byteLength} >>\nstream\n${commands}endstream`);
+        const xrefOffset = byteLength;
+        append("xref\n0 6\n0000000000 65535 f \n");
+        for (let id = 1; id <= 5; id += 1) {
+          append(`${String(offsets[id]).padStart(10, "0")} 00000 n \n`);
+        }
+        append(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`);
+        return new Blob(chunks, { type: "application/pdf" });
+      }
+
+      async function exportCertificate(format) {
+        if (certificateExportBusy || !["pdf", "png", "jpg"].includes(format)) return;
+        if (!isTrace2Complete() || !certificateDialog.open) {
+          showToast(`${TRACE2_TOTAL}문항을 모두 해독한 뒤 인증서를 열어 주세요.`);
+          return;
+        }
+        updateCertificate();
+        clearCertificateDownload();
+        const snapshot = getCertificateSnapshot();
+        const generation = journeyGeneration;
+        const revision = ++certificateExportRevision;
+        const status = document.getElementById("certificateExportStatus");
+        const isCurrent = () => revision === certificateExportRevision
+          && generation === journeyGeneration && state.rangerCode === snapshot.code
+          && isTrace2Complete() && certificateDialog.open;
+        setCertificateExportBusy(true);
+        status.textContent = `${format.toUpperCase()} 인증서를 준비하고 있습니다…`;
+        try {
+          await waitForCertificateFonts();
+          if (!isCurrent()) return;
+          const canvas = drawCertificate(snapshot);
+          let blob = await certificateCanvasBlob(canvas, format === "png" ? "image/png" : "image/jpeg", .98);
+          if (!isCurrent()) return;
+          if (format === "pdf") {
+            blob = certificatePdfBlob(new Uint8Array(await blob.arrayBuffer()), canvas.width, canvas.height);
+          }
+          if (!isCurrent()) return;
+          certificateDownloadUrl = URL.createObjectURL(blob);
+          const link = document.getElementById("certificateDownloadLink");
+          link.href = certificateDownloadUrl;
+          link.download = `WWF_Rangers_TRACE02_${snapshot.code}.${format}`;
+          link.textContent = `${format.toUpperCase()} 파일 다시 저장하기 ↗`;
+          link.hidden = false;
+          link.click();
+          status.textContent = "다운로드를 시작했습니다. 시작되지 않으면 아래 저장 링크를 눌러 주세요.";
+        } catch (error) {
+          if (isCurrent()) {
+            console.error("Certificate export failed", error);
+            status.textContent = "파일을 만들지 못했습니다. 다시 시도하거나 다른 저장 형식을 선택해 주세요.";
+          }
+        } finally {
+          if (revision === certificateExportRevision) {
+            setCertificateExportBusy(false);
+            if (!isCurrent()) status.textContent = "";
+          }
+        }
+      }
+
+
       function updateCertificate() {
         document.getElementById("certificateCode").textContent = `${state.rangerCode} (WWF 바다거북 레인저)`;
         document.getElementById("certificateTotal").textContent = `${TRACE2_TOTAL}개의 단서`;
@@ -2692,13 +3010,44 @@ makeFeedback = function (explanation) {
         document.getElementById("certificateNext").focus({ preventScroll: true });
       }
 
+      function openCertificateSubmission(event) {
+        if (!isTrace2Complete()) {
+          event.preventDefault();
+          closeCertificate();
+          showToast(`${TRACE2_TOTAL}문항을 모두 해독한 뒤 인증서를 제출해 주세요.`);
+          return;
+        }
+
+        // The native link opens the form in a new tab. Store only this click, not a receipt.
+        const nextState = {
+          ...state,
+          trace2CertificateLinkClicked: true,
+          trace2CertificateLinkClickedAt: canOpenTrace3()
+            ? state.trace2CertificateLinkClickedAt || Date.now() : Date.now(),
+          trace2CertificateCode: state.rangerCode
+        };
+        if (!persistState(nextState)) {
+          event.preventDefault();
+          return;
+        }
+        state = nextState;
+        renderVault();
+        renderTrace2Progress();
+        showScreen("trace3");
+        showToast("캐치시큐 폼을 작성한 뒤 이 탭에서 TRACE 03을 이어가 주세요.");
+      }
+
       function closeCertificate() {
+        cancelCertificateExport();
         if (certificateDialog.open) certificateDialog.close();
       }
 
       function resetTrace2() {
         if (!window.confirm("TRACE 02~04 진행 기록을 초기화하고 TRACE LOG를 다시 잠글까요? 갤러리 기록은 유지됩니다.")) return;
         state.trace2Solved = [];
+        state.trace2CertificateLinkClicked = false;
+        state.trace2CertificateLinkClickedAt = null;
+        state.trace2CertificateCode = "";
         state.trace3Complete = false;
         state.trace4Visited = false;
         state.trace4Complete = false;
@@ -2758,7 +3107,7 @@ makeFeedback = function (explanation) {
           else hydrateTrace4();
         }
         if (currentScreen === "trace3") {
-          if (!isTrace2Complete()) showScreen("vault");
+          if (!canOpenTrace3()) showScreen("vault");
           else hydrateTrace3();
         }
       }
@@ -2858,14 +3207,10 @@ makeFeedback = function (explanation) {
           closeCertificate();
           showScreen("vault");
         });
-        document.getElementById("certificateNext").addEventListener("click", () => {
-          closeCertificate();
-          showScreen("trace3");
-        });
-        document.getElementById("certificatePrint").addEventListener("click", () => {
-          if (!isTrace2Complete()) { closeCertificate(); return; }
-          updateCertificate();
-          window.print();
+        document.getElementById("certificateNext").href = CONFIG.trace2CertificateUrl;
+        document.getElementById("certificateNext").addEventListener("click", openCertificateSubmission);
+        document.querySelectorAll("[data-certificate-format]").forEach(button => {
+          button.addEventListener("click", () => exportCertificate(button.dataset.certificateFormat));
         });
 
         document.getElementById("t3-submit-btn").addEventListener("click", submitTrace3);
@@ -2875,8 +3220,10 @@ makeFeedback = function (explanation) {
         });
 
         certificateDialog.addEventListener("close", () => {
+          cancelCertificateExport();
           document.getElementById("showCertificate")?.focus?.({ preventScroll: true });
         });
+        certificateDialog.addEventListener("cancel", cancelCertificateExport);
 
         window.addEventListener("resize", () => map?.invalidateSize());
       }
