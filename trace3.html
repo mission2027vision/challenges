@@ -11,8 +11,8 @@ Earlier confirmations are retained, with access gated by all ten questions and a
 TRACE 02 certificate-link clicks unlock TRACE 03; they do not verify Catchsecu form receipts.
 TRACE 03 and 04 completion are participant confirmations, not verified external form receipts.
 TRACE 03 uses the registered code and goes directly to TRACE 04; no duplicate code/note fields.
-Fix version: 2026-10-01 / trace01-original-card-feedback-link
-Certificate: direct PDF / PNG / JPG exports keep the mint/black palette.
+Fix version: 2026-10-01 / trace01-feedback-link-and-trace02-pdf-only
+Certificate: PDF-only download keeps the mint/black palette.
 The browser gate controls the journey UI; it is not server authorization.
 Gallery photos remain local to this browser. No participation map / map API key added.
 -->
@@ -1313,21 +1313,15 @@ Gallery photos remain local to this browser. No participation map / map API key 
       </div>
       <div class="certificate-export-actions" id="certificateExportActions" role="group" aria-label="인증서 파일 저장" aria-busy="false">
         <button class="ghost-btn" id="certificatePrint" type="button" data-certificate-format="pdf">📄 PDF 저장</button>
-        <button class="ghost-btn" id="certificatePng" type="button" data-certificate-format="png">🖼️ PNG 저장</button>
-        <button class="ghost-btn" id="certificateJpg" type="button" data-certificate-format="jpg">📷 JPG 저장</button>
       </div>
       <div class="certificate-download-area">
         <p id="certificateExportStatus" role="status" aria-live="polite"></p>
         <a id="certificateDownloadLink" target="_blank" rel="noopener noreferrer" hidden>파일 다시 저장하기 ↗</a>
       </div>
       <div class="certificate-actions">
-        <button class="ghost-btn" id="certificateBack" type="button">미션 보드로 돌아가기</button>
         <a class="primary-btn" id="certificateNext" href="https://app.catchsecu.com/project/fbee802ee299bce/form" target="_blank" rel="noopener noreferrer" aria-describedby="certificateSubmissionNote">인증서 제출하기 ↗</a>
       </div>
-      <p class="certificate-note" id="certificateSubmissionNote">
-        제출 폼은 새 탭에서 열립니다. 폼 작성 후 이 미션 탭으로 돌아와 TRACE 03을 이어가 주세요.
-        <small>TRACE 03은 제출 링크를 누르면 열립니다. 실제 접수 완료는 캐치시큐 폼에서 확인해 주세요.</small>
-      </p>
+      <p class="certificate-note" id="certificateSubmissionNote">인증서 제출 후 TRACE 03으로 넘어갑니다</p>
     </div>
   </dialog>
 
@@ -1917,8 +1911,7 @@ makeFeedback = function (explanation) {
             : normalizeSolved(oldSolved);
           // A link click is not a verified receipt. Never infer it from old TRACE 03/04 flags.
           safe.trace2CertificateLinkClicked = parsed.trace2CertificateLinkClicked === true
-            && parsed.trace2CertificateCode === safe.rangerCode
-            && missions.every(mission => safe.trace2Solved.includes(mission.id));
+            && parsed.trace2CertificateCode === safe.rangerCode && isTrace2Complete(safe);
           safe.trace2CertificateCode = safe.trace2CertificateLinkClicked ? safe.rangerCode : "";
           safe.trace2CertificateLinkClickedAt = safe.trace2CertificateLinkClicked
             && Number.isFinite(parsed.trace2CertificateLinkClickedAt)
@@ -2088,11 +2081,8 @@ makeFeedback = function (explanation) {
           showToast("신청서를 제출한 뒤 완료 확인 항목을 체크해 주세요.");
           return;
         }
-        const nextState = { ...state, trace4Complete: true };
-        if (!persistState(nextState)) return;
-        state = nextState;
-        renderVault();
-        renderTrace2Progress();
+        state.trace4Complete = true;
+        saveState();
         hydrateTrace4();
         openTraceLog();
         showToast("네 개의 미션 완료! TRACE LOG에 나의 바다 조각을 남겨보세요.");
@@ -2715,7 +2705,7 @@ makeFeedback = function (explanation) {
         }
       }
 
-      // Certificate export: all three formats share the same opaque mint/black artwork.
+      // Certificate export: PDF download uses the existing opaque mint/black artwork.
       let certificateExportRevision = 0;
       let certificateExportBusy = false;
       let certificateDownloadUrl = "";
@@ -2871,7 +2861,7 @@ makeFeedback = function (explanation) {
         return new Promise((resolve, reject) => {
           canvas.toBlob(blob => {
             if (!blob || blob.type !== mimeType) {
-              reject(new Error("선택한 파일 형식을 만들 수 없습니다. PNG 저장을 이용해 주세요."));
+              reject(new Error("인증서 PDF를 만들 수 없습니다. 잠시 후 다시 시도해 주세요."));
               return;
             }
             resolve(blob);
@@ -2917,8 +2907,8 @@ makeFeedback = function (explanation) {
         return new Blob(chunks, { type: "application/pdf" });
       }
 
-      async function exportCertificate(format) {
-        if (certificateExportBusy || !["pdf", "png", "jpg"].includes(format)) return;
+      async function exportCertificate() {
+        if (certificateExportBusy) return;
         if (!isTrace2Complete() || !certificateDialog.open) {
           showToast(`${TRACE2_TOTAL}문항을 모두 해독한 뒤 인증서를 열어 주세요.`);
           return;
@@ -2933,29 +2923,27 @@ makeFeedback = function (explanation) {
           && generation === journeyGeneration && state.rangerCode === snapshot.code
           && isTrace2Complete() && certificateDialog.open;
         setCertificateExportBusy(true);
-        status.textContent = `${format.toUpperCase()} 인증서를 준비하고 있습니다…`;
+        status.textContent = "PDF 인증서를 준비하고 있습니다…";
         try {
           await waitForCertificateFonts();
           if (!isCurrent()) return;
           const canvas = drawCertificate(snapshot);
-          let blob = await certificateCanvasBlob(canvas, format === "png" ? "image/png" : "image/jpeg", .98);
+          const jpeg = await certificateCanvasBlob(canvas, "image/jpeg", .98);
           if (!isCurrent()) return;
-          if (format === "pdf") {
-            blob = certificatePdfBlob(new Uint8Array(await blob.arrayBuffer()), canvas.width, canvas.height);
-          }
+          const blob = certificatePdfBlob(new Uint8Array(await jpeg.arrayBuffer()), canvas.width, canvas.height);
           if (!isCurrent()) return;
           certificateDownloadUrl = URL.createObjectURL(blob);
           const link = document.getElementById("certificateDownloadLink");
           link.href = certificateDownloadUrl;
-          link.download = `WWF_Rangers_TRACE02_${snapshot.code}.${format}`;
-          link.textContent = `${format.toUpperCase()} 파일 다시 저장하기 ↗`;
+          link.download = `WWF_Rangers_TRACE02_${snapshot.code}.pdf`;
+          link.textContent = "PDF 파일 다시 저장하기 ↗";
           link.hidden = false;
           link.click();
           status.textContent = "다운로드를 시작했습니다. 시작되지 않으면 아래 저장 링크를 눌러 주세요.";
         } catch (error) {
           if (isCurrent()) {
             console.error("Certificate export failed", error);
-            status.textContent = "파일을 만들지 못했습니다. 다시 시도하거나 다른 저장 형식을 선택해 주세요.";
+            status.textContent = "PDF를 만들지 못했습니다. 잠시 후 PDF 저장 버튼을 다시 눌러 주세요.";
           }
         } finally {
           if (revision === certificateExportRevision) {
@@ -3017,15 +3005,16 @@ makeFeedback = function (explanation) {
 
       function resetTrace2() {
         if (!window.confirm("TRACE 02~04 진행 기록을 초기화하고 TRACE LOG를 다시 잠글까요? 갤러리 기록은 유지됩니다.")) return;
-        const nextState = { ...state, trace2Solved: [], trace2CertificateLinkClicked: false,
-          trace2CertificateLinkClickedAt: null, trace2CertificateCode: "", trace3Complete: false,
-          trace4Visited: false, trace4Complete: false };
-        if (!persistState(nextState)) return;
+        state.trace2Solved = [];
+        state.trace2CertificateLinkClicked = false;
+        state.trace2CertificateLinkClickedAt = null;
+        state.trace2CertificateCode = "";
+        state.trace3Complete = false;
+        state.trace4Visited = false;
+        state.trace4Complete = false;
         cancelPendingJourney();
-        state = nextState;
+        saveState();
         closeQuiz();
-        renderVault();
-        renderTrace2Progress();
         renderMissionList();
         updateMarkers();
         showToast("TRACE 02 진행 기록을 초기화했습니다.");
@@ -3172,15 +3161,9 @@ makeFeedback = function (explanation) {
         document.getElementById("unlockDialogNext").addEventListener("click", () => closeUnlockDialog(unlockTarget));
 
         document.getElementById("certificateClose").addEventListener("click", closeCertificate);
-        document.getElementById("certificateBack").addEventListener("click", () => {
-          closeCertificate();
-          showScreen("vault");
-        });
         document.getElementById("certificateNext").href = CONFIG.trace2CertificateUrl;
         document.getElementById("certificateNext").addEventListener("click", openCertificateSubmission);
-        document.querySelectorAll("[data-certificate-format]").forEach(button => {
-          button.addEventListener("click", () => exportCertificate(button.dataset.certificateFormat));
-        });
+        document.getElementById("certificatePrint").addEventListener("click", exportCertificate);
 
         document.getElementById("t3-submit-btn").addEventListener("click", submitTrace3);
 
