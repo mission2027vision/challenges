@@ -2,17 +2,16 @@
 <!--
 WWF Rangers + TRACE LOG | Single-file integration
 Replace your existing entry HTML (usually index.html) with this file on the same site.
-Mission progress uses wwf_rangers_2nd_vault_v10_forms2.
-Reads earlier verified1/v10/v8 progress without discarding same-code quiz answers.
-TRACE 01 embeds VISIBLE Microsoft Forms. Set window.TRACE1_FORMS_URL before use.
-TRACE 01 completion is a participant declaration, NOT verified receipt or code matching.
-Admins verify real submissions in Microsoft Forms. No backend/API setup required.
+Mission progress uses wwf_rangers_2nd_vault_v10_link1; imports forms3/forms2/verified1/v10/v8 once.
+TRACE 01 keeps the original card and opens an optional feedback form in a new tab.
+Code, pledge and category are local to this browser; no hidden submission or receipt claims.
+Opening the feedback link never marks a Microsoft Forms response as submitted.
 Old solved Q8 maps to Q9; new Q8 and Q10 require answers. Gallery IndexedDB is preserved.
 Earlier confirmations are retained, with access gated by all ten questions and a certificate-link click.
 TRACE 02 certificate-link clicks unlock TRACE 03; they do not verify Catchsecu form receipts.
 TRACE 03 and 04 completion are participant confirmations, not verified external form receipts.
 TRACE 03 uses the registered code and goes directly to TRACE 04; no duplicate code/note fields.
-Fix version: 2026-09-30 / trace01-visible-microsoft-forms
+Fix version: 2026-10-01 / trace01-original-card-feedback-link
 Certificate: direct PDF / PNG / JPG exports keep the mint/black palette.
 The browser gate controls the journey UI; it is not server authorization.
 Gallery photos remain local to this browser. No participation map / map API key added.
@@ -24,13 +23,6 @@ Gallery photos remain local to this browser. No participation map / map API key 
   <meta name="theme-color" content="#040d0e">
   <meta name="description" content="WWF Rangers 2기 바다거북 추적 미션">
   <title>WWF Rangers 2기 | 바다거북 추적 미션</title>
-
-  <!-- TRACE 01 설정: 회사 Forms > 응답 수집 > 삽입 코드의 src 주소만 아래에 넣으세요.
-       편집 주소·짧은 공유 링크·Azure API 주소가 아니라 긴 응답 주소를 사용합니다.
-       Forms는 화면에 보이며, 실제 제출 여부를 이 HTML에서 자동 검증하지 않습니다. -->
-  <script id="trace1FormsConfiguration">
-    window.TRACE1_FORMS_URL = "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=4_I-hC_LHkKfic990TqP3wJ7zjvsoPdFsYoBZYgBaz5UNzhaMUZVQVVUSkRFRTRDRlc2OUpBRldRMy4u";
-  </script>
 
   <!-- 외부 라이브러리 (Confetti & Leaflet) -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -410,21 +402,6 @@ Gallery photos remain local to this browser. No participation map / map API key 
       display: flex; flex-direction: column; 
       color: #112226; 
     }
-    #trace1FormsFrame { display:block; width:100%; height:1050px; border:0; border-radius:12px; background:#fff; }
-    #trace1FormsFrame[hidden] { display:none; }
-    #trace1FormsOpen { display:block; padding:14px 0; margin-bottom:18px; color:var(--wwf-blue); text-align:center; font-size:13px; font-weight:700; line-height:1.5; text-decoration:underline; text-underline-offset:3px; }
-    #trace1FormsOpen[aria-disabled=true] { color:#647e82; cursor:not-allowed; }
-    #trace1FormsStatus:not([hidden]) { margin:0 0 14px; border:1px solid #bd734f; background:#fff3eb; color:#78391f; border-radius:10px; padding:12px; font-size:13px; line-height:1.6; }
-    #trace1Screen .trace1-code-help,#trace1Screen .trace1-receipt-help { color:#4b6266; font-size:12.5px; line-height:1.6; margin:10px 0 0; word-break:keep-all; }
-    #trace1Screen .trace1-check-label { display:flex; gap:10px; align-items:flex-start; color:#112226; font-size:14px; font-weight:700; line-height:1.6; }
-    #trace1FormsSubmitted { width:21px; height:21px; margin-top:2px; flex-shrink:0; accent-color:var(--wwf-aqua); }
-    #trace1Screen .trace1-receipt-help { margin-bottom:22px; }
-    #trace1Screen :focus-visible { outline:3px solid var(--wwf-aqua); outline-offset:3px; }
-    @media(max-width:600px) {
-      #trace1Screen .trace1-container { padding-left:12px; padding-right:12px; }
-      #trace1Screen #phoneUI { padding-left:8px; padding-right:8px; }
-      #trace1Screen .trace1-confirm-card { padding-left:18px; padding-right:18px; }
-    }
     #trace1Screen .phone-title { text-align: center; font-size: 22px; font-weight: 700; color: var(--wwf-blue); margin-bottom: 24px; }
     #trace1Screen .input-group { margin-bottom: 26px; position: relative; }
     #trace1Screen .input-hint { display: flex; justify-content: space-between; font-size: 13px; color: #4b6266; margin-bottom: 8px; padding: 0 4px; font-weight: 700; }
@@ -484,6 +461,11 @@ Gallery photos remain local to this browser. No participation map / map API key 
       resize: none; outline: none; transition: 0.3s; background: #f0f7f9; line-height: 1.6; color: #112226; 
     }
     #trace1Screen .question-input:focus { border-style: solid; border-color: var(--wwf-aqua); background: #fff; }
+    #trace1Screen .question-link { display:flex; flex-direction:column; justify-content:center; gap:10px; min-height:96px; height:auto; text-decoration:none; color:#4b6266; cursor:pointer; resize:none; line-height:1.65; overflow-wrap:anywhere; }
+    #trace1Screen .question-link:hover { border-style:solid; border-color:var(--wwf-aqua); background:#fff; }
+    #trace1Screen .question-link-action { color:var(--wwf-blue); font-size:12.5px; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+    #trace1Screen .question-link-help, #trace1Screen .trace1-local-note { color:#4b6266; font-size:12px; line-height:1.6; text-align:center; margin:9px 0 0; word-break:keep-all; }
+    #trace1Screen :focus-visible { outline:3px solid var(--wwf-aqua); outline-offset:4px; }
 
     #trace1Screen .submit-btn { 
       width: 100%; padding: 18px; background-color: var(--wwf-blue); color: white; border: none; 
@@ -1019,9 +1001,13 @@ Gallery photos remain local to this browser. No participation map / map API key 
   <section class="screen mission-screen" id="trace1Screen" data-screen="trace1" hidden aria-labelledby="trace1Title">
     <header class="mission-topbar">
       <button class="mission-back" type="button" data-back-vault aria-label="미션 금고로 돌아가기">←</button>
-      <div class="mission-heading"><small>TRACE 01 · IDENTITY</small><strong>레인저 고유 코드 등록</strong></div>
+      <div class="mission-heading">
+        <small>TRACE 01 · IDENTITY</small>
+        <strong>레인저 고유 코드 등록</strong>
+      </div>
       <span class="state-pill" id="trace1HeaderState">OPEN</span>
     </header>
+
     <div class="trace1-container">
       <div class="header-full">
         <h4>WWF RANGERS 2기 (바다거북 수호대)</h4>
@@ -1029,35 +1015,72 @@ Gallery photos remain local to this browser. No participation map / map API key 
         <h1 id="trace1Title" tabindex="-1">나의 코드로 여정을<br>시작하세요</h1>
         <p class="desc">A·C·G·T로 이루어진 6자리 고유 코드를 등록하고,<br>바다거북 수호대로서의 첫 다짐을 남겨보세요.</p>
       </div>
-      <section class="phone-mockup" id="phoneUI" aria-labelledby="trace1FormsTitle">
-        <h2 class="phone-title" id="trace1FormsTitle">레인저 고유 코드 등록</h2>
-        <p class="section-desc">아래 폼에 코드와 다짐을 남기고 제출해 주세요.<br>관심 분야와 궁금한 점도 함께 적을 수 있어요.</p>
-        <p id="trace1FormsStatus" role="alert" hidden></p>
-        <iframe id="trace1FormsFrame" title="WWF 레인저스 TRACE 01 고유코드 등록 폼" hidden></iframe>
-        <a id="trace1FormsOpen" target="_blank" rel="noopener noreferrer" aria-disabled="true">폼이 보이지 않으면 새 탭에서 열기 ↗</a>
-        <div class="insta-check-container">
-          <a href="https://www.instagram.com/wwfkorea/" target="_blank" rel="noopener noreferrer" class="insta-btn">@wwfkorea 확인하러 가기 🐼</a>
-          <div class="insta-small-text">WWF 인스타를 팔로우하셨나요?<br>바다거북뿐 아니라 WWF가 진행하는 다양한 보전활동을<br>가장 먼저 확인해보세요! 💙</div>
+
+      <div class="success-card" id="successCard">
+        <div class="success-header">TRACE 01 SECURED 🐢</div>
+        <div class="success-body">
+          <h3>첫 번째 미션을 완료했습니다!</h3>
+          <div class="popup-code-box" id="displayCode"></div>
+          <p style="color:var(--mist); font-size:15px; font-weight:700;">이제 본격적인 레인저 활동을 시작합니다.</p>
         </div>
+      </div>
+
+      <div class="phone-mockup" id="phoneUI">
+        <div class="phone-title">레인저 고유 코드 등록</div>
         
+        <div class="input-group">
+          <div class="input-hint">
+            <span>6자리 고유 코드</span>
+            <span>A·C·G·T로 입력</span>
+          </div>
+          <div class="dna-mini-popup" id="dnaPopup" role="status">삐빅 - 6자리 코드 입력 완료!</div>
+          <input type="text" id="rangerCode" aria-label="A·C·G·T 조합의 6자리 고유 코드" inputmode="text" class="code-input" placeholder="6자리 고유 코드" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false">
+        </div>
+
         <div class="input-group">
           <div class="pledge-container">
             <p class="pledge-text">"나는 WWF레인저로서<br>바다거북의 흔적을 추적하고,<br>바다거북 보전 여정에 함께할 것을 다짐합니다."</p>
-            <button type="button" class="stamp-btn locked" id="stampButton">다짐 완료</button>
+            <button type="button" class="stamp-btn locked" id="stampButton" aria-pressed="false" disabled>다짐 완료</button>
             <div class="stamp-mark" id="stampMark" aria-hidden="true">SEALED</div>
           </div>
-      </section>
-      <section class="phone-mockup trace1-confirm-card" aria-labelledby="trace1ConfirmTitle">
-        <h2 class="phone-title" id="trace1ConfirmTitle">제출 후 다음 미션으로</h2>
-        <div class="input-group">
-          <label class="input-hint" for="rangerCode"><span>폼에 제출한 고유코드</span><span>6자리 확인</span></label>
-          <input id="rangerCode" class="code-input" inputmode="text" type="text" placeholder="예: ACGTAC" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-describedby="trace1CodeHelp">
-          <p class="trace1-code-help" id="trace1CodeHelp">인증서와 다음 미션에 사용할 코드예요. 폼에 적은 코드와 같게 다시 입력해 주세요.</p>
+
+          <div class="insta-check-container">
+            <a href="https://www.instagram.com/wwfkorea/" target="_blank" rel="noopener noreferrer" class="insta-btn">@wwfkorea 확인하러 가기 🐼</a>
+            <div class="insta-small-text">
+              WWF 인스타를 팔로우하셨나요?<br>바다거북뿐 아니라 WWF가 진행하는 다양한 보전활동을<br>가장 먼저 확인해보세요! 💙
+            </div>
+          </div>
         </div>
-        <label class="trace1-check-label"><input id="trace1FormsSubmitted" type="checkbox" disabled><span>위 Forms에서 제출을 마쳤습니다.</span></label>
-        <p class="trace1-receipt-help">이 확인란은 참여자의 제출 확인입니다. 실제 접수 내역은 운영진이 Forms 응답에서 확인합니다.</p>
-        <button class="submit-btn" id="trace1Submit" type="button" disabled>TRACE 02로 이동 →</button>
-      </section>
+
+        <div class="input-group">
+          <div class="section-subtitle">🐢 레인저님의 관심사를 들려주세요</div>
+          <p class="section-desc">궁금한 점, 보고싶은 콘텐츠, 참여하고 싶은 미션 아이디어를 자유롭게 남겨주세요.</p>
+          
+          <div class="category-selector">
+            <button class="cat-btn active" type="button" data-category="바다거북 보전" aria-pressed="true">🌊 바다거북 보전</button>
+            <button class="cat-btn" type="button" data-category="WWF 활동" aria-pressed="false">🐼 WWF 활동</button>
+            <button class="cat-btn" type="button" data-category="레인저스 미션" aria-pressed="false">📝 레인저스 미션</button>
+            <button class="cat-btn" type="button" data-category="기타" aria-pressed="false">🤔 기타</button>
+          </div>
+          <a id="rangerQuestionLink" class="question-input question-link" href="https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=4_I-hC_LHkKfic990TqP3wJ7zjvsoPdFsYoBZYgBaz5UNzhaMUZVQVVUSkRFRTRDRlc2OUpBRldRMy4u" target="_blank" rel="noopener noreferrer" aria-describedby="rangerQuestionHelp">
+            <span>앞으로 진행될 레인저스 미션에 대한 기대나 아이디어를 남겨주세요</span>
+            <span class="question-link-action">폼에서 의견 남기기 ↗</span>
+          </a>
+          <p class="question-link-help" id="rangerQuestionHelp">새 탭에서 폼을 작성하고 ‘제출’을 눌러주세요.</p>
+        </div>
+
+        <button class="submit-btn" id="trace1Submit" type="button" disabled>Trace 01 완료하기</button>
+        <p class="trace1-local-note">고유코드와 미션 진행도는 현재 브라우저에 저장됩니다.</p>
+      </div>
+    </div>
+
+    <div class="popup-overlay" id="finalPopup">
+      <div class="popup-modal">
+        <div class="popup-icon">🎉🐢🎉</div>
+        <h2>고유 코드 등록 완료!</h2>
+        <p>이 브라우저에 코드와 다짐을 저장했습니다.<br>이제 바다거북 추적 여정을 시작해 주세요.</p>
+        <button class="popup-close-btn" id="finalPopupClose" type="button">Trace 01 완료하기</button>
+      </div>
     </div>
   </section>
 
@@ -1320,13 +1343,12 @@ Gallery photos remain local to this browser. No participation map / map API key 
 
       const CONFIG = Object.freeze({
         trace2CertificateUrl: "https://app.catchsecu.com/project/fbee802ee299bce/form",
-        trace4Url: "https://forms.cloud.microsoft/pages/responsepage.aspx?id=4_I-hC_LHkKfic990TqP333EORmjkbNFp9Am5C-CudpUMjZYQU8yWE5TMEZJMjU4MjAxV0NUV0xLUC4u&route=shorturl",
-        // TRACE 01 uses visible Microsoft Forms; there is no hidden submission endpoint.
+        trace4Url: "https://forms.cloud.microsoft/pages/responsepage.aspx?id=4_I-hC_LHkKfic990TqP333EORmjkbNFp9Am5C-CudpUMjZYQU8yWE5TMEZJMjU4MjAxV0NUV0xLUC4u&route=shorturl"
       });
 
       // A separate key prevents an open eight-question tab from overwriting new progress.
-      const STORAGE_KEY = "wwf_rangers_2nd_vault_v10_forms2";
-      const PREVIOUS_STORAGE_KEYS = ["wwf_rangers_2nd_vault_v10_verified1", "wwf_rangers_2nd_vault_v10"];
+      const STORAGE_KEY = "wwf_rangers_2nd_vault_v10_link1";
+      const PREVIOUS_STORAGE_KEYS = ["wwf_rangers_2nd_vault_v10_forms3", "wwf_rangers_2nd_vault_v10_forms2", "wwf_rangers_2nd_vault_v10_verified1", "wwf_rangers_2nd_vault_v10"];
       const LEGACY_STORAGE_KEY = "wwf_rangers_2nd_vault_v8";
 
       const defaultState = Object.freeze({
@@ -1334,10 +1356,8 @@ Gallery photos remain local to this browser. No participation map / map API key 
         trace2Revision: 2,
         introSeen: false,
         trace1Complete: false,
-        trace1FormsReported: false,
-        trace1FormsReportCode: "",
-        trace1FormsReportUrl: "",
-        trace1FormsReportedAt: null,
+        trace1LocalConfirmedAt: null,
+        trace1Category: "바다거북 보전",
         rangerCode: "",
         trace2Solved: [],
         trace2CertificateLinkClicked: false,
@@ -1348,12 +1368,6 @@ Gallery photos remain local to this browser. No participation map / map API key 
         trace4Complete: false
       });
 
-      const qnaPlaceholders = {
-        '바다거북 보전': '바다거북 생태나 보전 활동에 대해 궁금한 점을 적어주세요 ✍️',
-        'WWF 활동': 'WWF의 다양한 환경 보전 활동에 대해 궁금한 점을 적어주세요 🐼',
-        '레인저스 미션': '앞으로 진행될 레인저스 미션에 대한 기대나 아이디어를 남겨주세요 🐢',
-        '기타': '그 외 자유롭게 남기고 싶은 의견을 적어주세요 🤔'
-      };
 
 const missions = [
   {
@@ -1854,13 +1868,17 @@ makeFeedback = function (explanation) {
       let state = loadState();
       let currentScreen = "intro";
       let selectedCategory = "바다거북 보전";
+      let pledgeStamped = false;
+      let isDnaEntered = false;
       let activeMissionId = null;
       let map = null;
       let mapReady = false;
       let markers = new Map();
+      let trace1Pending = false;
       let unlockTarget = "vault";
       let toastTimer = null;
       let lastFocusedElement = null;
+      let dnaPopupShown = false;
       let journeyGeneration = 0;
       let trace3Pending = false;
 
@@ -1873,7 +1891,7 @@ makeFeedback = function (explanation) {
       const certificateDialog = document.getElementById("certificateDialog");
       const rangerCodeInput = document.getElementById("rangerCode");
       const trace1Submit = document.getElementById("trace1Submit");
-      const trace1FormsSubmitted = document.getElementById("trace1FormsSubmitted");
+      const stampButton = document.getElementById("stampButton");
 
       function loadState() {
         const safe = { ...defaultState, trace2Solved: [] };
@@ -1906,20 +1924,11 @@ makeFeedback = function (explanation) {
             && Number.isFinite(parsed.trace2CertificateLinkClickedAt)
             && parsed.trace2CertificateLinkClickedAt > 0 ? parsed.trace2CertificateLinkClickedAt : null;
           // Earlier confirmations are retained, but every later screen checks the new gate.
-          safe.trace3Complete = parsed.trace3Complete === true && !!safe.rangerCode;
+          safe.trace3Complete = parsed.trace3Complete === true && safe.trace1Complete;
           safe.trace4Visited = parsed.trace4Visited === true && safe.trace3Complete;
           safe.trace4Complete = parsed.trace4Complete === true && safe.trace4Visited;
-          // A declaration for a different form or an earlier hidden submission is not reused.
-          const configuredUrl = trace1FormsResponseUrl();
-          safe.trace1FormsReported = parsed.trace1FormsReported === true
-            && /^[ACGT]{6}$/.test(safe.rangerCode)
-            && parsed.trace1FormsReportCode === safe.rangerCode
-            && !!configuredUrl && parsed.trace1FormsReportUrl === configuredUrl;
-          safe.trace1FormsReportCode = safe.trace1FormsReported ? safe.rangerCode : "";
-          safe.trace1FormsReportUrl = safe.trace1FormsReported ? configuredUrl : "";
-          safe.trace1FormsReportedAt = safe.trace1FormsReported && Number.isFinite(parsed.trace1FormsReportedAt)
-            ? parsed.trace1FormsReportedAt : null;
-          safe.trace1Complete = safe.trace1FormsReported;
+          safe.trace1LocalConfirmedAt = Number.isFinite(parsed.trace1LocalConfirmedAt) ? parsed.trace1LocalConfirmedAt : null;
+          safe.trace1Category = ["바다거북 보전", "WWF 활동", "레인저스 미션", "기타"].includes(parsed.trace1Category) ? parsed.trace1Category : "바다거북 보전";
           if (current === null && raw !== null) migrationPending = true;
         } catch (error) {
           console.warn("State load error", error);
@@ -2079,8 +2088,11 @@ makeFeedback = function (explanation) {
           showToast("신청서를 제출한 뒤 완료 확인 항목을 체크해 주세요.");
           return;
         }
-        state.trace4Complete = true;
-        saveState();
+        const nextState = { ...state, trace4Complete: true };
+        if (!persistState(nextState)) return;
+        state = nextState;
+        renderVault();
+        renderTrace2Progress();
         hydrateTrace4();
         openTraceLog();
         showToast("네 개의 미션 완료! TRACE LOG에 나의 바다 조각을 남겨보세요.");
@@ -2125,7 +2137,7 @@ makeFeedback = function (explanation) {
           locked: false,
           complete: state.trace1Complete,
           visited: false,
-          pill: state.trace1Complete ? "참여자 확인" : "OPEN",
+          pill: state.trace1Complete ? "SECURED" : "OPEN",
           icon: state.trace1Complete ? "✓" : "↗",
           cta: state.trace1Complete ? "등록 내용 확인 →" : "첫 번째 봉인 열기 →"
         });
@@ -2261,74 +2273,20 @@ makeFeedback = function (explanation) {
         }
       }
 
-      function hasTrace1FormsReport() {
-        return state.trace1Complete === true && state.trace1FormsReported === true
-          && state.trace1FormsReportCode === state.rangerCode
-          && !!trace1FormsResponseUrl() && state.trace1FormsReportUrl === trace1FormsResponseUrl();
-      }
-
-      function trace1FormsResponseUrl() {
-        const value = window.TRACE1_FORMS_URL;
-        if (typeof value !== "string" || !value.trim()) return "";
-        try {
-          const url = new URL(value.trim().replace(/&amp;/g, "&"));
-          const allowed = ["forms.office.com", "forms.office365.com", "forms.microsoft.com", "forms.cloud.microsoft"];
-          if (url.protocol !== "https:" || !allowed.includes(url.hostname) || url.username || url.password
-              || (url.port && url.port !== "443") || !/^\/pages\/responsepage[.]aspx\/?$/i.test(url.pathname)
-              || !url.searchParams.get("id")?.trim()) return "";
-          url.searchParams.delete("embed");
-          url.hash = "";
-          url.searchParams.sort();
-          return url.href;
-        } catch (error) { return ""; }
-      }
-
-      function setTrace1FormsStatus(message) {
-        const status = document.getElementById("trace1FormsStatus");
-        status.textContent = message;
-        status.hidden = !message;
-      }
-
-      function configureTrace1Forms() {
-        const responseUrl = trace1FormsResponseUrl();
-        const frame = document.getElementById("trace1FormsFrame");
-        const link = document.getElementById("trace1FormsOpen");
-        if (!responseUrl) {
-          frame.removeAttribute("src");
-          frame.hidden = true;
-          link.removeAttribute("href");
-          link.setAttribute("aria-disabled", "true");
-          trace1FormsSubmitted.checked = false;
-          trace1FormsSubmitted.disabled = true;
-          setTrace1FormsStatus("등록 폼이 아직 준비되지 않았어요. 운영진에게 알려 주세요.");
-        } else {
-          const embedUrl = new URL(responseUrl);
-          embedUrl.searchParams.set("embed", "true");
-          if (frame.getAttribute("src") !== embedUrl.href) frame.src = embedUrl.href;
-          frame.hidden = false;
-          link.href = responseUrl;
-          link.setAttribute("aria-disabled", "false");
-          trace1FormsSubmitted.disabled = false;
-          setTrace1FormsStatus("");
-        }
-        updateTrace1Confirmation();
-      }
-
-      function updateTrace1Confirmation() {
-        const validCode = /^[ACGT]{6}$/.test(rangerCodeInput.value.trim());
-        const configured = !!trace1FormsResponseUrl();
-        rangerCodeInput.classList.toggle("success", validCode);
-        trace1Submit.disabled = !(configured && validCode && trace1FormsSubmitted.checked);
-      }
-
       function hydrateTrace1() {
         rangerCodeInput.value = state.rangerCode || "";
-        trace1FormsSubmitted.checked = false;
-        document.getElementById("trace1HeaderState").textContent = hasTrace1FormsReport() ? "참여자 확인" : "OPEN";
-        configureTrace1Forms();
-        if (state.rangerCode && !hasTrace1FormsReport() && trace1FormsResponseUrl()) {
-          setTrace1FormsStatus("위 Forms의 제출을 마친 뒤 같은 코드로 확인해 주세요. 같은 코드의 기존 퀴즈 진행도는 유지됩니다.");
-        }
+        pledgeStamped = state.trace1Complete === true;
+        selectedCategory = state.trace1Category || "바다거북 보전";
+        document.querySelectorAll("#trace1Screen .cat-btn").forEach(button => {
+          const active = button.dataset.category === selectedCategory;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", String(active));
+        });
+        updateDnaSignal();
+        document.getElementById("successCard").classList.toggle("show", state.trace1Complete);
+        document.getElementById("displayCode").textContent = state.rangerCode;
+        document.getElementById("phoneUI").style.display = "flex";
+        document.getElementById("trace1HeaderState").textContent = state.trace1Complete ? "SECURED" : "OPEN";
       }
 
       function setTrace3Status(message, error = false) {
@@ -2351,46 +2309,73 @@ makeFeedback = function (explanation) {
           : "제출을 마쳤다면 완료 버튼을 눌러 다음 미션으로 이동해 주세요.");
       }
 
-      function submitTrace1() {
-        if (!trace1FormsResponseUrl()) {
-          configureTrace1Forms();
-          showToast("등록 폼이 아직 준비되지 않았어요. 운영진에게 알려 주세요.");
-          return;
+      function updateDnaSignal() {
+        const value = rangerCodeInput.value.trim();
+        const valid = /^[ACGT]{6}$/.test(value);
+        isDnaEntered = valid;
+        rangerCodeInput.classList.toggle("success", valid);
+        stampButton.disabled = !valid;
+        stampButton.classList.toggle("locked", !valid);
+        if (!valid) pledgeStamped = false;
+        stampButton.classList.toggle("stamped", pledgeStamped);
+        stampButton.setAttribute("aria-pressed", String(pledgeStamped));
+        trace1Submit.disabled = trace1Pending || !valid || !pledgeStamped;
+        trace1Submit.textContent = "Trace 01 완료하기";
+        const popup = document.getElementById("dnaPopup");
+        if (valid && !dnaPopupShown) {
+          popup.classList.add("show");
+          dnaPopupShown = true;
+          window.setTimeout(() => popup.classList.remove("show"), 2800);
+        } else if (!valid) {
+          popup.classList.remove("show");
+          dnaPopupShown = false;
         }
+      }
+
+      function submitTrace1() {
+        if (trace1Pending) return;
         const code = rangerCodeInput.value.trim().toUpperCase();
         if (!/^[ACGT]{6}$/.test(code)) {
           rangerCodeInput.focus();
-          showToast("폼에 제출한 A·C·G·T 조합의 6자리 고유코드를 입력해 주세요.");
+          showToast("🧬 A·C·G·T 조합의 6자리 코드를 입력해 주세요.");
           return;
         }
-        if (!trace1FormsSubmitted.checked) {
-          trace1FormsSubmitted.focus();
-          showToast("폼의 제출을 마친 뒤 확인란에 체크해 주세요.");
+        if (!pledgeStamped) {
+          stampButton.focus();
+          showToast("🐾 다짐 완료 버튼을 먼저 눌러 주세요.");
           return;
         }
         const changedCode = !!state.rangerCode && state.rangerCode !== code;
+        if (changedCode && !window.confirm("다른 코드로 시작하면 현재 브라우저의 TRACE 02~04 진행 기록이 초기화됩니다. 새 코드로 시작할까요?")) return;
+        const wasAlreadyComplete = state.trace1Complete && !changedCode;
         const nextState = {
-          ...state, rangerCode: code, trace1Complete: true,
-          trace1FormsReported: true, trace1FormsReportCode: code,
-          trace1FormsReportUrl: trace1FormsResponseUrl(), trace1FormsReportedAt: Date.now()
+          ...(changedCode ? { ...defaultState, introSeen: state.introSeen, trace2Solved: [] } : state),
+          rangerCode: code, trace1Complete: true,
+          trace1Category: selectedCategory, trace1LocalConfirmedAt: Date.now()
         };
-        if (changedCode) Object.assign(nextState, {
-          trace2Solved: [], trace2CertificateLinkClicked: false, trace2CertificateLinkClickedAt: null,
-          trace2CertificateCode: "", trace3Complete: false, trace4Visited: false, trace4Complete: false
-        });
-        // This is a local participant declaration, not a verified Forms receipt.
-        if (!persistState(nextState)) {
-          setTrace1FormsStatus("진행 기록을 저장하지 못했어요. 브라우저 저장 설정을 확인한 뒤 다시 눌러 주세요. 폼을 다시 제출할 필요는 없습니다.");
-          return;
-        }
+        trace1Pending = true;
+        trace1Submit.disabled = true;
+        // Local journey progress only. The separate Forms link is optional;
+        // a link click is never treated as an external response or registration.
+        const saved = persistState(nextState);
+        trace1Pending = false;
+        if (!saved) { updateDnaSignal(); return; }
         state = nextState;
-        if (changedCode) { journeyGeneration += 1; closeCertificate(); closeQuiz(); }
-        setTrace1FormsStatus("");
-        document.getElementById("trace1HeaderState").textContent = "참여자 확인";
         renderVault();
         renderTrace2Progress();
-        showScreen("trace2");
+        updateMarkers();
+        hydrateTrace1();
+        if (wasAlreadyComplete) {
+          showScreen("trace2");
+          return;
+        }
+        triggerConfettiParty();
+        navigator.vibrate?.([35, 45, 35]);
+        document.getElementById("finalPopup").classList.add("active");
+        document.getElementById("finalPopupClose").focus();
       }
+
+
 
       function triggerConfettiParty() {
         if (typeof window.confetti !== "function") return;
@@ -3032,34 +3017,32 @@ makeFeedback = function (explanation) {
 
       function resetTrace2() {
         if (!window.confirm("TRACE 02~04 진행 기록을 초기화하고 TRACE LOG를 다시 잠글까요? 갤러리 기록은 유지됩니다.")) return;
-        state.trace2Solved = [];
-        state.trace2CertificateLinkClicked = false;
-        state.trace2CertificateLinkClickedAt = null;
-        state.trace2CertificateCode = "";
-        state.trace3Complete = false;
-        state.trace4Visited = false;
-        state.trace4Complete = false;
+        const nextState = { ...state, trace2Solved: [], trace2CertificateLinkClicked: false,
+          trace2CertificateLinkClickedAt: null, trace2CertificateCode: "", trace3Complete: false,
+          trace4Visited: false, trace4Complete: false };
+        if (!persistState(nextState)) return;
         cancelPendingJourney();
-        saveState();
+        state = nextState;
         closeQuiz();
+        renderVault();
+        renderTrace2Progress();
         renderMissionList();
         updateMarkers();
         showToast("TRACE 02 진행 기록을 초기화했습니다.");
       }
 
       function resetJourney() {
-        if (!window.confirm("이 브라우저의 TRACE 01~04 진행 기록을 초기화할까요? Forms에 제출한 응답과 갤러리 기록은 삭제되지 않습니다.")) return;
-        cancelPendingJourney();
+        if (!window.confirm("이 브라우저의 TRACE 01~04 진행 기록을 초기화할까요? Forms에 제출한 응답과 갤러리 기록은 유지됩니다.")) return;
         const nextState = { ...defaultState, trace2Solved: [] };
         if (!persistState(nextState)) return;
+        cancelPendingJourney();
         state = nextState;
-        rangerCodeInput.value = "";
-        trace1FormsSubmitted.checked = false;
-        configureTrace1Forms();
+        hydrateTrace1();
         renderVault();
         renderTrace2Progress();
         updateMarkers();
-        showToast("이 브라우저의 진행 기록을 초기화했습니다.");
+        showScreen("vault");
+        showToast("이 브라우저의 진행 기록이 초기화되었습니다.");
       }
 
       function cancelPendingJourney() {
@@ -3067,11 +3050,14 @@ makeFeedback = function (explanation) {
         closeCertificate();
         if (unlockDialog.open) unlockDialog.close();
         trace3Pending = false;
-        trace1FormsSubmitted.checked = false;
-        updateTrace1Confirmation();
+        trace1Pending = false;
+        trace1Submit.disabled = false;
+        trace1Submit.textContent = "Trace 01 완료하기";
         document.getElementById("t3-submit-btn").disabled = false;
         document.getElementById("t3-submit-btn").textContent = "제출 완료하고 TRACE 04로 →";
         setTrace3Status("캐치시큐에서 사진 제출을 마쳤다면 완료 버튼을 눌러주세요.");
+        document.getElementById("finalPopup").classList.remove("active");
+        document.querySelectorAll('.code-input, .question-input, .cat-btn, .insta-btn').forEach(el => el.style.pointerEvents = 'auto');
       }
 
       function syncJourneyFromStorage(event) {
@@ -3131,14 +3117,51 @@ makeFeedback = function (explanation) {
 
         rangerCodeInput.addEventListener("input", function() {
           this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
-          trace1FormsSubmitted.checked = false;
-          updateTrace1Confirmation();
+          pledgeStamped = state.trace1Complete && this.value === state.rangerCode;
+          document.getElementById("successCard").classList.remove("show");
+          updateDnaSignal();
         });
-        trace1FormsSubmitted.addEventListener("change", updateTrace1Confirmation);
-        document.getElementById("trace1FormsOpen").addEventListener("click", event => {
-          if (!trace1FormsResponseUrl()) event.preventDefault();
+
+        document.querySelectorAll(".cat-btn").forEach((button) => {
+          button.addEventListener("click", () => {
+            selectedCategory = button.dataset.category;
+            document.querySelectorAll(".cat-btn").forEach((item) => {
+              item.classList.toggle("active", item === button);
+              item.setAttribute("aria-pressed", String(item === button));
+            });
+          });
         });
+
+        stampButton.addEventListener("click", () => {
+          if (!isDnaEntered) {
+            showToast("🧬 위쪽의 6자리 고유 코드를 먼저 정확히 입력해주세요.");
+            return;
+          }
+          pledgeStamped = true;
+          updateDnaSignal();
+          navigator.vibrate?.(45);
+        });
+
         trace1Submit.addEventListener("click", submitTrace1);
+
+        document.getElementById("finalPopupClose").addEventListener("click", () => {
+          document.getElementById('finalPopup').classList.remove('active');
+          document.querySelectorAll('.code-input, .question-input, .cat-btn, .insta-btn').forEach(el => el.style.pointerEvents = 'auto');
+          
+          const codeInput = document.getElementById('rangerCode').value.trim();
+          document.getElementById('displayCode').innerText = codeInput;
+          document.getElementById('successCard').classList.add('show');
+          trace1Submit.textContent = "Trace 01 완료하기";
+          
+          showUnlockDialog({
+            eyebrow: "TRACE 01 COMPLETE",
+            title: "고유 코드 등록 완료",
+            copy: "나만의 코드로 바다거북 여정이 시작되었습니다.<br>이제 Trace 02에서 바다거북이 마주한 위협 단서를 확인해보세요.",
+            icon: "🔓",
+            nextTarget: "trace2",
+            nextLabel: "TRACE 02 시작하기"
+          });
+        });
 
         document.getElementById("quizClose").addEventListener("click", closeQuiz);
         document.getElementById("trace2Reset").addEventListener("click", resetTrace2);
@@ -3177,7 +3200,7 @@ makeFeedback = function (explanation) {
       bindEvents();
       renderVault();
       renderTrace2Progress();
-      configureTrace1Forms();
+      updateDnaSignal();
       if (migrationPending && persistState(state)) migrationPending = false;
       if (["#trace-log", "#trace-04", "#vault", "#trace2", "#trace-02", "#trace3", "#trace-03"].includes(location.hash)) routeFromHash();
       else showScreen("intro");
