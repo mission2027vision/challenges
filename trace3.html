@@ -9,10 +9,11 @@ Opening the feedback link never marks a Microsoft Forms response as submitted.
 Old solved Q8 maps to Q9; new Q8 and Q10 require answers.
 Earlier confirmations are retained, with access gated by all ten questions and a certificate-link click.
 TRACE 02 certificate-link clicks unlock TRACE 03; they do not verify Catchsecu form receipts.
-TRACE 03 and 04 completion are participant confirmations, not verified external form receipts.
+TRACE 03 completion is a participant confirmation, not a verified external form receipt.
+TRACE 04 opens the application form and records visits only; earlier completion records are retained.
 TRACE 03 uses the registered code and goes directly to TRACE 04; no duplicate code/note fields.
-Fix version: 2026-10-06 / trace01-feedback-link-and-trace02-pdf-only + embedded-wwf-logo + four-mission-journey
-Branding: original WWF JPEG embedded in intro/vault headers on a white background.
+Fix version: 2026-10-06 / trace01-feedback-link-and-trace02-pdf-only + embedded-wwf-logo + four-mission-journey + trace04-field-application + square-logo-corners
+Branding: original WWF JPEG embedded in intro/vault headers on a white background with square corners.
 Certificate: PDF-only download keeps the mint/black palette.
 The browser gate controls the journey UI; it is not server authorization.
 The journey ends at TRACE 04 and returns to the mission board.
@@ -186,7 +187,7 @@ The journey ends at TRACE 04 and returns to the mission board.
     .intro-brand-mark, .mini-brand-icon {
       display: grid; place-items: center;
       width: 48px; height: 54px; flex: 0 0 48px;
-      padding: 0; overflow: hidden; border-radius: 4px;
+      padding: 0; overflow: hidden; border-radius: 0;
       background: #fff; box-shadow: none;
     }
     .wwf-brand-logo {
@@ -765,11 +766,7 @@ The journey ends at TRACE 04 and returns to the mission board.
     .trace4-step { border:1px solid var(--panel-border); border-radius:16px; padding:26px; margin-top:20px; background:var(--panel-bg); }
     .trace4-step h2 { margin:0 0 12px; font-size:19px; }
     .trace4-step p { color:var(--mist); font-size:14px; line-height:1.8; }
-    .trace4-check { display:flex; gap:12px; align-items:flex-start; line-height:1.7; margin:20px 0; font-size:15px; }
-    .trace4-check input { width:20px; height:20px; margin-top:3px; flex:none; accent-color:var(--neon-mint); }
     .trace4-note { font-size:12px!important; color:var(--muted)!important; }
-    .trace4-result { color:var(--neon-mint)!important; }
-    .trace4-actions { display:flex; flex-wrap:wrap; gap:10px; }
     #trace4Screen { overflow-y:auto; }
     .trace3-fields label { display:block; color:var(--mist); font-size:14px; margin:16px 0 8px; }
     .trace3-fields textarea { resize:vertical; min-height:100px; }
@@ -1220,25 +1217,39 @@ The journey ends at TRACE 04 and returns to the mission board.
   </section>
 
 
-  <!-- TRACE 04: external application + explicit participant confirmation. -->
+  <!-- TRACE 04: field mission information + external application. -->
   <section class="screen mission-screen" id="trace4Screen" data-screen="trace4" hidden aria-labelledby="trace4Title">
     <header class="mission-topbar">
       <button class="mission-back" type="button" data-back-vault aria-label="미션 보드로 돌아가기">←</button>
-      <div class="mission-heading"><small>TRACE 04 · FIELD MISSION</small><strong>바다로 향하는 마지막 미션​</strong></div>
+      <div class="mission-heading">
+        <small>TRACE 04 · FIELD MISSION</small>
+        <strong>바다로 향하는 마지막 미션</strong>
+      </div>
       <span class="state-pill" id="trace4HeaderState">OPEN</span>
     </header>
+
     <div class="trace4-container">
-      <p class="eyebrow">THE LAST TRACE</p><h1 id="trace4Title" tabindex="-1">바다로 향하는<br>마지막 미션</h1>
-      <p class="trace4-intro">현장 미션 신청서를 작성해 주세요.<br>제출을 마친 뒤 이 화면으로 돌아와 완료를 확인해 주세요.</p>
-      <div class="trace4-step"><h2>01. 현장 미션 신청서 작성</h2>
-        <p>신청서는 새 탭에서 열립니다. 작성 후 제출까지 마쳐주세요.</p>
+      <p class="eyebrow">TRACE FIELD</p>
+      <h1 id="trace4Title" tabindex="-1">바다로 향하는<br>마지막 미션</h1>
+
+      <p class="trace4-intro">
+        WWF레인저스 2기의 마지막 Trace는<br>
+        제주 바다에서 WWF와 디프다제주가 함께 이어가고 있는<br>
+        바다거북 보전 활동을 현장에서 경험하는 미션입니다.
+      </p>
+      <p class="trace4-intro">
+        그동안 콘텐츠와 미션을 통해 따라온 바다거북의 흔적을<br>
+        이제 실제 현장에서 만나고, 제주 바다의 보전 여정에 함께해 주세요.
+      </p>
+
+      <div class="trace4-step">
+        <h2>현장 미션 신청서 작성</h2>
+        <p>
+          제주 바다거북 보전 현장 활동에 참여를 희망하는 레인저님은 신청서를 작성해주세요.<br>
+          신청서는 새 탭에서 열리며, 제출까지 완료해주세요.
+        </p>
         <a class="primary-btn" id="trace4FormLink" target="_blank" rel="noopener noreferrer">신청서 열기 ↗</a>
-      </div>
-      <div class="trace4-step"><h2>02. 제출 완료 확인</h2>
-        <p id="trace4Status" role="status">신청서를 먼저 열고 제출한 뒤 확인해 주세요.</p>
-        <label class="trace4-check"><input id="trace4Submitted" type="checkbox" disabled><span>현장 미션 신청서 제출을 완료했습니다.</span></label>
-        <div class="trace4-actions"><button class="primary-btn" id="completeTrace4" type="button" disabled>TRACE 04 완료하기 →</button><button class="ghost-btn" id="trace4BackToBoard" type="button" data-back-vault hidden>미션 보드로 돌아가기 →</button></div>
-        <p class="trace4-note">참여자가 제출 완료를 직접 확인하는 단계입니다. 신청서의 실제 접수·선정 여부는 운영진 안내를 확인해 주세요.</p>
+        <p class="trace4-note">* 실제 접수 및 선정 여부는 운영진 안내를 확인해주세요.</p>
       </div>
     </div>
   </section>
@@ -1998,27 +2009,6 @@ makeFeedback = function (explanation) {
         const complete = isTrace4Complete();
         const visited = canOpenTrace4() && state.trace4Visited;
         document.getElementById("trace4HeaderState").textContent = complete ? "SECURED" : visited ? "VISITED" : "OPEN";
-        const checkbox = document.getElementById("trace4Submitted");
-        checkbox.checked = complete;
-        checkbox.disabled = !visited || complete;
-        document.getElementById("completeTrace4").hidden = complete;
-        document.getElementById("completeTrace4").disabled = true;
-        document.getElementById("trace4BackToBoard").hidden = !complete;
-        const status = document.getElementById("trace4Status");
-        status.textContent = complete ? "제출 완료 확인을 기록했습니다. 네 개의 미션을 모두 완료했어요." : visited ? "신청서 제출을 마쳤다면 아래 항목을 확인해 주세요." : "신청서를 먼저 열고 제출한 뒤 확인해 주세요.";
-        status.classList.toggle("trace4-result", complete);
-      }
-
-      function completeTrace4() {
-        if (!canOpenTrace4() || !state.trace4Visited || !document.getElementById("trace4Submitted").checked) {
-          showToast("신청서를 제출한 뒤 완료 확인 항목을 체크해 주세요.");
-          return;
-        }
-        state.trace4Complete = true;
-        saveState();
-        hydrateTrace4();
-        showScreen("vault");
-        showToast("네 개의 미션을 모두 완료했습니다. 참여해 주셔서 감사합니다!");
       }
 
       function announce(message) {
@@ -2100,7 +2090,7 @@ makeFeedback = function (explanation) {
           visited: trace4Unlocked && state.trace4Visited && !state.trace4Complete,
           pill: !trace4Unlocked ? "LOCKED" : state.trace4Complete ? "SECURED" : state.trace4Visited ? "VISITED" : "OPEN",
           icon: !trace4Unlocked ? "🔒" : state.trace4Complete ? "✓" : "↗",
-          cta: !trace4Unlocked ? "TRACE 03 완료 후 해제" : state.trace4Complete ? "현장 미션 확인 →" : state.trace4Visited ? "제출 완료 확인하기 →" : "신청서 작성 및 완료 확인 →"
+          cta: !trace4Unlocked ? "TRACE 03 완료 후 해제" : "현장 미션 안내 보기 →"
         });
         if (!isTrace2Complete()) closeCertificate();
         if (!canOpenTrace3()) {
@@ -3010,10 +3000,6 @@ makeFeedback = function (explanation) {
       function bindEvents() {
         document.getElementById("trace4FormLink").href = CONFIG.trace4Url;
         document.getElementById("trace4FormLink").addEventListener("click", markTrace4Visited);
-        document.getElementById("trace4Submitted").addEventListener("change", (event) => {
-          document.getElementById("completeTrace4").disabled = !canOpenTrace4() || !state.trace4Visited || !event.target.checked;
-        });
-        document.getElementById("completeTrace4").addEventListener("click", completeTrace4);
         window.addEventListener("storage", syncJourneyFromStorage);
         window.addEventListener("pageshow", (event) => { if (event.persisted) syncJourneyFromStorage(); });
         window.addEventListener("hashchange", routeFromHash);
