@@ -10,9 +10,10 @@ Old solved Q8 maps to Q9; new Q8 and Q10 require answers.
 Earlier confirmations are retained, with access gated by all ten questions and a certificate-link click.
 TRACE 02 certificate-link clicks unlock TRACE 03; they do not verify Catchsecu form receipts.
 TRACE 03 completion is a participant confirmation, not a verified external form receipt.
-TRACE 04 opens the application form and records visits only; earlier completion records are retained.
+TRACE 04 is complete when the application link is opened; this does not verify form submission.
+Earlier TRACE 04 visits count as complete under this same rule.
 TRACE 03 uses the registered code and goes directly to TRACE 04; no duplicate code/note fields.
-Fix version: 2026-10-06 / trace01-feedback-link-and-trace02-pdf-only + embedded-wwf-logo + four-mission-journey + trace04-field-application + square-logo-corners
+Fix version: 2026-10-06 / trace01-feedback-link-and-trace02-pdf-only + embedded-wwf-logo + four-mission-journey + trace04-field-application + square-logo-corners + trace04-link-completion
 Branding: original WWF JPEG embedded in intro/vault headers on a white background with square corners.
 Certificate: PDF-only download keeps the mint/black palette.
 The browser gate controls the journey UI; it is not server authorization.
@@ -1896,7 +1897,9 @@ makeFeedback = function (explanation) {
           // Earlier confirmations are retained, but every later screen checks the new gate.
           safe.trace3Complete = parsed.trace3Complete === true && safe.trace1Complete;
           safe.trace4Visited = parsed.trace4Visited === true && safe.trace3Complete;
-          safe.trace4Complete = parsed.trace4Complete === true && safe.trace4Visited;
+          // TRACE 04 journey completion means opening the application, not verified form submission.
+          safe.trace4Complete = safe.trace4Visited;
+          if (safe.trace4Complete && parsed.trace4Complete !== true) migrationPending = true;
           safe.trace1LocalConfirmedAt = Number.isFinite(parsed.trace1LocalConfirmedAt) ? parsed.trace1LocalConfirmedAt : null;
           safe.trace1Category = ["바다거북 보전", "WWF 활동", "레인저스 미션", "기타"].includes(parsed.trace1Category) ? parsed.trace1Category : "바다거북 보전";
           if (current === null && raw !== null) migrationPending = true;
@@ -2159,6 +2162,7 @@ makeFeedback = function (explanation) {
       function markTrace4Visited(event) {
         if (!canOpenTrace4()) { event.preventDefault(); return; }
         state.trace4Visited = true;
+        state.trace4Complete = true;
         saveState();
         hydrateTrace4();
       }
