@@ -9,10 +9,12 @@ Opening the feedback link never marks a Microsoft Forms response as submitted.
 Old solved Q8 maps to Q9; new Q8 and Q10 require answers.
 Earlier confirmations are retained, with access gated by all ten questions and a certificate-link click.
 TRACE 02 certificate-link clicks unlock TRACE 03; they do not verify Catchsecu form receipts.
-TRACE 03 and 04 completion are participant confirmations, not verified external form receipts.
+TRACE 03 completion is a participant confirmation, not a verified external form receipt.
+TRACE 04 is complete when the application link is opened; this does not verify form submission.
+Earlier TRACE 04 visits count as complete under this same rule.
 TRACE 03 uses the registered code and goes directly to TRACE 04; no duplicate code/note fields.
-Fix version: 2026-10-06 / trace01-feedback-link-and-trace02-pdf-only + embedded-wwf-logo + four-mission-journey
-Branding: original WWF JPEG embedded in intro/vault headers on a white background.
+Fix version: 2026-10-06 / trace01-feedback-link-and-trace02-pdf-only + embedded-wwf-logo + four-mission-journey + trace04-field-application + square-logo-corners + trace04-link-completion
+Branding: original WWF JPEG embedded in intro/vault headers on a white background with square corners.
 Certificate: PDF-only download keeps the mint/black palette.
 The browser gate controls the journey UI; it is not server authorization.
 The journey ends at TRACE 04 and returns to the mission board.
@@ -186,7 +188,7 @@ The journey ends at TRACE 04 and returns to the mission board.
     .intro-brand-mark, .mini-brand-icon {
       display: grid; place-items: center;
       width: 48px; height: 54px; flex: 0 0 48px;
-      padding: 0; overflow: hidden; border-radius: 4px;
+      padding: 0; overflow: hidden; border-radius: 0;
       background: #fff; box-shadow: none;
     }
     .wwf-brand-logo {
@@ -765,11 +767,7 @@ The journey ends at TRACE 04 and returns to the mission board.
     .trace4-step { border:1px solid var(--panel-border); border-radius:16px; padding:26px; margin-top:20px; background:var(--panel-bg); }
     .trace4-step h2 { margin:0 0 12px; font-size:19px; }
     .trace4-step p { color:var(--mist); font-size:14px; line-height:1.8; }
-    .trace4-check { display:flex; gap:12px; align-items:flex-start; line-height:1.7; margin:20px 0; font-size:15px; }
-    .trace4-check input { width:20px; height:20px; margin-top:3px; flex:none; accent-color:var(--neon-mint); }
     .trace4-note { font-size:12px!important; color:var(--muted)!important; }
-    .trace4-result { color:var(--neon-mint)!important; }
-    .trace4-actions { display:flex; flex-wrap:wrap; gap:10px; }
     #trace4Screen { overflow-y:auto; }
     .trace3-fields label { display:block; color:var(--mist); font-size:14px; margin:16px 0 8px; }
     .trace3-fields textarea { resize:vertical; min-height:100px; }
@@ -825,14 +823,14 @@ The journey ends at TRACE 04 and returns to the mission board.
         </div>
         <h1 id="introTitle">바다거북의<br>흔적을 추적하라</h1>
         <p class="intro-copy">
-          바다거북이 남긴 단서를 따라, 보이지 않는 바다의 여정을 추적해보세요.<br>
+          바다거북이 남긴 단서를 따라, 바다에서의 여정을 추적해보세요.<br>
           레인저님의 1년 미션이 지금 시작됩니다.
         </p>
         <div class="intro-actions">
           <button class="primary-btn intro-start" id="startJourney" type="button">
-            추적 미션 시작하기 &nbsp; →
+            미션 시작하기 &nbsp; →
           </button>
-          <span class="intro-note">완료한 미션에 따라 순차적으로 다음 단계가 열립니다.</span>
+          <span class="intro-note">미션을 완료하면 순차적으로 다음 단계가 열립니다.</span>
         </div>
       </div>
     </div>
@@ -868,7 +866,7 @@ The journey ends at TRACE 04 and returns to the mission board.
           <p class="eyebrow">WWF RANGERS 2기 미션 보드</p>
           <h2 id="vaultTitle">바다거북 추적 미션</h2>
           <p class="vault-heading-desc">
-            레인저님의 고유 코드를 등록하고, 바다거북이 남긴 단서를 하나씩 해독해보세요.<br>
+            레인저님의 고유 코드를 등록하고, 바다거북이 남긴 단서를 하나씩 풀어보세요.<br>
             미션을 완료할 때마다 새로운 미션이 열리고, 바다거북 보전을 위한 다음 행동으로 이어집니다.
           </p>
         </div>
@@ -945,7 +943,7 @@ The journey ends at TRACE 04 and returns to the mission board.
                 <span class="trace-label">TRACE 04</span>
                 <span class="state-pill" data-state-pill="4">LOCKED</span>
               </span>
-              <h3>Trace 04. 현장 미션 신청하기</h3>
+              <h3>Trace 04. 바다로 향하는 마지막 미션​</h3>
               <p>제주 바다로 향하는 신청서가 열립니다.</p>
               <span class="vault-cta" data-card-cta="4">TRACE 03 완료 후 해제</span>
             </span>
@@ -1024,14 +1022,14 @@ The journey ends at TRACE 04 and returns to the mission board.
           <div class="insta-check-container">
             <a href="https://www.instagram.com/wwfkorea/" target="_blank" rel="noopener noreferrer" class="insta-btn">@wwfkorea 확인하러 가기 🐼</a>
             <div class="insta-small-text">
-              WWF 인스타를 팔로우하셨나요?<br>바다거북뿐 아니라 WWF가 진행하는 다양한 보전활동을<br>가장 먼저 확인해보세요! 💙
+              WWF 인스타를 팔로우하셨나요?<br>바다거북뿐 아니라 WWF가 진행하는 다양한 보전 활동을<br>가장 먼저 확인해보세요! 💙
             </div>
           </div>
         </div>
 
         <div class="input-group">
           <div class="section-subtitle">🐢 레인저님의 관심사를 들려주세요</div>
-          <p class="section-desc">궁금한 점, 보고싶은 콘텐츠, 참여하고 싶은 미션 아이디어를 자유롭게 남겨주세요.</p>
+          <p class="section-desc">궁금한 점, 보고 싶은 콘텐츠, 참여하고 싶은 미션 아이디어를 자유롭게 남겨주세요.</p>
           
           <div class="category-selector">
             <button class="cat-btn active" type="button" data-category="바다거북 보전" aria-pressed="true">🌊 바다거북 보전</button>
@@ -1040,14 +1038,13 @@ The journey ends at TRACE 04 and returns to the mission board.
             <button class="cat-btn" type="button" data-category="기타" aria-pressed="false">🤔 기타</button>
           </div>
           <a id="rangerQuestionLink" class="question-input question-link" href="https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?origin=NeoPortalPage&subpage=design&id=4_I-hC_LHkKfic990TqP333EORmjkbNFp9Am5C-CudpUNzVTRklTWDQyOVNES1dKMURZTzZaVTU0Ni4u" target="_blank" rel="noopener noreferrer" aria-describedby="rangerQuestionHelp">
-            <span>앞으로 진행될 레인저스 미션에 대한 기대나 아이디어를 남겨주세요</span>
-            <span class="question-link-action">폼에서 의견 남기기 ↗</span>
+            <span>💡 앞으로 레인저스에서 함께하고 싶은 활동이나 새로운 미션 아이디어를 들려주세요!</span>
+            <span class="question-link-action">의견 남기기 ↗</span>
           </a>
           <p class="question-link-help" id="rangerQuestionHelp">새 탭에서 폼을 작성하고 ‘제출’을 눌러주세요.</p>
         </div>
 
         <button class="submit-btn" id="trace1Submit" type="button" disabled>Trace 01 완료하기</button>
-        <p class="trace1-local-note">고유코드와 미션 진행도는 현재 브라우저에 저장됩니다.</p>
       </div>
     </div>
 
@@ -1055,7 +1052,7 @@ The journey ends at TRACE 04 and returns to the mission board.
       <div class="popup-modal">
         <div class="popup-icon">🎉🐢🎉</div>
         <h2>고유 코드 등록 완료!</h2>
-        <p>이 브라우저에 코드와 다짐을 저장했습니다.<br>이제 바다거북 추적 여정을 시작해 주세요.</p>
+        <p>이 브라우저에 코드와 다짐을 저장했습니다.<br>이제 바다거북과 함께하는 여정이 시작되었습니다!</p>
         <button class="popup-close-btn" id="finalPopupClose" type="button">Trace 01 완료하기</button>
       </div>
     </div>
@@ -1082,7 +1079,7 @@ The journey ends at TRACE 04 and returns to the mission board.
       <aside class="trace2-dock">
         <div class="dock-copy">
           <p class="eyebrow" style="margin-bottom:0">TRACE 02 · 위협 추적 미션</p>
-          <h1 id="trace2Title">바다거북 여정의 위협</h1>
+          <h1 id="trace2Title">바다거북이 처한 위협</h1>
           <p>바다거북의 이동과 생존을 위협하는 단서를 따라가며,<br>각 위협이 어떻게 보전 활동과 연결되는지 확인해 보세요.</p>
         </div>
         <div class="mission-list" id="missionList"></div>
@@ -1131,7 +1128,6 @@ The journey ends at TRACE 04 and returns to the mission board.
       <div class="trace3-grid">
         <div style="display:flex; flex-direction:column; gap:24px;">
           <div class="trace3-card">
-            <div class="trace3-badge">MISSION FLOW</div>
             <h3 style="font-size:20px; font-weight:800; color:#101820; margin-bottom:6px;">Trace 03 진행 순서 🗺️</h3>
             <p style="color:#666; font-size:13.5px; font-weight:600;">제주 바다거북 보전 이야기를 확인하고, 나만의 바다 조각을 완성해 미션을 인증해 주세요.</p>
             
@@ -1163,7 +1159,6 @@ The journey ends at TRACE 04 and returns to the mission board.
           </div>
 
          <div class="trace3-card">
-            <div class="trace3-badge" style="background:#005b82;">제주 × ShellBank</div>
             <h2 class="trace3-story-title">제주에서 시작된 바다거북의 흔적</h2>
             <ul class="trace3-story-list">
               <li>
@@ -1220,25 +1215,39 @@ The journey ends at TRACE 04 and returns to the mission board.
   </section>
 
 
-  <!-- TRACE 04: external application + explicit participant confirmation. -->
+  <!-- TRACE 04: field mission information + external application. -->
   <section class="screen mission-screen" id="trace4Screen" data-screen="trace4" hidden aria-labelledby="trace4Title">
     <header class="mission-topbar">
       <button class="mission-back" type="button" data-back-vault aria-label="미션 보드로 돌아가기">←</button>
-      <div class="mission-heading"><small>TRACE 04 · FIELD MISSION</small><strong>현장 미션 신청하기</strong></div>
+      <div class="mission-heading">
+        <small>TRACE 04 · FIELD MISSION</small>
+        <strong>바다로 향하는 마지막 미션</strong>
+      </div>
       <span class="state-pill" id="trace4HeaderState">OPEN</span>
     </header>
+
     <div class="trace4-container">
-      <p class="eyebrow">THE LAST TRACE</p><h1 id="trace4Title" tabindex="-1">바다로 향하는<br>마지막 미션</h1>
-      <p class="trace4-intro">현장 미션 신청서를 작성해 주세요.<br>제출을 마친 뒤 이 화면으로 돌아와 완료를 확인해 주세요.</p>
-      <div class="trace4-step"><h2>01. 현장 미션 신청서 작성</h2>
-        <p>신청서는 새 탭에서 열립니다. 작성 후 제출까지 마쳐주세요.</p>
+      <p class="eyebrow">TRACE FIELD</p>
+      <h1 id="trace4Title" tabindex="-1">바다로 향하는<br>마지막 미션</h1>
+
+      <p class="trace4-intro">
+        WWF레인저스 2기의 마지막 Trace는<br>
+        제주 바다에서 WWF와 디프다제주가 함께 이어가고 있는<br>
+        바다거북 보전 활동을 현장에서 경험하는 미션입니다.
+      </p>
+      <p class="trace4-intro">
+        그동안 콘텐츠와 미션을 통해 따라온 바다거북의 흔적을<br>
+        이제 실제 현장에서 만나고, 제주 바다의 보전 여정에 함께해 주세요.
+      </p>
+
+      <div class="trace4-step">
+        <h2>현장 미션 신청서 작성</h2>
+        <p>
+          제주 바다거북 보전 현장 활동에 참여를 희망하는 레인저님은 신청서를 작성해주세요.<br>
+          신청서는 새 탭에서 열리며, 제출까지 완료해주세요.
+        </p>
         <a class="primary-btn" id="trace4FormLink" target="_blank" rel="noopener noreferrer">신청서 열기 ↗</a>
-      </div>
-      <div class="trace4-step"><h2>02. 제출 완료 확인</h2>
-        <p id="trace4Status" role="status">신청서를 먼저 열고 제출한 뒤 확인해 주세요.</p>
-        <label class="trace4-check"><input id="trace4Submitted" type="checkbox" disabled><span>현장 미션 신청서 제출을 완료했습니다.</span></label>
-        <div class="trace4-actions"><button class="primary-btn" id="completeTrace4" type="button" disabled>TRACE 04 완료하기 →</button><button class="ghost-btn" id="trace4BackToBoard" type="button" data-back-vault hidden>미션 보드로 돌아가기 →</button></div>
-        <p class="trace4-note">참여자가 제출 완료를 직접 확인하는 단계입니다. 신청서의 실제 접수·선정 여부는 운영진 안내를 확인해 주세요.</p>
+        <p class="trace4-note">* 실제 접수 및 선정 여부는 운영진 안내를 확인해주세요.</p>
       </div>
     </div>
   </section>
@@ -1400,7 +1409,7 @@ const missions = [
     title: "어망에 걸린 바다거북",
     location: "아시아 · 어업과 혼획 학습 지점",
     icon: "🕸️",
-    story: "🎣 어업 과정에서는 원래 잡으려던 대상이 아닌 해양생물이 함께 잡히기도 해요. 이를 <em>혼획(bycatch)</em>이라고 합니. 바다거북은 폐로 호흡하기 때문에 주기적으로 수면 위로 올라와야 하지만, 어구에 걸리면 움직임이 제한돼 큰 위험에 처할 수 있어요. <em>이번 미션에서는 잡으려던 대상과 의도치 않게 함께 잡힌 생물의 차이</em>에 주목해 보세요.",
+    story: "🎣 어업 과정에서는 원래 잡으려던 대상이 아닌 해양생물이 함께 잡히기도 해요. 이를 <em>혼획(bycatch)</em>이라고 합니다. 바다거북은 폐로 호흡하기 때문에 주기적으로 수면 위로 올라와야 하지만, 어구에 걸리면 움직임이 제한돼 큰 위험에 처할 수 있어요. <em>이번 미션에서는 잡으려던 대상과 의도치 않게 함께 잡힌 생물의 차이</em>에 주목해 보세요.",
     question: "Q3. ‘혼획’은 무엇을 뜻할까요?",
     options: [
       "잡으려던 대상이 아닌 해양생물이 함께 잡히는 것",
@@ -1409,7 +1418,7 @@ const missions = [
       "바다거북이 산란지를 찾는 과정"
     ],
     answer: 0,
-    explanation: "혼획은 잡으려던 대상이 아닌 해양생물이 어구에 함께 걸리거나 잡히는 것을 뜻해요. 바다거북도 그물, 낚시줄, 어업 장비에 의도치 않게 걸릴 수 있습니다.",
+    explanation: "혼획은 잡으려던 대상이 아닌 해양생물이 어구에 함께 걸리거나 잡히는 것을 뜻해요. 바다거북도 그물, 낚줄, 어업 장비에 의도치 않게 걸릴 수 있습니다.",
     sources: [
       {
         label: "🎣 WWF · 혼획의 뜻과 해양생물이 받는 위협",
@@ -1431,7 +1440,7 @@ const missions = [
     title: "바다거북을 위한 안전한 어업",
     location: "호주 · 새우 트롤 어업 학습 지점",
     icon: "⚓",
-    story: "🚪 호주 북부의 일부 새우 어업에서는 <em>바다거북 탈출장치(TED)</em>를 사용해요. 작은 새우는 격자 사이로 통과하지만, 몸집이 큰 바다거북은 격자에 부딪힌 뒤 <em>별도의 탈출구로 빠져나갈 수 있도록 유도</em>됩니. 이런 장치는 바다거북의 혼획을 줄이는 데 도움이 될 수 있어요. 다만 제대로 효과를 내려면 <em>정확한 설치와 지속적인 점검·관리</em>가 중요합니다.",
+    story: "🚪 호주 북부의 일부 새우 어업에서는 <em>바다거북 탈출장치(TED)</em>를 사용해요. 작은 새우는 격자 사이로 통과하지만, 몸집이 큰 바다거북은 격자에 부딪힌 뒤 <em>별도의 탈출구로 빠져나갈 수 있도록 유도</em>됩니다. 이런 장치는 바다거북의 혼획을 줄이는 데 도움이 될 수 있어요. 다만 제대로 효과를 내려면 <em>정확한 설치와 지속적인 점검·관리</em>가 중요합니다.",
     question: "Q4. 혼획을 줄이기 위해 필요한 접근으로 가장 적절한 것은 무엇일까요?",
     options: [
       "더 많은 어구 사용",
@@ -1471,7 +1480,7 @@ const missions = [
       {
         label: "🌦️ WWF-UK 보고서 · 기후변화와 장수거북의 산란 환경",
         url: "https://www.wwf.org.uk/sites/default/files/2021-06/FEELING_THE_HEAT_REPORT.pdf#page=14",
-        description: "『Feeling the Heat』코스타리카 장수거북의 부화와 산란지를 위협하는 기후변화를 살펴봐요."
+        description: "『Feeling the Heat』 보고서에서 코스타리카 장수거북의 부화와 산란지를 위협하는 기후변화를 살펴봐요."
       }
     ]
   },
@@ -1483,7 +1492,7 @@ const missions = [
     title: "뜨거워지는 산란 해변",
     location: "호주 북부 그레이트배리어리프 · 성비 변화 학습 지점",
     icon: "🥚",
-    story: "🌡️ 바다거북의 성별은 알이 발달하는 동안의 <em>둥지 속 온도</em>에 영향을 받아. 2018년 연구에서는 따뜻한 호주 북부 그레이트배리어리프 산란지 출신의 어린 푸른바다거북에서 <em>암컷 비율이 매우 높게</em> 나타났습니다. 햇볕을 많이 받는 곳과 그늘진 곳은 주변 모래의 온도가 달라질 수 있고, 이는 둥지 속 부화 온도에도 영향을 줄 수 있어요. 이번 미션에서는 <em>둥지의 온도와 바다거북의 성비가 어떻게 연결되는지</em>에 주목해 보세요.",
+    story: "🌡️ 바다거북의 성별은 알이 발달하는 동안의 <em>둥지 속 온도</em>에 영향을 받아요. 2018년 연구에서는 따뜻한 호주 북부 그레이트배리어리프 산란지 출신의 어린 푸른바다거북에서 <em>암컷 비율이 매우 높게</em> 나타났습니다. 햇볕을 많이 받는 곳과 그늘진 곳은 주변 모래의 온도가 달라질 수 있고, 이는 둥지 속 부화 온도에도 영향을 줄 수 있어요. 이번 미션에서는 <em>둥지의 온도와 바다거북의 성비가 어떻게 연결되는지</em>에 주목해 보세요.",
     question: "Q6. 바다거북 알이 부화할 때, 새끼 바다거북의 성별을 결정하는 것(요인)은 무엇일까요?",
     options: [
       "알의 크기",
@@ -1549,7 +1558,7 @@ const missions = [
       "특정 지역에서만 일어나 전 세계 개체수에는 영향이 없다"
     ],
     answer: 2,
-    explanation: "바다거북은 알을 많이 낳지만 성체가 살아남는 비율은 매우 낮고 성체가 되기까지도 수십 년이 걸려요. 그래서 불법 거래로 개체수가 한 번 줄면 자연적으로 회복하기까지 오랜 시간이 필요합니다.",
+    explanation: "바다거북은 알을 많이 낳지만 성체 살아남는 비율은 매우 낮고 성체가 되기까지도 수십 년이 걸려요. 그래서 불법 거래로 개체수가 한 번 줄면 자연적으로 회복하기까지 오랜 시간이 필요합니다.",
     sources: [
       {
         label: "🏷️ WWF-Australia · 장신구가 된 등딱지와 불법 거래",
@@ -1571,7 +1580,7 @@ const missions = [
     title: "ShellBank가 찾는 단서",
     location: "호주 · ShellBank 협력기관 호주박물관",
     icon: "🔎",
-    story: "🧬 겉모습만으로 출처를 알기 어려운 바다거북 제품에도 <em>DNA라는 단서</em>가 남아 있을 수 있어. ShellBank는 시료에서 얻은 DNA 정보를 <em>여러 산란 집단의 기준 자료와 비교</em>출처를 추적합니다. 여기에 제품이 언제, 어디에서 압수됐는지에 대한 기록까지 함께 살펴보면 <em>개체의 기원과 불법 거래·이동 경로를 파악하는 단서</em>를 찾는 데 도움이 됩니다.",
+    story: "🧬 겉모습만으로 출처를 알기 어려운 바다거북 제품에도 <em>DNA라는 단서</em>가 남아 있을 수 있어요. ShellBank는 시료에서 얻은 DNA 정보를 <em>여러 산란 집단의 기준 자료와 비교해</em>출처를 추적합니다. 여기에 제품이 언제, 어디에서 압수됐는지에 대한 기록까지 함께 살펴보면 <em>개체의 기원과 불법 거래·이동 경로를 파악하는 단서</em>를 찾는 데 도움이 됩니다.",
     question: "Q9. (ShellBank와 같은) DNA 기반 추적은 바다거북 보전에 어떤 도움을 줄 수 있을까요?",
     options: [
       "바다거북을 직접 치료한다",
@@ -1611,12 +1620,12 @@ const missions = [
       "모계 DNA는 암컷 바다거북에만 있기 때문에"
     ],
     answer: 0,
-    explanation: "모계 DNA(미토콘드리아 DNA)는 암컷이든 수컷이든 모든 바다거북이 가지고 있어요. 다만 수정 후 다음 세대로 전달되는 것은 어미 쪽 미토콘드리아 DNA 뿐입니다. 그런데 바다거북은 자신이 태어난 해변으로 돌아와 알을 낳는 습성(귀소성)이 있어서 같은 산란지 출신끼리는 세대를 거듭해도 비슷한 모계 DNA 특징을 갖게 됩니다. ShellBank는 이 특징을 산란지별로 데이터베이스화해두고 압수된 등딱지 등에서 DNA를 추출해 비교함으로써 그 개체가 어느 산란지에서 왔는지 추적할 수 있어요.",
+    explanation: "모계 DNA(미토콘드리아 DNA)는 암컷이든 수컷이든 모든 바다거북이 가지고 있어요. 다만 수정 후 다음 세대로 전달되는 것은 어미 쪽 미토콘드리아 DNA뿐입니다. 그런데 바다거북은 자신이 태어난 해변으로 돌아와 알을 낳는 습성(귀소성)이 있어서 같은 산란지 출신끼리는 세대를 거듭해도 비슷한 모계 DNA 특징을 갖게 됩니다. ShellBank는 이 특징을 산란지별로 데이터베이스화해두고 압수된 등딱지 등에서 DNA를 추출해 비교함으로써 그 개체가 어느 산란지에서 왔는지 추적할 수 있어요.",
     sources: [
       {
         label: "📘 WWF-Australia 보고서 · 모계 DNA와 고향의 단서",
         url: "https://shellbankproject.org/wp-content/uploads/2022/11/WWF_Surrender_Your_Shell_report_final_digital.pdf#page=5",
-        description: "『Surrender Your Shell』이어지는 DNA와 암컷의 귀소성이 어떻게 단서가 되는지 살펴봐요."
+        description: "『Surrender Your Shell』 보고서에서 모계로 이어지는 DNA와 암컷의 귀소성이 어떻게 출신 지역을 추적하는 단서가 되는지 살펴봐요."
       },
       {
         label: "🔬 WWF 공동연구 논문 · 등딱지의 미토콘드리아 DNA 분석",
@@ -1885,7 +1894,9 @@ makeFeedback = function (explanation) {
           // Earlier confirmations are retained, but every later screen checks the new gate.
           safe.trace3Complete = parsed.trace3Complete === true && safe.trace1Complete;
           safe.trace4Visited = parsed.trace4Visited === true && safe.trace3Complete;
-          safe.trace4Complete = parsed.trace4Complete === true && safe.trace4Visited;
+          // TRACE 04 journey completion means opening the application, not verified form submission.
+          safe.trace4Complete = safe.trace4Visited;
+          if (safe.trace4Complete && parsed.trace4Complete !== true) migrationPending = true;
           safe.trace1LocalConfirmedAt = Number.isFinite(parsed.trace1LocalConfirmedAt) ? parsed.trace1LocalConfirmedAt : null;
           safe.trace1Category = ["바다거북 보전", "WWF 활동", "레인저스 미션", "기타"].includes(parsed.trace1Category) ? parsed.trace1Category : "바다거북 보전";
           if (current === null && raw !== null) migrationPending = true;
@@ -1998,27 +2009,6 @@ makeFeedback = function (explanation) {
         const complete = isTrace4Complete();
         const visited = canOpenTrace4() && state.trace4Visited;
         document.getElementById("trace4HeaderState").textContent = complete ? "SECURED" : visited ? "VISITED" : "OPEN";
-        const checkbox = document.getElementById("trace4Submitted");
-        checkbox.checked = complete;
-        checkbox.disabled = !visited || complete;
-        document.getElementById("completeTrace4").hidden = complete;
-        document.getElementById("completeTrace4").disabled = true;
-        document.getElementById("trace4BackToBoard").hidden = !complete;
-        const status = document.getElementById("trace4Status");
-        status.textContent = complete ? "제출 완료 확인을 기록했습니다. 네 개의 미션을 모두 완료했어요." : visited ? "신청서 제출을 마쳤다면 아래 항목을 확인해 주세요." : "신청서를 먼저 열고 제출한 뒤 확인해 주세요.";
-        status.classList.toggle("trace4-result", complete);
-      }
-
-      function completeTrace4() {
-        if (!canOpenTrace4() || !state.trace4Visited || !document.getElementById("trace4Submitted").checked) {
-          showToast("신청서를 제출한 뒤 완료 확인 항목을 체크해 주세요.");
-          return;
-        }
-        state.trace4Complete = true;
-        saveState();
-        hydrateTrace4();
-        showScreen("vault");
-        showToast("네 개의 미션을 모두 완료했습니다. 참여해 주셔서 감사합니다!");
       }
 
       function announce(message) {
@@ -2100,7 +2090,7 @@ makeFeedback = function (explanation) {
           visited: trace4Unlocked && state.trace4Visited && !state.trace4Complete,
           pill: !trace4Unlocked ? "LOCKED" : state.trace4Complete ? "SECURED" : state.trace4Visited ? "VISITED" : "OPEN",
           icon: !trace4Unlocked ? "🔒" : state.trace4Complete ? "✓" : "↗",
-          cta: !trace4Unlocked ? "TRACE 03 완료 후 해제" : state.trace4Complete ? "신청 완료 확인 →" : state.trace4Visited ? "제출 완료 확인하기 →" : "신청서 작성 및 완료 확인 →"
+          cta: !trace4Unlocked ? "TRACE 03 완료 후 해제" : "현장 미션 안내 보기 →"
         });
         if (!isTrace2Complete()) closeCertificate();
         if (!canOpenTrace3()) {
@@ -2169,6 +2159,7 @@ makeFeedback = function (explanation) {
       function markTrace4Visited(event) {
         if (!canOpenTrace4()) { event.preventDefault(); return; }
         state.trace4Visited = true;
+        state.trace4Complete = true;
         saveState();
         hydrateTrace4();
       }
@@ -2546,14 +2537,14 @@ makeFeedback = function (explanation) {
         const source = document.createElement("p");
         source.className = "source-note";
         source.innerHTML = `
-          보전정보 참고:
+          보전 정보 참고:
           <a href="https://www.worldwildlife.org/species/sea-turtle/" target="_blank" rel="noopener noreferrer">WWF Sea Turtle</a>
           ·
           <a href="https://shellbankproject.org/the-science/" target="_blank" rel="noopener noreferrer">ShellBank Science</a>
         `;
 
         if (mission.sources) {
-          source.replaceChildren(document.createTextNode("보전정보 참고: "));
+          source.replaceChildren(document.createTextNode("보전 정보 참고: "));
           mission.sources.forEach((reference, index) => {
             if (index) source.append(document.createTextNode(" · "));
             const link = document.createElement("a");
@@ -2953,7 +2944,7 @@ makeFeedback = function (explanation) {
       }
 
       function resetJourney() {
-        if (!window.confirm("이 브라우저의 TRACE 01~04 진행 기록을 초기화할까요? Forms에 제출한 응답과 갤러리 기록은 유지됩니다.")) return;
+        if (!window.confirm("이 브라우저의 TRACE 01~04 진행 기록을 초기화할까요? Forms에 제출한 응답은 유지됩니다.")) return;
         const nextState = { ...defaultState, trace2Solved: [] };
         if (!persistState(nextState)) return;
         cancelPendingJourney();
@@ -3010,10 +3001,6 @@ makeFeedback = function (explanation) {
       function bindEvents() {
         document.getElementById("trace4FormLink").href = CONFIG.trace4Url;
         document.getElementById("trace4FormLink").addEventListener("click", markTrace4Visited);
-        document.getElementById("trace4Submitted").addEventListener("change", (event) => {
-          document.getElementById("completeTrace4").disabled = !canOpenTrace4() || !state.trace4Visited || !event.target.checked;
-        });
-        document.getElementById("completeTrace4").addEventListener("click", completeTrace4);
         window.addEventListener("storage", syncJourneyFromStorage);
         window.addEventListener("pageshow", (event) => { if (event.persisted) syncJourneyFromStorage(); });
         window.addEventListener("hashchange", routeFromHash);
