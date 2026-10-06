@@ -7,11 +7,11 @@
 * [🐢 메인 페이지 (index.html)](https://mission2027vision.github.io/challenges/)
 
 추가 참고 페이지 
+* * 📸 [10/06 수정ing (wwf_rangers_trace02.html)](https://mission2027vision.github.io/challenges/trace3.html)
 * * [🐢 바다거북 추적 미션 메인 페이지 (wwfrangers2.html)](https://mission2027vision.github.io/challenges/wwfrangers2.html)
 * [🏝️ TRACE 금고 (mission2.html)](https://mission2027vision.github.io/challenges/mission2.html)
 * [🗺️ TRACE 1 (mapquest.html)](https://mission2027vision.github.io/challenges/trace1.html)
 * * 🧭 [Trace 2 지도 8가지 퀴즈 바로가기](https://mission2027vision.github.io/challenges/trace2.html)
-  * * 📸 [TRACE 3 (wwf_rangers_trace02.html)](https://mission2027vision.github.io/challenges/trace3.html)
 * * 💬 [9/18 기준 메인페이지: TRACE TALK Q&A (trace_talk.html)](https://mission2027vision.github.io/challenges/trace_talk.html)
 * 🧩 [TRACE 03 & 05 갤러리 및 수료증 (wwf_rangers_keyring_gallery_certificate.html)](https://mission2027vision.github.io/challenges/wwf_rangers_keyring_gallery_certificate.html)
 
