@@ -823,14 +823,14 @@ The journey ends at TRACE 04 and returns to the mission board.
         </div>
         <h1 id="introTitle">바다거북의<br>흔적을 추적하라</h1>
         <p class="intro-copy">
-          바다거북이 남긴 단서를 따라, 보이지 않는 바다의 여정을 추적해보세요.<br>
+          바다거북이 남긴 단서를 따라, 바다에서의 여정을 추적해보세요.<br>
           레인저님의 1년 미션이 지금 시작됩니다.
         </p>
         <div class="intro-actions">
           <button class="primary-btn intro-start" id="startJourney" type="button">
-            추적 미션 시작하기 &nbsp; →
+            미션 시작하기 &nbsp; →
           </button>
-          <span class="intro-note">완료한 미션에 따라 순차적으로 다음 단계가 열립니다.</span>
+          <span class="intro-note">미션을 완료하면 순차적으로 다음 단계가 열립니다.</span>
         </div>
       </div>
     </div>
@@ -866,7 +866,7 @@ The journey ends at TRACE 04 and returns to the mission board.
           <p class="eyebrow">WWF RANGERS 2기 미션 보드</p>
           <h2 id="vaultTitle">바다거북 추적 미션</h2>
           <p class="vault-heading-desc">
-            레인저님의 고유 코드를 등록하고, 바다거북이 남긴 단서를 하나씩 해독해보세요.<br>
+            레인저님의 고유 코드를 등록하고, 바다거북이 남긴 단서를 하나씩 풀어보세요.<br>
             미션을 완료할 때마다 새로운 미션이 열리고, 바다거북 보전을 위한 다음 행동으로 이어집니다.
           </p>
         </div>
@@ -1038,14 +1038,13 @@ The journey ends at TRACE 04 and returns to the mission board.
             <button class="cat-btn" type="button" data-category="기타" aria-pressed="false">🤔 기타</button>
           </div>
           <a id="rangerQuestionLink" class="question-input question-link" href="https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?origin=NeoPortalPage&subpage=design&id=4_I-hC_LHkKfic990TqP333EORmjkbNFp9Am5C-CudpUNzVTRklTWDQyOVNES1dKMURZTzZaVTU0Ni4u" target="_blank" rel="noopener noreferrer" aria-describedby="rangerQuestionHelp">
-            <span>앞으로 진행될 레인저스 미션에 대한 기대나 아이디어를 남겨주세요</span>
-            <span class="question-link-action">폼에서 의견 남기기 ↗</span>
+            <span>💡 앞으로 레인저스에서 함께하고 싶은 활동이나 새로운 미션 아이디어를 들려주세요!</span>
+            <span class="question-link-action">의견 남기기 ↗</span>
           </a>
           <p class="question-link-help" id="rangerQuestionHelp">새 탭에서 폼을 작성하고 ‘제출’을 눌러주세요.</p>
         </div>
 
         <button class="submit-btn" id="trace1Submit" type="button" disabled>Trace 01 완료하기</button>
-        <p class="trace1-local-note">고유코드와 미션 진행도는 현재 브라우저에 저장됩니다.</p>
       </div>
     </div>
 
@@ -1053,7 +1052,7 @@ The journey ends at TRACE 04 and returns to the mission board.
       <div class="popup-modal">
         <div class="popup-icon">🎉🐢🎉</div>
         <h2>고유 코드 등록 완료!</h2>
-        <p>이 브라우저에 코드와 다짐을 저장했습니다.<br>이제 바다거북 추적 여정을 시작해 주세요.</p>
+        <p>이 브라우저에 코드와 다짐을 저장했습니다.<br>이제 바다거북과 함께하는 여정이 시작되었습니다!</p>
         <button class="popup-close-btn" id="finalPopupClose" type="button">Trace 01 완료하기</button>
       </div>
     </div>
@@ -1080,7 +1079,7 @@ The journey ends at TRACE 04 and returns to the mission board.
       <aside class="trace2-dock">
         <div class="dock-copy">
           <p class="eyebrow" style="margin-bottom:0">TRACE 02 · 위협 추적 미션</p>
-          <h1 id="trace2Title">바다거북 여정의 위협</h1>
+          <h1 id="trace2Title">바다거북이 처한 위협</h1>
           <p>바다거북의 이동과 생존을 위협하는 단서를 따라가며,<br>각 위협이 어떻게 보전 활동과 연결되는지 확인해 보세요.</p>
         </div>
         <div class="mission-list" id="missionList"></div>
@@ -1129,7 +1128,6 @@ The journey ends at TRACE 04 and returns to the mission board.
       <div class="trace3-grid">
         <div style="display:flex; flex-direction:column; gap:24px;">
           <div class="trace3-card">
-            <div class="trace3-badge">MISSION FLOW</div>
             <h3 style="font-size:20px; font-weight:800; color:#101820; margin-bottom:6px;">Trace 03 진행 순서 🗺️</h3>
             <p style="color:#666; font-size:13.5px; font-weight:600;">제주 바다거북 보전 이야기를 확인하고, 나만의 바다 조각을 완성해 미션을 인증해 주세요.</p>
             
@@ -1161,7 +1159,6 @@ The journey ends at TRACE 04 and returns to the mission board.
           </div>
 
          <div class="trace3-card">
-            <div class="trace3-badge" style="background:#005b82;">제주 × ShellBank</div>
             <h2 class="trace3-story-title">제주에서 시작된 바다거북의 흔적</h2>
             <ul class="trace3-story-list">
               <li>
@@ -1412,7 +1409,7 @@ const missions = [
     title: "어망에 걸린 바다거북",
     location: "아시아 · 어업과 혼획 학습 지점",
     icon: "🕸️",
-    story: "🎣 어업 과정에서는 원래 잡으려던 대상이 아닌 해양생물이 함께 잡히기도 해요. 이를 <em>혼획(bycatch)</em>이라고 합니. 바다거북은 폐로 호흡하기 때문에 주기적으로 수면 위로 올라와야 하지만, 어구에 걸리면 움직임이 제한돼 큰 위험에 처할 수 있어요. <em>이번 미션에서는 잡으려던 대상과 의도치 않게 함께 잡힌 생물의 차이</em>에 주목해 보세요.",
+    story: "🎣 어업 과정에서는 원래 잡으려던 대상이 아닌 해양생물이 함께 잡히기도 해요. 이를 <em>혼획(bycatch)</em>이라고 합니다. 바다거북은 폐로 호흡하기 때문에 주기적으로 수면 위로 올라와야 하지만, 어구에 걸리면 움직임이 제한돼 큰 위험에 처할 수 있어요. <em>이번 미션에서는 잡으려던 대상과 의도치 않게 함께 잡힌 생물의 차이</em>에 주목해 보세요.",
     question: "Q3. ‘혼획’은 무엇을 뜻할까요?",
     options: [
       "잡으려던 대상이 아닌 해양생물이 함께 잡히는 것",
