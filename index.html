@@ -1192,10 +1192,10 @@ The journey ends at TRACE 04 and returns to the mission board.
 
           <div class="trace3-padlet-box">
             <div style="font-size:40px; margin-bottom:10px;">🌊📸</div>
-            <h3 style="font-size:17px; font-weight:800; margin:0 0 6px;">STEP 1. 사진 제출하기</h3>
+            <h3 style="font-size:17px; font-weight:800; margin:0 0 6px;">STEP 1. 미션 기록 남기기</h3>
             <div style="font-size:13px; color:#a3d9c9; margin-bottom:16px;">완성한 나만의 바다 조각을 사진으로 남겨 공유해 주세요.</div>
             <a href="https://app.catchsecu.com/project/b5169c60ff6192d/form" target="_blank" class="trace3-padlet-btn" rel="noopener noreferrer">
-              캐치시큐에서 사진 제출하기 ↗
+              자개 DIY 키링 사진 올리기 ↗
             </a>
           </div>
 
@@ -1206,9 +1206,8 @@ The journey ends at TRACE 04 and returns to the mission board.
           </button>
           
           <p id="t3-status" role="status" aria-live="polite">
-            제출을 마쳤다면 완료 버튼을 눌러 다음 미션으로 이동해 주세요.
+            * 제출한 내용은 확인 후 Trace 03 참여 기록에 반영됩니다.
           </p>
-          <p id="t3-confirm-note" class="trace3-confirm-note">참여자가 제출 완료를 직접 확인하는 단계입니다. 캐치시큐의 실제 접수 여부는 이 화면에서 자동으로 확인되지 않습니다.</p>
         </div>
       </div>
     </div>
@@ -2082,7 +2081,7 @@ function makeFeedback(explanation) {
           visited: trace4Unlocked && state.trace4Visited && !state.trace4Complete,
           pill: !trace4Unlocked ? "LOCKED" : state.trace4Complete ? "SECURED" : state.trace4Visited ? "VISITED" : "OPEN",
           icon: !trace4Unlocked ? "🔒" : state.trace4Complete ? "✓" : "↗",
-          cta: !trace4Unlocked ? "TRACE 03 완료 후 해제" : "현장 미션 안내 보기 →"
+          cta: !trace4Unlocked ? "TRACE 03 완료 후 해제" : "현장 미션 확인 →"
         });
         if (!isTrace2Complete()) closeCertificate();
         if (!canOpenTrace3()) {
