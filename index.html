@@ -2211,9 +2211,9 @@ function makeFeedback(explanation) {
         document.getElementById("trace3HeaderState").textContent = complete ? "SECURED" : "OPEN";
         const button = document.getElementById("t3-submit-btn");
         button.disabled = trace3Pending;
-        button.textContent = complete ? "TRACE 04로 이동하기 →" : "제출 완료하고 TRACE 04로 →";
+        button.textContent = complete ? "Trace 03 인증 완료하기 →" : "제출 완료하고 TRACE 04로 →";
         setTrace3Status(complete
-          ? "TRACE 03 완료 확인이 기록되어 있습니다. 다음 미션으로 이동해 주세요."
+          ? "* 제출한 내용은 확인 후 Trace 03 참여 기록에 반영됩니다."
           : "제출을 마쳤다면 완료 버튼을 눌러 다음 미션으로 이동해 주세요.");
       }
 
