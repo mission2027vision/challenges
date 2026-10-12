@@ -1202,7 +1202,7 @@ The journey ends at TRACE 04 and returns to the mission board.
           <h3 class="trace3-confirm-title">STEP 2. 제출 완료 확인하기</h3>
           <p class="trace3-confirm-copy">새 탭에서 사진 제출을 마친 뒤 이 화면으로 돌아와 아래 버튼을 눌러주세요.</p>
           <button class="trace3-submit" id="t3-submit-btn" type="button" aria-describedby="t3-status t3-confirm-note">
-            <span>제출 완료하고 TRACE 04로 →</span>
+            <span>Trace 03 인증 완료하기 →</span>
           </button>
           
           <p id="t3-status" role="status" aria-live="polite">
@@ -2207,15 +2207,24 @@ function makeFeedback(explanation) {
       }
 
       function hydrateTrace3() {
-        const complete = state.trace3Complete === true;
-        document.getElementById("trace3HeaderState").textContent = complete ? "SECURED" : "OPEN";
-        const button = document.getElementById("t3-submit-btn");
-        button.disabled = trace3Pending;
-        button.textContent = complete ? "Trace 03 인증 완료하기 →" : "제출 완료하고 TRACE 04로 →";
-        setTrace3Status(complete
-          ? "* 제출한 내용은 확인 후 Trace 03 참여 기록에 반영됩니다."
-          : "제출을 마쳤다면 완료 버튼을 눌러 다음 미션으로 이동해 주세요.");
-      }
+  const complete = state.trace3Complete === true;
+
+  document.getElementById("trace3HeaderState").textContent =
+    complete ? "SECURED" : "OPEN";
+
+  const button = document.getElementById("t3-submit-btn");
+  button.disabled = trace3Pending;
+
+  button.textContent = complete
+    ? "TRACE 04로 이동하기 →"
+    : "Trace 03 인증 완료하기 →";
+
+  setTrace3Status(
+    complete
+      ? "* 제출한 내용은 확인 후 Trace 03 참여 기록에 반영됩니다."
+      : "사진 제출을 마쳤다면 ‘Trace 03 인증 완료하기’ 버튼을 눌러주세요."
+  );
+}
 
       function updateDnaSignal() {
         const value = rangerCodeInput.value.trim();
@@ -2876,7 +2885,7 @@ function makeFeedback(explanation) {
         trace1Submit.disabled = false;
         trace1Submit.textContent = "Trace 01 완료하기";
         document.getElementById("t3-submit-btn").disabled = false;
-        document.getElementById("t3-submit-btn").textContent = "제출 완료하고 TRACE 04로 →";
+        document.getElementById("t3-submit-btn").textContent = "Trace 03 인증 완료하기 →";
         setTrace3Status("캐치시큐에서 사진 제출을 마쳤다면 완료 버튼을 눌러주세요.");
         document.getElementById("finalPopup").classList.remove("active");
         document.querySelectorAll('.code-input, .question-input, .cat-btn, .insta-btn').forEach(el => el.style.pointerEvents = 'auto');
