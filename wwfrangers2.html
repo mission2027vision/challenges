@@ -1037,7 +1037,7 @@ The journey ends at TRACE 04 and returns to the mission board.
             <button class="cat-btn" type="button" data-category="레인저스 미션" aria-pressed="false">📝 레인저스 미션</button>
             <button class="cat-btn" type="button" data-category="기타" aria-pressed="false">🤔 기타</button>
           </div>
-          <a id="rangerQuestionLink" class="question-input question-link" href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=4_I-hC_LHkKfic990TqP3zX0g349jLJNgFGxwX-8pMRUMVNJVU1XSFpOUEFFN1M1REZaSThQTkg4MS4u&route=shorturl" target="_blank" rel="noopener noreferrer">
+          <a id="rangerQuestionLink" class="question-input question-link" href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=4_I-hC_LHkKfic990TqP3zX0g349jLJNgFGxwX-8pMRUMVNJVU1XSFpOUEFFN1M1REZaSThQTkg4MS4u&route=shorturl">
             <span>💡 앞으로 레인저스에서 함께하고 싶은 활동이나 새로운 미션 아이디어를 들려주세요!</span>
             <span class="question-link-action">의견 남기기 ↗</span>
           </a>
@@ -2181,68 +2181,17 @@ function makeFeedback(explanation) {
         }
       }
 
-      // Keep unfinished TRACE 01 input in this tab when opening Forms or reloading.
-      const TRACE1_DRAFT_KEY = `${STORAGE_KEY}_trace1_draft`;
-      let trace1Draft = null;
-
-      function clearTrace1Draft() {
-        trace1Draft = null;
-        try { sessionStorage.removeItem(TRACE1_DRAFT_KEY); } catch (error) {}
-      }
-
-      function trace1DraftBase() {
-        return JSON.stringify([state.introSeen, state.trace1Complete,
-          state.rangerCode, state.trace1LocalConfirmedAt]);
-      }
-
-      function saveTrace1Draft() {
-        trace1Draft = {
-          baseState: trace1DraftBase(),
-          code: rangerCodeInput.value,
-          pledged: pledgeStamped,
-          category: selectedCategory
-        };
-        try {
-          sessionStorage.setItem(TRACE1_DRAFT_KEY, JSON.stringify(trace1Draft));
-        } catch (error) {
-          // Keep the in-memory draft if browser storage is unavailable.
-        }
-      }
-
-      function readTrace1Draft() {
-        let draft = trace1Draft;
-        if (!draft) {
-          try {
-            draft = JSON.parse(sessionStorage.getItem(TRACE1_DRAFT_KEY) || "null");
-          } catch (error) { return null; }
-        }
-        if (!draft) return null;
-        if (draft.baseState !== trace1DraftBase()
-          || typeof draft.code !== "string" || draft.code.length > 6
-          || typeof draft.pledged !== "boolean"
-          || !["바다거북 보전", "WWF 활동", "레인저스 미션", "기타"].includes(draft.category)) {
-          // A reset or code registration in another tab supersedes this draft.
-          clearTrace1Draft();
-          return null;
-        }
-        trace1Draft = draft;
-        return draft;
-      }
-
       function hydrateTrace1() {
-        const draft = readTrace1Draft();
-        rangerCodeInput.value = draft ? draft.code : state.rangerCode || "";
-        pledgeStamped = draft
-          ? draft.pledged && /^[ACGT]{6}$/.test(draft.code)
-          : state.trace1Complete === true;
-        selectedCategory = draft ? draft.category : state.trace1Category || "바다거북 보전";
+        rangerCodeInput.value = state.rangerCode || "";
+        pledgeStamped = state.trace1Complete === true;
+        selectedCategory = state.trace1Category || "바다거북 보전";
         document.querySelectorAll("#trace1Screen .cat-btn").forEach(button => {
           const active = button.dataset.category === selectedCategory;
           button.classList.toggle("active", active);
           button.setAttribute("aria-pressed", String(active));
         });
         updateDnaSignal();
-        document.getElementById("successCard").classList.toggle("show", state.trace1Complete && rangerCodeInput.value === state.rangerCode);
+        document.getElementById("successCard").classList.toggle("show", state.trace1Complete);
         document.getElementById("displayCode").textContent = state.rangerCode;
         document.getElementById("phoneUI").style.display = "flex";
         document.getElementById("trace1HeaderState").textContent = state.trace1Complete ? "SECURED" : "OPEN";
@@ -2328,7 +2277,6 @@ function makeFeedback(explanation) {
         const saved = persistState(nextState);
         trace1Pending = false;
         if (!saved) { updateDnaSignal(); return; }
-        clearTrace1Draft();
         state = nextState;
         renderVault();
         renderTrace2Progress();
@@ -2918,7 +2866,6 @@ function makeFeedback(explanation) {
         if (!window.confirm("이 브라우저의 TRACE 01~04 진행 기록을 초기화할까요? Forms에 제출한 응답은 유지됩니다.")) return;
         const nextState = { ...defaultState, trace2Solved: [] };
         if (!persistState(nextState)) return;
-        clearTrace1Draft();
         cancelPendingJourney();
         state = nextState;
         hydrateTrace1();
@@ -2946,10 +2893,8 @@ function makeFeedback(explanation) {
 
       function syncJourneyFromStorage(event) {
         if (event && event.type === "storage" && event.key !== null && event.key !== STORAGE_KEY) return;
-        if (currentScreen === "trace1") saveTrace1Draft();
         cancelPendingJourney();
         state = loadState();
-        readTrace1Draft();
         renderVault();
         renderTrace2Progress();
         updateMarkers();
@@ -2981,8 +2926,7 @@ function makeFeedback(explanation) {
       }
 
       function routeFromHash() {
-        if (location.hash === "#trace1" || location.hash === "#trace-01") showScreen("trace1");
-        else if (location.hash === "#trace-04") showScreen("trace4");
+        if (location.hash === "#trace-04") showScreen("trace4");
         else if (location.hash === "#vault") showScreen("vault");
         else if (location.hash === "#trace2" || location.hash === "#trace-02") showScreen("trace2");
         else if (location.hash === "#trace3" || location.hash === "#trace-03") showScreen("trace3");
@@ -3010,20 +2954,11 @@ function makeFeedback(explanation) {
 
         document.getElementById("resetJourney").addEventListener("click", resetJourney);
 
-        const trace1FormLink = document.getElementById("rangerQuestionLink");
-        trace1FormLink.target = "_blank";
-        trace1FormLink.rel = "noopener noreferrer";
-        trace1FormLink.addEventListener("click", saveTrace1Draft);
-        window.addEventListener("pagehide", () => {
-          if (currentScreen === "trace1") saveTrace1Draft();
-        });
-
         rangerCodeInput.addEventListener("input", function() {
           this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
           pledgeStamped = state.trace1Complete && this.value === state.rangerCode;
           document.getElementById("successCard").classList.remove("show");
           updateDnaSignal();
-          saveTrace1Draft();
         });
 
         document.querySelectorAll(".cat-btn").forEach((button) => {
@@ -3033,7 +2968,6 @@ function makeFeedback(explanation) {
               item.classList.toggle("active", item === button);
               item.setAttribute("aria-pressed", String(item === button));
             });
-            saveTrace1Draft();
           });
         });
 
@@ -3044,7 +2978,6 @@ function makeFeedback(explanation) {
           }
           pledgeStamped = true;
           updateDnaSignal();
-          saveTrace1Draft();
           navigator.vibrate?.(45);
         });
 
@@ -3102,7 +3035,7 @@ function makeFeedback(explanation) {
       renderTrace2Progress();
       updateDnaSignal();
       if (migrationPending && persistState(state)) migrationPending = false;
-      if (["#trace1", "#trace-01", "#trace-04", "#vault", "#trace2", "#trace-02", "#trace3", "#trace-03"].includes(location.hash)) routeFromHash();
+      if (["#trace-04", "#vault", "#trace2", "#trace-02", "#trace3", "#trace-03"].includes(location.hash)) routeFromHash();
       else showScreen("intro");
     })();
   </script>
