@@ -3101,7 +3101,7 @@ function makeFeedback(explanation) {
       renderVault();
       renderTrace2Progress();
       updateDnaSignal();
-      if (migrationPending && persistState(state)) migrationPending = false;
+      if (migrationPendaing && persistState(state)) migrationPending = false;
       if (["#trace1", "#trace-01", "#trace-04", "#vault", "#trace2", "#trace-02", "#trace3", "#trace-03"].includes(location.hash)) routeFromHash();
       else showScreen("intro");
     })();
